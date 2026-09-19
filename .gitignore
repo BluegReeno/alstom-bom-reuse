@@ -1,0 +1,11 @@
+# Local interview preparation notes: never versioned
+prep/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# OS
+.DS_Store
