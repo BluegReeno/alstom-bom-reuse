@@ -93,5 +93,6 @@ from A and B, the bike module reused from B, only the anchorage new.
 
 ## Status
 
-- 2026-09-19 — directory prepared: CLAUDE.md, CONTEXT.md, DECISIONS.md, case brief. No git
-  repository yet: `git init` and the first commit start the 4-hour build clock.
+- 2026-09-19 — framing committed: CLAUDE.md, CONTEXT.md, DECISIONS.md, README (problem
+  statement, data requirements), case brief. The 4-hour build clock starts at the PRD commit
+  (decision 16).
