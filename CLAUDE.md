@@ -12,6 +12,12 @@ technical notes, normalizes them into a simple entity model, and answers one cli
 > Which sub-assemblies are reused — or reusable — across train variants, and where are the
 > inconsistencies?
 
+The problem it solves, as stated in `README.md`: **for a given variant, identify every
+sub-assembly that already exists in the other variants — identical, or reusable with a known
+diff — and flag the inconsistencies that would make reuse unsafe.** The proof is a backtest:
+the newest variant plays the new tender, and the tool is compared with a naive exact-reference
+search. Decomposing a new design for later reuse is out of scope.
+
 It is a **scouting prototype**, not the pilot deliverable. The pilot itself runs on the Cognyx
 platform. This tool shows that the data can be made sense of, that the method is measurable,
 and what the pilot should measure. The brief is in `docs/case-brief.md`.

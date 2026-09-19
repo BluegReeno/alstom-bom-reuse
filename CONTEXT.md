@@ -29,6 +29,26 @@ Multi-variant BOM + free-text technical notes, "dirtier than advertised":
 
 Target size: ~500–1,500 BOM lines, 4–6 variants, a few dozen notes.
 
+## What the data must let us prove
+
+The problem (see README): for a given variant, find every sub-assembly that already exists in
+the other variants. The generator is designed backwards from it:
+
+- **Chronology**: each variant has a design date and a context (region, seats, bike spaces,
+  electric / bi-mode). The newest is the "new tender" for the backtest.
+- **Hidden reuse**: some sub-assemblies of the newest variant are identical in content to older
+  ones but carry new or typo'd references, so an exact-reference search misses them.
+- **Near-reuse**: some differ from an older sub-assembly by 1–3 parts (e.g. the bike module
+  with 2 fewer hooks).
+- **Genuinely new**: some are new (e.g. a new anchorage). These negatives make precision mean
+  something.
+- **Unsafe reuse**: at least one matched older sub-assembly contains a part a note declares
+  obsolete or replaced: "reusable, but check".
+- **Backtest ground truth**: for each sub-assembly of the newest variant, the expected answer —
+  existing equivalent (with its id), reusable (with the diff), or new.
+- **Baseline**: `evaluate` compares the tool with a naive exact-reference search on the same
+  data. The gap is the measured value; no invented figure.
+
 ## Domain vocabulary
 
 Regional train car sub-assemblies: carbody shell, motor and trailer bogies, traction
