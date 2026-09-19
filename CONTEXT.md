@@ -27,7 +27,18 @@ Multi-variant BOM + free-text technical notes, "dirtier than advertised":
 - the newest variant re-designs sub-assemblies that already existed in older ones — a
   miniature of the pilot's main success criterion (backtest on a past tender).
 
-Target size: ~500–1,500 BOM lines, 4–6 variants, a few dozen notes.
+Target size: 4–6 variants of a regional-train intermediate car, ~100–250 BOM lines each
+(~500–1,500 in total), ~40 notes.
+
+- **What a variant is**: one intermediate-car configuration (standard, bike car, bi-mode, other
+  regions), not a whole trainset.
+- **The story**: A (standard), B (bike car), C (newest: a bike car for a new region). The other
+  1–3 variants make the reuse statistics meaningful.
+- **C is an eBOM**, as designed. Its spec (region, seats, bike spaces, date) is variant
+  metadata, used for the story and optionally for the 2 % bike-space rule; the tool matches
+  sub-assemblies, not requirements.
+- **No engineer review in the build**: the pilot's loop where rejected matches become test
+  cases is replaced by the ground truth.
 
 ## What the data must let us prove
 

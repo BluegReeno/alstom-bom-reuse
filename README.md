@@ -45,8 +45,14 @@ Primary user: the design engineer preparing a tender.
 The dataset is designed backwards from the problem: each property exists so that one claim can
 be measured.
 
-- Variants with a chronology (design date, region, seats, bike spaces, traction). The newest is
-  the "new tender".
+- 4–6 variants of a regional-train **intermediate car** (standard, bike car, bi-mode, other
+  regions), ~100–250 BOM lines each, with a chronology (design date, region, seats, bike
+  spaces, traction). Three carry the story: A (standard), B (bike car) and C, the newest — a
+  bike car for a new region, playing the "new tender".
+- C is a full eBOM, as designed. Its spec (region, seats, bike spaces, date) is variant
+  metadata: the tool matches sub-assemblies, not requirements.
+- Costs and suppliers per component, with conflicts across variants; ~40 technical notes in
+  French and English.
 - Hidden reuse: sub-assemblies of the newest variant identical in content to older ones, under
   new or typo'd references.
 - Near-reuse: sub-assemblies differing from an older one by 1–3 parts.
