@@ -1,15 +1,16 @@
 # STATUS — alstom-bom-reuse
 
-Last updated: 2026-09-19
+Last updated: 2026-09-20
 
 ## Current Focus
-Framing committed; the 4-hour build starts at the PRD commit (session Tuesday 22/09).
+Build clock running: it started at the PRD commit (decision 16).
 
 ## In Progress
-- [ ] Build 0:00–0:45 — PRD, architecture decision, 6 GitHub issues
+- [ ] Build 0:00–0:45 — PRD (done), architecture decision, 6 GitHub issues
 
 ## Done (current sprint)
 - [x] Framing committed: rules, problem statement, data requirements, 16 decisions — 2026-09-19
+- [x] `docs/PRD.md` — one page, 7 assumptions marked — 2026-09-20
 
 ## Backlog
 - [ ] #1 Synthetic generator + planted defects + ground truth
