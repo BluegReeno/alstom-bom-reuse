@@ -106,7 +106,14 @@ To be filled from `evaluate` output only.
 
 ## Known limits
 
-To be written when the build lands: what was dropped, and why.
+To be completed when the build lands: what was dropped, and why. Known so far:
+
+- **A lone separator is always the decimal mark.** `1,500` and `1.500` are both read as `1.5`,
+  never as fifteen hundred: the comma is the decimal mark of the export (DECISIONS.md 24), and
+  the dot is read the same way. `1.234,56` is refused as ambiguous rather than guessed, so the
+  tool is stricter with two separators than with one. No value of the committed dataset is
+  affected; an export that uses a thousands separator would be misread without an issue being
+  raised.
 
 ## How this was built
 
