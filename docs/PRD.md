@@ -57,14 +57,16 @@ client defines it. Web UI, graph DB, real PLM connector, mandatory LLM, generali
 ## 6. Success criteria
 
 1. `uv run bomreuse evaluate` prints precision and recall per defect type on the default
-   dataset, and the same figures for the naive exact-reference baseline.
+   dataset, and the same figures for the naive exact-reference baseline. **The gap between the
+   two is the only value claim this build makes** (Dec. 3, Dec. 17).
 2. Every planted *reused* case and every *re-designed in the newest variant* case is found by
-   the end-to-end test on a small test-seed dataset.
+   the end-to-end test, on a small dataset generated with a test seed.
 3. The README's Results section contains only numbers `evaluate` computed. (Dec. 3.)
 4. `uv run pytest` green in under 30 s, offline.
 
-No quality floors are set yet: they are written into `DECISIONS.md` from the first real
-measurement, per CLAUDE.md.
+The reuse threshold is fixed in the dataset spec before the data is generated, and is never
+tuned against these scores (Dec. 17). Regression floors are a different thing: they are written
+into `DECISIONS.md` from the first real measurement, per CLAUDE.md.
 
 ## 7. Constraints
 
@@ -80,9 +82,10 @@ report polish.
 - **[A1]** The BOM is two levels: variant → sub-assembly → component. Sub-assembly is the unit
   of reuse and the unit of comparison; nested sub-assemblies are out of scope for this build.
 - **[A2]** A sub-assembly signature is the multiset of (canonical component, normalized
-  quantity, SI unit) it contains; *reusable* means a signature distance of 1–3 component
-  differences, mirroring the planted near-reuse. The exact threshold is set once the first
-  measurement exists.
+  quantity, SI unit) it contains; *reusable* means a signature distance within the threshold
+  fixed by the dataset spec, written before the data is generated (Dec. 17). The threshold is a
+  contract `generate.py` and `signatures.py` both read; `evaluate` reports against it and never
+  moves it.
 - **[A3]** The naive baseline is: a sub-assembly of the newest variant counts as "already
   exists" only if its raw reference string matches an older variant's raw reference exactly.
 - **[A4]** Defect types scored separately by `evaluate`: duplicate reference, unit conflict,
