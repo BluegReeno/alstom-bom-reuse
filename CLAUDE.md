@@ -165,4 +165,5 @@ other clients. The generic version is a later decision, not part of this build.
 - `docs/case-brief.md` — the case as given.
 - `CONTEXT.md` — pilot context, domain vocabulary, the worked example.
 - `DECISIONS.md` — human decisions, dated.
+- `.claude/PIV-PROCEDURE.md` — the per-issue checklist: which skill, in which conversation, when to clear.
 - `prep/` — local preparation notes, not versioned.
