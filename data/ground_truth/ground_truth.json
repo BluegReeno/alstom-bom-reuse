@@ -1,0 +1,4623 @@
+{
+  "backtest": [
+    {
+      "ancestors": [
+        {
+          "diff": null,
+          "sub_assembly_ref": "SA-0102",
+          "variant_id": "A"
+        },
+        {
+          "diff": null,
+          "sub_assembly_ref": "SA-0102",
+          "variant_id": "B"
+        },
+        {
+          "diff": null,
+          "sub_assembly_ref": "SA-0102",
+          "variant_id": "D"
+        },
+        {
+          "diff": null,
+          "sub_assembly_ref": "SA-0102",
+          "variant_id": "E"
+        }
+      ],
+      "label": "reused",
+      "planted_as": "hidden_reuse",
+      "story_case_id": "trailer_bogie_identical",
+      "sub_assembly_designation": "Trailer bogie",
+      "sub_assembly_ref": "OCC-SA-0302",
+      "unsafe": [],
+      "variant_id": "C"
+    },
+    {
+      "ancestors": [
+        {
+          "diff": null,
+          "sub_assembly_ref": "SA-0103",
+          "variant_id": "A"
+        },
+        {
+          "diff": null,
+          "sub_assembly_ref": "SA-0103",
+          "variant_id": "B"
+        },
+        {
+          "diff": null,
+          "sub_assembly_ref": "SA-0103",
+          "variant_id": "E"
+        }
+      ],
+      "label": "reused",
+      "planted_as": "hidden_reuse",
+      "story_case_id": null,
+      "sub_assembly_designation": "Traction package",
+      "sub_assembly_ref": "OCC-SA-0303",
+      "unsafe": [],
+      "variant_id": "C"
+    },
+    {
+      "ancestors": [
+        {
+          "diff": null,
+          "sub_assembly_ref": "SA-0108",
+          "variant_id": "A"
+        },
+        {
+          "diff": null,
+          "sub_assembly_ref": "SA-0108",
+          "variant_id": "B"
+        },
+        {
+          "diff": null,
+          "sub_assembly_ref": "SA-0108",
+          "variant_id": "D"
+        },
+        {
+          "diff": null,
+          "sub_assembly_ref": "SA-0108",
+          "variant_id": "E"
+        }
+      ],
+      "label": "reused",
+      "planted_as": "hidden_reuse",
+      "story_case_id": null,
+      "sub_assembly_designation": "Interior lighting",
+      "sub_assembly_ref": "OCC-SA-0308",
+      "unsafe": [],
+      "variant_id": "C"
+    },
+    {
+      "ancestors": [
+        {
+          "diff": null,
+          "sub_assembly_ref": "SA-0109",
+          "variant_id": "A"
+        },
+        {
+          "diff": null,
+          "sub_assembly_ref": "SA-0109",
+          "variant_id": "B"
+        },
+        {
+          "diff": null,
+          "sub_assembly_ref": "SA-0109",
+          "variant_id": "D"
+        },
+        {
+          "diff": null,
+          "sub_assembly_ref": "SA-0109",
+          "variant_id": "E"
+        }
+      ],
+      "label": "reused",
+      "planted_as": "hidden_reuse",
+      "story_case_id": null,
+      "sub_assembly_designation": "Floor and wall panels",
+      "sub_assembly_ref": "OCC-SA-0309",
+      "unsafe": [],
+      "variant_id": "C"
+    },
+    {
+      "ancestors": [],
+      "label": "new",
+      "planted_as": "new",
+      "story_case_id": null,
+      "sub_assembly_designation": "Toilet module",
+      "sub_assembly_ref": "OCC-SA-0310",
+      "unsafe": [],
+      "variant_id": "C"
+    },
+    {
+      "ancestors": [
+        {
+          "diff": {
+            "added": [
+              {
+                "quantity": 4.0,
+                "true_component_id": "TRUE-0036",
+                "unit": "pcs"
+              },
+              {
+                "quantity": 2.0,
+                "true_component_id": "TRUE-0046",
+                "unit": "pcs"
+              }
+            ],
+            "quantity_changed": [
+              {
+                "left": 8.0,
+                "right": 10.0,
+                "true_component_id": "TRUE-0044",
+                "unit": "pcs"
+              }
+            ],
+            "removed": [
+              {
+                "quantity": 4.0,
+                "true_component_id": "TRUE-0035",
+                "unit": "pcs"
+              }
+            ]
+          },
+          "sub_assembly_ref": "SA-0111",
+          "variant_id": "A"
+        },
+        {
+          "diff": {
+            "added": [
+              {
+                "quantity": 4.0,
+                "true_component_id": "TRUE-0036",
+                "unit": "pcs"
+              },
+              {
+                "quantity": 2.0,
+                "true_component_id": "TRUE-0046",
+                "unit": "pcs"
+              }
+            ],
+            "quantity_changed": [
+              {
+                "left": 8.0,
+                "right": 10.0,
+                "true_component_id": "TRUE-0044",
+                "unit": "pcs"
+              }
+            ],
+            "removed": [
+              {
+                "quantity": 4.0,
+                "true_component_id": "TRUE-0035",
+                "unit": "pcs"
+              }
+            ]
+          },
+          "sub_assembly_ref": "SA-0111",
+          "variant_id": "B"
+        },
+        {
+          "diff": {
+            "added": [
+              {
+                "quantity": 4.0,
+                "true_component_id": "TRUE-0036",
+                "unit": "pcs"
+              },
+              {
+                "quantity": 2.0,
+                "true_component_id": "TRUE-0046",
+                "unit": "pcs"
+              }
+            ],
+            "quantity_changed": [
+              {
+                "left": 8.0,
+                "right": 10.0,
+                "true_component_id": "TRUE-0044",
+                "unit": "pcs"
+              }
+            ],
+            "removed": [
+              {
+                "quantity": 4.0,
+                "true_component_id": "TRUE-0035",
+                "unit": "pcs"
+              }
+            ]
+          },
+          "sub_assembly_ref": "SA-0111",
+          "variant_id": "D"
+        },
+        {
+          "diff": {
+            "added": [
+              {
+                "quantity": 4.0,
+                "true_component_id": "TRUE-0036",
+                "unit": "pcs"
+              },
+              {
+                "quantity": 2.0,
+                "true_component_id": "TRUE-0046",
+                "unit": "pcs"
+              }
+            ],
+            "quantity_changed": [
+              {
+                "left": 8.0,
+                "right": 10.0,
+                "true_component_id": "TRUE-0044",
+                "unit": "pcs"
+              }
+            ],
+            "removed": [
+              {
+                "quantity": 4.0,
+                "true_component_id": "TRUE-0035",
+                "unit": "pcs"
+              }
+            ]
+          },
+          "sub_assembly_ref": "SA-0111",
+          "variant_id": "E"
+        }
+      ],
+      "label": "reusable",
+      "planted_as": "near_reuse",
+      "story_case_id": "passenger_door_set_reusable",
+      "sub_assembly_designation": "Passenger door set",
+      "sub_assembly_ref": "OCC-SA-0311",
+      "unsafe": [],
+      "variant_id": "C"
+    },
+    {
+      "ancestors": [
+        {
+          "diff": {
+            "added": [
+              {
+                "quantity": 2.0,
+                "true_component_id": "TRUE-0053",
+                "unit": "pcs"
+              },
+              {
+                "quantity": 2.0,
+                "true_component_id": "TRUE-0054",
+                "unit": "pcs"
+              }
+            ],
+            "quantity_changed": [
+              {
+                "left": 6.0,
+                "right": 4.0,
+                "true_component_id": "TRUE-0052",
+                "unit": "pcs"
+              }
+            ],
+            "removed": []
+          },
+          "sub_assembly_ref": "SA-0112",
+          "variant_id": "A"
+        },
+        {
+          "diff": {
+            "added": [
+              {
+                "quantity": 2.0,
+                "true_component_id": "TRUE-0054",
+                "unit": "pcs"
+              }
+            ],
+            "quantity_changed": [],
+            "removed": []
+          },
+          "sub_assembly_ref": "SA-0212",
+          "variant_id": "B"
+        },
+        {
+          "diff": {
+            "added": [
+              {
+                "quantity": 2.0,
+                "true_component_id": "TRUE-0053",
+                "unit": "pcs"
+              },
+              {
+                "quantity": 2.0,
+                "true_component_id": "TRUE-0054",
+                "unit": "pcs"
+              }
+            ],
+            "quantity_changed": [
+              {
+                "left": 6.0,
+                "right": 4.0,
+                "true_component_id": "TRUE-0052",
+                "unit": "pcs"
+              }
+            ],
+            "removed": []
+          },
+          "sub_assembly_ref": "SA-0112",
+          "variant_id": "D"
+        },
+        {
+          "diff": {
+            "added": [
+              {
+                "quantity": 2.0,
+                "true_component_id": "TRUE-0053",
+                "unit": "pcs"
+              },
+              {
+                "quantity": 2.0,
+                "true_component_id": "TRUE-0054",
+                "unit": "pcs"
+              }
+            ],
+            "quantity_changed": [
+              {
+                "left": 6.0,
+                "right": 4.0,
+                "true_component_id": "TRUE-0052",
+                "unit": "pcs"
+              }
+            ],
+            "removed": []
+          },
+          "sub_assembly_ref": "SA-0112",
+          "variant_id": "E"
+        }
+      ],
+      "label": "reusable",
+      "planted_as": "near_reuse",
+      "story_case_id": null,
+      "sub_assembly_designation": "Passenger information system",
+      "sub_assembly_ref": "OCC-SA-0312",
+      "unsafe": [],
+      "variant_id": "C"
+    },
+    {
+      "ancestors": [],
+      "label": "new",
+      "planted_as": "new",
+      "story_case_id": "floor_wall_anchorage_new",
+      "sub_assembly_designation": "Floor and wall anchorage",
+      "sub_assembly_ref": "OCC-SA-0314",
+      "unsafe": [],
+      "variant_id": "C"
+    },
+    {
+      "ancestors": [
+        {
+          "diff": {
+            "added": [],
+            "quantity_changed": [
+              {
+                "left": 8.0,
+                "right": 6.0,
+                "true_component_id": "TRUE-0071",
+                "unit": "pcs"
+              },
+              {
+                "left": 8.0,
+                "right": 6.0,
+                "true_component_id": "TRUE-0073",
+                "unit": "pcs"
+              }
+            ],
+            "removed": []
+          },
+          "sub_assembly_ref": "SA-0215",
+          "variant_id": "B"
+        }
+      ],
+      "label": "reusable",
+      "planted_as": "near_reuse",
+      "story_case_id": "bike_module_two_fewer_hooks",
+      "sub_assembly_designation": "Bike module",
+      "sub_assembly_ref": "OCC-SA-0315",
+      "unsafe": [
+        {
+          "note_id": "N013",
+          "true_component_id": "TRUE-0073"
+        }
+      ],
+      "variant_id": "C"
+    },
+    {
+      "ancestors": [
+        {
+          "diff": null,
+          "sub_assembly_ref": "SA-0101",
+          "variant_id": "A"
+        },
+        {
+          "diff": null,
+          "sub_assembly_ref": "SA-0101",
+          "variant_id": "B"
+        },
+        {
+          "diff": null,
+          "sub_assembly_ref": "SA-0101",
+          "variant_id": "D"
+        },
+        {
+          "diff": null,
+          "sub_assembly_ref": "SA-0101",
+          "variant_id": "E"
+        }
+      ],
+      "label": "reused",
+      "planted_as": "open_reuse",
+      "story_case_id": null,
+      "sub_assembly_designation": "Carbody shell",
+      "sub_assembly_ref": "SA-0101",
+      "unsafe": [],
+      "variant_id": "C"
+    },
+    {
+      "ancestors": [
+        {
+          "diff": null,
+          "sub_assembly_ref": "SA-0104",
+          "variant_id": "A"
+        },
+        {
+          "diff": null,
+          "sub_assembly_ref": "SA-0104",
+          "variant_id": "B"
+        },
+        {
+          "diff": null,
+          "sub_assembly_ref": "SA-0104",
+          "variant_id": "D"
+        },
+        {
+          "diff": null,
+          "sub_assembly_ref": "SA-0104",
+          "variant_id": "E"
+        }
+      ],
+      "label": "reused",
+      "planted_as": "open_reuse",
+      "story_case_id": null,
+      "sub_assembly_designation": "HVAC unit",
+      "sub_assembly_ref": "SA-0104",
+      "unsafe": [],
+      "variant_id": "C"
+    },
+    {
+      "ancestors": [
+        {
+          "diff": null,
+          "sub_assembly_ref": "SA-0105",
+          "variant_id": "A"
+        },
+        {
+          "diff": null,
+          "sub_assembly_ref": "SA-0105",
+          "variant_id": "B"
+        },
+        {
+          "diff": null,
+          "sub_assembly_ref": "SA-0105",
+          "variant_id": "D"
+        },
+        {
+          "diff": null,
+          "sub_assembly_ref": "SA-0105",
+          "variant_id": "E"
+        }
+      ],
+      "label": "reused",
+      "planted_as": "open_reuse",
+      "story_case_id": null,
+      "sub_assembly_designation": "Braking unit",
+      "sub_assembly_ref": "SA-0105",
+      "unsafe": [],
+      "variant_id": "C"
+    },
+    {
+      "ancestors": [
+        {
+          "diff": null,
+          "sub_assembly_ref": "SA-0106",
+          "variant_id": "A"
+        },
+        {
+          "diff": null,
+          "sub_assembly_ref": "SA-0106",
+          "variant_id": "B"
+        },
+        {
+          "diff": null,
+          "sub_assembly_ref": "SA-0106",
+          "variant_id": "D"
+        },
+        {
+          "diff": null,
+          "sub_assembly_ref": "SA-0106",
+          "variant_id": "E"
+        }
+      ],
+      "label": "reused",
+      "planted_as": "open_reuse",
+      "story_case_id": null,
+      "sub_assembly_designation": "Gangway and couplers",
+      "sub_assembly_ref": "SA-0106",
+      "unsafe": [],
+      "variant_id": "C"
+    },
+    {
+      "ancestors": [
+        {
+          "diff": {
+            "added": [
+              {
+                "quantity": 4.0,
+                "true_component_id": "TRUE-0061",
+                "unit": "pcs"
+              }
+            ],
+            "quantity_changed": [
+              {
+                "left": 24.0,
+                "right": 16.0,
+                "true_component_id": "TRUE-0055",
+                "unit": "pcs"
+              },
+              {
+                "left": 24.0,
+                "right": 16.0,
+                "true_component_id": "TRUE-0057",
+                "unit": "pcs"
+              }
+            ],
+            "removed": []
+          },
+          "sub_assembly_ref": "SA-0113",
+          "variant_id": "A"
+        },
+        {
+          "diff": {
+            "added": [],
+            "quantity_changed": [
+              {
+                "left": 18.0,
+                "right": 16.0,
+                "true_component_id": "TRUE-0055",
+                "unit": "pcs"
+              },
+              {
+                "left": 18.0,
+                "right": 16.0,
+                "true_component_id": "TRUE-0057",
+                "unit": "pcs"
+              }
+            ],
+            "removed": []
+          },
+          "sub_assembly_ref": "SA-0213",
+          "variant_id": "B"
+        },
+        {
+          "diff": {
+            "added": [
+              {
+                "quantity": 4.0,
+                "true_component_id": "TRUE-0061",
+                "unit": "pcs"
+              }
+            ],
+            "quantity_changed": [
+              {
+                "left": 24.0,
+                "right": 16.0,
+                "true_component_id": "TRUE-0055",
+                "unit": "pcs"
+              },
+              {
+                "left": 24.0,
+                "right": 16.0,
+                "true_component_id": "TRUE-0057",
+                "unit": "pcs"
+              }
+            ],
+            "removed": []
+          },
+          "sub_assembly_ref": "SA-0113",
+          "variant_id": "D"
+        },
+        {
+          "diff": {
+            "added": [
+              {
+                "quantity": 4.0,
+                "true_component_id": "TRUE-0061",
+                "unit": "pcs"
+              }
+            ],
+            "quantity_changed": [
+              {
+                "left": 22.0,
+                "right": 16.0,
+                "true_component_id": "TRUE-0055",
+                "unit": "pcs"
+              },
+              {
+                "left": 22.0,
+                "right": 16.0,
+                "true_component_id": "TRUE-0057",
+                "unit": "pcs"
+              }
+            ],
+            "removed": []
+          },
+          "sub_assembly_ref": "SA-0513",
+          "variant_id": "E"
+        }
+      ],
+      "label": "reusable",
+      "planted_as": "ref_reused_content_changed",
+      "story_case_id": null,
+      "sub_assembly_designation": "Seating module",
+      "sub_assembly_ref": "SA-0213",
+      "unsafe": [],
+      "variant_id": "C"
+    },
+    {
+      "ancestors": [
+        {
+          "diff": null,
+          "sub_assembly_ref": "SA-0107",
+          "variant_id": "A"
+        },
+        {
+          "diff": null,
+          "sub_assembly_ref": "SA-0107",
+          "variant_id": "B"
+        },
+        {
+          "diff": null,
+          "sub_assembly_ref": "SA-0107",
+          "variant_id": "D"
+        },
+        {
+          "diff": null,
+          "sub_assembly_ref": "SA-0107",
+          "variant_id": "E"
+        }
+      ],
+      "label": "reused",
+      "planted_as": "hidden_reuse",
+      "story_case_id": null,
+      "sub_assembly_designation": "Auxiliary converter",
+      "sub_assembly_ref": "SA-O107",
+      "unsafe": [
+        {
+          "note_id": "N006",
+          "true_component_id": "TRUE-0114"
+        }
+      ],
+      "variant_id": "C"
+    }
+  ],
+  "components": [
+    {
+      "base_unit": "pcs",
+      "designation": "Underframe, welded aluminium",
+      "raw_references": [
+        "SHELL-UNDERFRAME"
+      ],
+      "true_component_id": "TRUE-0001"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Sidewall panel, extruded",
+      "raw_references": [
+        "SHELL-SIDEWALL",
+        "SHELLSIDEWALL"
+      ],
+      "true_component_id": "TRUE-0002"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Roof assembly",
+      "raw_references": [
+        "SHELL-ROOF"
+      ],
+      "true_component_id": "TRUE-0003"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Endwall frame",
+      "raw_references": [
+        "SHELL-ENDWALL"
+      ],
+      "true_component_id": "TRUE-0004"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Equipment bracket kit",
+      "raw_references": [
+        "SHELL-BRACKET-KIT"
+      ],
+      "true_component_id": "TRUE-0005"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Carbody joint seal",
+      "raw_references": [
+        "SHELL-SEAL"
+      ],
+      "true_component_id": "TRUE-0006"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Trailer bogie frame",
+      "raw_references": [
+        "BOGIE-FRAME"
+      ],
+      "true_component_id": "TRUE-0007"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Wheelset, 840 mm",
+      "raw_references": [
+        "BOGIE-WHEELSET"
+      ],
+      "true_component_id": "TRUE-0008"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Primary suspension spring set",
+      "raw_references": [
+        "BOGIE-PRIMARY-SUSP"
+      ],
+      "true_component_id": "TRUE-0009"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Secondary air spring",
+      "raw_references": [
+        "BOGIE-AIRSPRING",
+        "BOGlE-AIRSPRING"
+      ],
+      "true_component_id": "TRUE-0010"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Brake caliper unit",
+      "raw_references": [
+        "BOGIE-BRAKE-CALIPER"
+      ],
+      "true_component_id": "TRUE-0011"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Hydraulic damper",
+      "raw_references": [
+        "BOGIE-DAMPER"
+      ],
+      "true_component_id": "TRUE-0012"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Axlebox with bearing",
+      "raw_references": [
+        "BOGIE-AXLEBOX"
+      ],
+      "true_component_id": "TRUE-0013"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Main traction converter",
+      "raw_references": [
+        "TRAC-CONV-MAIN"
+      ],
+      "true_component_id": "TRUE-0014"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Main transformer 25 kV",
+      "raw_references": [
+        "TRAC-TRANSFORMER"
+      ],
+      "true_component_id": "TRUE-0015"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Asynchronous traction motor",
+      "raw_references": [
+        "TRAC-MOTOR"
+      ],
+      "true_component_id": "TRUE-0016"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Converter cooling unit",
+      "raw_references": [
+        "TRAC-COOLING-UNIT"
+      ],
+      "true_component_id": "TRUE-0017"
+    },
+    {
+      "base_unit": "m",
+      "designation": "High-voltage cable, shielded",
+      "raw_references": [
+        "TRAC-HV-CABLE"
+      ],
+      "true_component_id": "TRUE-0018"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Vacuum circuit breaker",
+      "raw_references": [
+        "TRAC-CIRCUIT-BREAKER"
+      ],
+      "true_component_id": "TRUE-0019"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Earthing switch",
+      "raw_references": [
+        "TRAC-EARTH-SWITCH"
+      ],
+      "true_component_id": "TRUE-0020"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Traction control rack",
+      "raw_references": [
+        "TRAC-CTRL-RACK"
+      ],
+      "true_component_id": "TRUE-0021"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Speed and current sensor kit",
+      "raw_references": [
+        "TRAC-SENSOR-KIT"
+      ],
+      "true_component_id": "TRUE-0022"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Copper busbar",
+      "raw_references": [
+        "TRAC-BUSBAR"
+      ],
+      "true_component_id": "TRUE-0023"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Roof insulator",
+      "raw_references": [
+        "TRAC-1NSULAT0R",
+        "TRAC-INSULAT0R",
+        "TRAC-INSULATOR"
+      ],
+      "true_component_id": "TRUE-0024"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Traction equipment fixing kit",
+      "raw_references": [
+        "TRAC-FIX-KIT"
+      ],
+      "true_component_id": "TRUE-0025"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Diesel generator set",
+      "raw_references": [
+        "TRAC-DIESEL-GENSET"
+      ],
+      "true_component_id": "TRUE-0026"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Fuel tank 1200 l",
+      "raw_references": [
+        "TRAC-FUEL-TANK"
+      ],
+      "true_component_id": "TRUE-0027"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Exhaust and after-treatment kit",
+      "raw_references": [
+        "TRAC-EXHAUST-KIT"
+      ],
+      "true_component_id": "TRUE-0028"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Sliding-plug door leaf",
+      "raw_references": [
+        "DOOR-LEAF"
+      ],
+      "true_component_id": "TRUE-0029"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Door drive unit",
+      "raw_references": [
+        "DOOR-DRIVE-UNIT"
+      ],
+      "true_component_id": "TRUE-0030"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Door guide rail",
+      "raw_references": [
+        "DO0R-GU1DE-RAIL",
+        "DOOR-GUIDE-RAIL"
+      ],
+      "true_component_id": "TRUE-0031"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Door leaf seal",
+      "raw_references": [
+        "DOOR-SEAL"
+      ],
+      "true_component_id": "TRUE-0032"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Obstacle detection sensor",
+      "raw_references": [
+        "DOOR-OBSTACLE-SENSOR"
+      ],
+      "true_component_id": "TRUE-0033"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Door control unit",
+      "raw_references": [
+        "DOOR-CTRL-UNIT"
+      ],
+      "true_component_id": "TRUE-0034"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Interior push button",
+      "raw_references": [
+        "DOOR-PUSHBUTTON-INT",
+        "door-pushbutton-int"
+      ],
+      "true_component_id": "TRUE-0035"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Interior push button, LED ring",
+      "raw_references": [
+        "DOOR-PUSHBUTTON-INT-LED"
+      ],
+      "true_component_id": "TRUE-0036"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Exterior push button",
+      "raw_references": [
+        "DOOR-PUSHBUTTON-EXT"
+      ],
+      "true_component_id": "TRUE-0037"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Emergency egress handle",
+      "raw_references": [
+        "DOOR-EMERG-HANDLE"
+      ],
+      "true_component_id": "TRUE-0038"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Step plate",
+      "raw_references": [
+        "DOOR-STEP-PLATE"
+      ],
+      "true_component_id": "TRUE-0039"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Threshold profile",
+      "raw_references": [
+        "DOOR-THRESHOLD"
+      ],
+      "true_component_id": "TRUE-0040"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Door wiring harness",
+      "raw_references": [
+        "DOOR-HARNESS"
+      ],
+      "true_component_id": "TRUE-0041"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Door locking device",
+      "raw_references": [
+        "DOOR-LOCK"
+      ],
+      "true_component_id": "TRUE-0042"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Door end-stop damper",
+      "raw_references": [
+        "DOOR-DAMPER"
+      ],
+      "true_component_id": "TRUE-0043"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Door pictogram",
+      "raw_references": [
+        "DOOR-PICTO"
+      ],
+      "true_component_id": "TRUE-0044"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Door fixing kit",
+      "raw_references": [
+        "DOOR-FIX-KIT"
+      ],
+      "true_component_id": "TRUE-0045"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Platform gap filler",
+      "raw_references": [
+        "DOOR-GAP-FILLER"
+      ],
+      "true_component_id": "TRUE-0046"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Interior TFT display",
+      "raw_references": [
+        "PIS-DISPLAY-INT"
+      ],
+      "true_component_id": "TRUE-0047"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Exterior LED destination display",
+      "raw_references": [
+        "PIS-DISPLAY-EXT"
+      ],
+      "true_component_id": "TRUE-0048"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Saloon loudspeaker",
+      "raw_references": [
+        "PIS SPEAKER",
+        "PIS-SPEAKER"
+      ],
+      "true_component_id": "TRUE-0049"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "PIS controller",
+      "raw_references": [
+        "PIS-CONTROLLER"
+      ],
+      "true_component_id": "TRUE-0050"
+    },
+    {
+      "base_unit": "m",
+      "designation": "PIS cable trunk",
+      "raw_references": [
+        "PIS-CABLE-TRUNK"
+      ],
+      "true_component_id": "TRUE-0051"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Standard signage plate",
+      "raw_references": [
+        "PIS-SIGN-STD"
+      ],
+      "true_component_id": "TRUE-0052"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Bike area signage plate",
+      "raw_references": [
+        "PIS-SIGN-BIKE"
+      ],
+      "true_component_id": "TRUE-0053"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Regional livery signage plate",
+      "raw_references": [
+        "PIS-SIGN-REGION"
+      ],
+      "true_component_id": "TRUE-0054"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Fixed double seat",
+      "raw_references": [
+        "SEAT-FIX-DBL"
+      ],
+      "true_component_id": "TRUE-0055"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Seat mounting rail",
+      "raw_references": [
+        "SEAT-RAIL"
+      ],
+      "true_component_id": "TRUE-0056"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Seat fixing kit",
+      "raw_references": [
+        "SEAT-FIX-KIT"
+      ],
+      "true_component_id": "TRUE-0057"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Fixed table",
+      "raw_references": [
+        "SEAT-TABLE"
+      ],
+      "true_component_id": "TRUE-0058"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Seat-back grab handle",
+      "raw_references": [
+        "SEAT-GRAB-HANDLE"
+      ],
+      "true_component_id": "TRUE-0059"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Seat row end panel",
+      "raw_references": [
+        "SEAT-END-PANEL"
+      ],
+      "true_component_id": "TRUE-0060"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Tip-up seat",
+      "raw_references": [
+        "SEAT-TIPUP"
+      ],
+      "true_component_id": "TRUE-0061"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Floor anchorage rail",
+      "raw_references": [
+        "ANCH-SEAT-RAIL"
+      ],
+      "true_component_id": "TRUE-0062"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Anchorage rail bolt",
+      "raw_references": [
+        "ANCH-RAIL-BOLT"
+      ],
+      "true_component_id": "TRUE-0063"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Floor anchorage plate",
+      "raw_references": [
+        "ANCH-FLOOR-PLATE"
+      ],
+      "true_component_id": "TRUE-0064"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Levelling shim",
+      "raw_references": [
+        "ANCH-SHIM"
+      ],
+      "true_component_id": "TRUE-0065"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Bike hook anchor point",
+      "raw_references": [
+        "ANCH-HOOK-POINT"
+      ],
+      "true_component_id": "TRUE-0066"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Bike zone anchorage plate",
+      "raw_references": [
+        "ANCH-BIKE-PLATE"
+      ],
+      "true_component_id": "TRUE-0067"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Bike zone anchorage bolt",
+      "raw_references": [
+        "ANCH-BIKE-BOLT"
+      ],
+      "true_component_id": "TRUE-0068"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Wall anchorage bracket",
+      "raw_references": [
+        "ANCH-WALL-BRACKET"
+      ],
+      "true_component_id": "TRUE-0069"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Wall reinforcement panel",
+      "raw_references": [
+        "ANCH-REINF-PANEL"
+      ],
+      "true_component_id": "TRUE-0070"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Vertical bike hook",
+      "raw_references": [
+        "BIKE-HOOK"
+      ],
+      "true_component_id": "TRUE-0071"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Bike module carrier rail",
+      "raw_references": [
+        "BIKE-RAIL"
+      ],
+      "true_component_id": "TRUE-0072"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Bike retaining strap",
+      "raw_references": [
+        "BIKE STRAP",
+        "BIKE-STRAP"
+      ],
+      "true_component_id": "TRUE-0073"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Bike rail fixing kit",
+      "raw_references": [
+        "BIKE-FIX-KIT"
+      ],
+      "true_component_id": "TRUE-0074"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Bike zone floor mat",
+      "raw_references": [
+        "BIKE-FLOOR-MAT"
+      ],
+      "true_component_id": "TRUE-0075"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Bike zone pictogram",
+      "raw_references": [
+        "BIKE-PICTO"
+      ],
+      "true_component_id": "TRUE-0076"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Scroll compressor",
+      "raw_references": [
+        "HVAC-COMPRESSOR"
+      ],
+      "true_component_id": "TRUE-0077"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Condenser coil",
+      "raw_references": [
+        "HVAC-CONDENSER"
+      ],
+      "true_component_id": "TRUE-0078"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Evaporator coil",
+      "raw_references": [
+        "HVAC-EVAPORATOR"
+      ],
+      "true_component_id": "TRUE-0079"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Supply air fan",
+      "raw_references": [
+        "HVAC-FAN-SUPPLY"
+      ],
+      "true_component_id": "TRUE-0080"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Fresh air filter G4",
+      "raw_references": [
+        "HVAC-FILTER",
+        "HVAC_FILTER"
+      ],
+      "true_component_id": "TRUE-0081"
+    },
+    {
+      "base_unit": "m",
+      "designation": "Main air duct",
+      "raw_references": [
+        "HVAC-DUCT-MAIN"
+      ],
+      "true_component_id": "TRUE-0082"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "HVAC control board",
+      "raw_references": [
+        "HVAC-CTRL-BOARD"
+      ],
+      "true_component_id": "TRUE-0083"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Saloon temperature sensor",
+      "raw_references": [
+        "HVAC-TEMP-SENSOR"
+      ],
+      "true_component_id": "TRUE-0084"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Air outlet grille type 12",
+      "raw_references": [
+        "HVAC-GRILLE-12",
+        "HVAC-GRILLE-l2",
+        "HVAC-GRlLLE-12"
+      ],
+      "true_component_id": "TRUE-0085"
+    },
+    {
+      "base_unit": "kg",
+      "designation": "Refrigerant R-513A charge",
+      "raw_references": [
+        "HVAC-REFRIGERANT"
+      ],
+      "true_component_id": "TRUE-0086"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Bolt set M8, zinc-nickel",
+      "raw_references": [
+        " Bgi-2031",
+        "BGI 2031",
+        "BGI-2013",
+        "BGI-2031",
+        "BGI-2031 ",
+        "BGI-2O31",
+        "BGI-2O3I",
+        "BGI2031",
+        "BGI_2031",
+        "bgi-2031"
+      ],
+      "true_component_id": "TRUE-0087"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Oil-free air compressor",
+      "raw_references": [
+        "BRK-COMPRESSOR"
+      ],
+      "true_component_id": "TRUE-0088"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Air reservoir 100 l",
+      "raw_references": [
+        "BRK-AIR-TANK"
+      ],
+      "true_component_id": "TRUE-0089"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Brake control valve",
+      "raw_references": [
+        "BRK-CTRL-VALVE",
+        "BRK-CTRL-VALVE "
+      ],
+      "true_component_id": "TRUE-0090"
+    },
+    {
+      "base_unit": "m",
+      "designation": "Brake pipe, stainless",
+      "raw_references": [
+        "BRK-PIPE-STEEL"
+      ],
+      "true_component_id": "TRUE-0091"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Flexible brake hose",
+      "raw_references": [
+        "BRK-HOSE-FLEX"
+      ],
+      "true_component_id": "TRUE-0092"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Air dryer",
+      "raw_references": [
+        "BRK-DRYER"
+      ],
+      "true_component_id": "TRUE-0093"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Pressure transducer",
+      "raw_references": [
+        "BRK-PRESSURE-SENSOR"
+      ],
+      "true_component_id": "TRUE-0094"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Brake electronic control unit",
+      "raw_references": [
+        "BRK-ECU"
+      ],
+      "true_component_id": "TRUE-0095"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Parking brake actuator",
+      "raw_references": [
+        "BRK-PARKING-ACT"
+      ],
+      "true_component_id": "TRUE-0096"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Pipe support bracket",
+      "raw_references": [
+        "BRK-BRACKET"
+      ],
+      "true_component_id": "TRUE-0097"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Gangway bellows",
+      "raw_references": [
+        "GANG-BELLOWS"
+      ],
+      "true_component_id": "TRUE-0098"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Gangway frame",
+      "raw_references": [
+        "GANG-FRAME"
+      ],
+      "true_component_id": "TRUE-0099"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Gangway bridge plate",
+      "raw_references": [
+        "GANG-BRIDGE-PLATE"
+      ],
+      "true_component_id": "TRUE-0100"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Floor rail, stainless steel",
+      "raw_references": [
+        "SEAT-RAIL-I"
+      ],
+      "true_component_id": "TRUE-0101"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Mounting rail, aluminium, mark 1",
+      "raw_references": [
+        "SEAT-RAIL-1"
+      ],
+      "true_component_id": "TRUE-0102"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Gangway door seal, outer",
+      "raw_references": [
+        "DOOR-SEAL-O"
+      ],
+      "true_component_id": "TRUE-0103"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Inner door seal, revision 0",
+      "raw_references": [
+        "DOOR-SEAL-0"
+      ],
+      "true_component_id": "TRUE-0104"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Air outlet grille, left-hand",
+      "raw_references": [
+        "HVAC-GRILLE-1L"
+      ],
+      "true_component_id": "TRUE-0105"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Wall ventilation grille type 11",
+      "raw_references": [
+        "HVAC-GRILLE-11"
+      ],
+      "true_component_id": "TRUE-0106"
+    },
+    {
+      "base_unit": "m",
+      "designation": "Gangway seal profile",
+      "raw_references": [
+        "GANG-SEAL-PROFILE"
+      ],
+      "true_component_id": "TRUE-0107"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Semi-permanent coupler",
+      "raw_references": [
+        "COUP-SEMI-PERM"
+      ],
+      "true_component_id": "TRUE-0108"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Draft gear",
+      "raw_references": [
+        "COUP-DRAFT-GEAR"
+      ],
+      "true_component_id": "TRUE-0109"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Electrical coupler head",
+      "raw_references": [
+        "COUP-ELEC-HEAD"
+      ],
+      "true_component_id": "TRUE-0110"
+    },
+    {
+      "base_unit": "m",
+      "designation": "Inter-car jumper cable",
+      "raw_references": [
+        "COUP-JUMPER-CABLE"
+      ],
+      "true_component_id": "TRUE-0111"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Gangway handrail",
+      "raw_references": [
+        "GANG-HANDRAIL",
+        "GANG-HANDRAlL"
+      ],
+      "true_component_id": "TRUE-0112"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Auxiliary inverter 60 kVA",
+      "raw_references": [
+        "AUX-INVERTER"
+      ],
+      "true_component_id": "TRUE-0113"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "DC-link capacitor bank",
+      "raw_references": [
+        "AUX-CAP-BANK",
+        "aux-cap-bank"
+      ],
+      "true_component_id": "TRUE-0114"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Battery charger 24 V",
+      "raw_references": [
+        "AUX-BATTERY-CHARGER"
+      ],
+      "true_component_id": "TRUE-0115"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "NiCd battery pack",
+      "raw_references": [
+        "AUX-BATTERY-PACK"
+      ],
+      "true_component_id": "TRUE-0116"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Input filter choke",
+      "raw_references": [
+        "AUX-FILTER-CHOKE"
+      ],
+      "true_component_id": "TRUE-0117"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Converter cooling fan",
+      "raw_references": [
+        "AUX-COOLING-FAN"
+      ],
+      "true_component_id": "TRUE-0118"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Power contactor",
+      "raw_references": [
+        "AUX-CONTACTOR"
+      ],
+      "true_component_id": "TRUE-0119"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Fuse box",
+      "raw_references": [
+        "AUX-FUSE-BOX",
+        "AUXFUSEBOX"
+      ],
+      "true_component_id": "TRUE-0120"
+    },
+    {
+      "base_unit": "m",
+      "designation": "Low-voltage power cable",
+      "raw_references": [
+        "AUX-LV-CABLE"
+      ],
+      "true_component_id": "TRUE-0121"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Underfloor enclosure",
+      "raw_references": [
+        "AUX-ENCLOSURE"
+      ],
+      "true_component_id": "TRUE-0122"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "LED light strip 1200 mm",
+      "raw_references": [
+        "LIGHT-LED-STR1P",
+        "LIGHT-LED-STRIP"
+      ],
+      "true_component_id": "TRUE-0123"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "LED driver",
+      "raw_references": [
+        "LIGHT-DRIVER",
+        "LIGHT_DRIVER"
+      ],
+      "true_component_id": "TRUE-0124"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Emergency lighting unit",
+      "raw_references": [
+        "LIGHT-EMERG-UNIT",
+        "light-emerg-unit"
+      ],
+      "true_component_id": "TRUE-0125"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Light diffuser",
+      "raw_references": [
+        "LIGHT-DIFFUSER"
+      ],
+      "true_component_id": "TRUE-0126"
+    },
+    {
+      "base_unit": "m",
+      "designation": "Lighting cable",
+      "raw_references": [
+        "LIGHT-CABLE"
+      ],
+      "true_component_id": "TRUE-0127"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Lighting switch panel",
+      "raw_references": [
+        "LIGHT-SWITCH-PANEL"
+      ],
+      "true_component_id": "TRUE-0128"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Ambient light sensor",
+      "raw_references": [
+        "LIGHT-SENSOR-AMB"
+      ],
+      "true_component_id": "TRUE-0129"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Reading spot",
+      "raw_references": [
+        "LIGHT-READING-SPOT"
+      ],
+      "true_component_id": "TRUE-0130"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Lighting connector",
+      "raw_references": [
+        "LIGHT-CONNECTOR",
+        "light-connector "
+      ],
+      "true_component_id": "TRUE-0131"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Cable clip",
+      "raw_references": [
+        "LIGHT-CLIP"
+      ],
+      "true_component_id": "TRUE-0132"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Plywood floor panel",
+      "raw_references": [
+        "PANEL-FLOOR-PLY"
+      ],
+      "true_component_id": "TRUE-0133"
+    },
+    {
+      "base_unit": "m",
+      "designation": "Rubber floor covering",
+      "raw_references": [
+        "PANEL-FLOOR-COVER"
+      ],
+      "true_component_id": "TRUE-0134"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "GRP wall panel",
+      "raw_references": [
+        "PANEL-WALL-GRP"
+      ],
+      "true_component_id": "TRUE-0135"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Ceiling panel",
+      "raw_references": [
+        "PANEL-CEILING",
+        "Panel-ceiling"
+      ],
+      "true_component_id": "TRUE-0136"
+    },
+    {
+      "base_unit": "kg",
+      "designation": "Thermal insulation mat",
+      "raw_references": [
+        "PANEL-INSUL-MAT"
+      ],
+      "true_component_id": "TRUE-0137"
+    },
+    {
+      "base_unit": "kg",
+      "designation": "Structural adhesive",
+      "raw_references": [
+        "PANEL-ADHESIVE"
+      ],
+      "true_component_id": "TRUE-0138"
+    },
+    {
+      "base_unit": "m",
+      "designation": "Trim profile",
+      "raw_references": [
+        "PANEL-TRIM-PROFILE"
+      ],
+      "true_component_id": "TRUE-0139"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Panel screw kit",
+      "raw_references": [
+        "PANEL-SCREW-KIT"
+      ],
+      "true_component_id": "TRUE-0140"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Floor insert kit for seat fixing",
+      "raw_references": [
+        "SEAT-FIX-KIT-447",
+        "SEAT-FIX-KIT-4471"
+      ],
+      "true_component_id": "TRUE-0141"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Toilet cabin shell",
+      "raw_references": [
+        "WC-CABIN-SHELL"
+      ],
+      "true_component_id": "TRUE-0142"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Vacuum toilet bowl",
+      "raw_references": [
+        "WC-BOWL-VACUUM"
+      ],
+      "true_component_id": "TRUE-0143"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Fresh water tank 120 l",
+      "raw_references": [
+        "WC-WATER-TANK"
+      ],
+      "true_component_id": "TRUE-0144"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Waste retention tank 300 l",
+      "raw_references": [
+        "WC-WASTE-TANK"
+      ],
+      "true_component_id": "TRUE-0145"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Washbasin unit",
+      "raw_references": [
+        "WC-WASHBASIN",
+        "wc-washbasin "
+      ],
+      "true_component_id": "TRUE-0146"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Manual sliding toilet door",
+      "raw_references": [
+        "WC-DOOR-SLIDING"
+      ],
+      "true_component_id": "TRUE-0147"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Vacuum generator",
+      "raw_references": [
+        "WC-VACUUM-PUMP"
+      ],
+      "true_component_id": "TRUE-0148"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Toilet pipework kit",
+      "raw_references": [
+        "WC-PIPE-KIT"
+      ],
+      "true_component_id": "TRUE-0149"
+    },
+    {
+      "base_unit": "kg",
+      "designation": "Sanitary sealant",
+      "raw_references": [
+        "WC-SEALANT"
+      ],
+      "true_component_id": "TRUE-0150"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Toilet grab bar",
+      "raw_references": [
+        "WC-GRAB-BAR"
+      ],
+      "true_component_id": "TRUE-0151"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Universal toilet cabin, PRM",
+      "raw_references": [
+        "WCU-CABIN-PRM"
+      ],
+      "true_component_id": "TRUE-0152"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Vacuum toilet bowl, generation 2",
+      "raw_references": [
+        "WCU-BOWL-VACUUM-G2"
+      ],
+      "true_component_id": "TRUE-0153"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Combined fresh and waste tank",
+      "raw_references": [
+        "WCU-TANK-COMBO"
+      ],
+      "true_component_id": "TRUE-0154"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Washbasin unit, PRM height",
+      "raw_references": [
+        "WCU-WASHBASIN-PRM"
+      ],
+      "true_component_id": "TRUE-0155"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Powered curved toilet door",
+      "raw_references": [
+        "WCU-DOOR-POWERED"
+      ],
+      "true_component_id": "TRUE-0156"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Assistance call alarm",
+      "raw_references": [
+        "WCU-CALL-ALARM"
+      ],
+      "true_component_id": "TRUE-0157"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Folding grab bar",
+      "raw_references": [
+        "WCU-GRAB-BAR-FOLD"
+      ],
+      "true_component_id": "TRUE-0158"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Baby changing table",
+      "raw_references": [
+        "WCU-CHANGING-TABLE"
+      ],
+      "true_component_id": "TRUE-0159"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Universal toilet pipework kit",
+      "raw_references": [
+        "WCU-PIPE-KIT"
+      ],
+      "true_component_id": "TRUE-0160"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Sealed floor tray",
+      "raw_references": [
+        "WCU-FLOOR-TRAY"
+      ],
+      "true_component_id": "TRUE-0161"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Bike retaining strap, version 2",
+      "raw_references": [
+        "BIKE-STRAP-V2"
+      ],
+      "true_component_id": "TRUE-0162"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Fresh air filter F9",
+      "raw_references": [
+        "HVAC-FILTER-F9"
+      ],
+      "true_component_id": "TRUE-0163"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Vacuum generator, generation 2",
+      "raw_references": [
+        "WC-VACUUM-PUMP-G2"
+      ],
+      "true_component_id": "TRUE-0164"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Main transformer, lightweight",
+      "raw_references": [
+        "TRAC-TRANSFORMER-LW"
+      ],
+      "true_component_id": "TRUE-0165"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "HVAC control board, revision 2",
+      "raw_references": [
+        "HVAC-CTRL-BOARD-R2"
+      ],
+      "true_component_id": "TRUE-0166"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Standard signage plate, version 2",
+      "raw_references": [
+        "PIS-SIGN-STD-V2"
+      ],
+      "true_component_id": "TRUE-0167"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Tip-up seat, soft-close",
+      "raw_references": [
+        "SEAT-TIPUP-SOFT"
+      ],
+      "true_component_id": "TRUE-0168"
+    },
+    {
+      "base_unit": "pcs",
+      "designation": "Emergency lighting unit, lithium",
+      "raw_references": [
+        "LIGHT-EMERG-UNIT-LI"
+      ],
+      "true_component_id": "TRUE-0169"
+    }
+  ],
+  "defects": [
+    {
+      "defect_type": "cost_conflict",
+      "evidence_line_ids": [
+        "L00050",
+        "L00466"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0016",
+      "variant_pair": [
+        "A",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "cost_conflict",
+      "evidence_line_ids": [
+        "L00185",
+        "L00466"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0016",
+      "variant_pair": [
+        "B",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "cost_conflict",
+      "evidence_line_ids": [
+        "L00466",
+        "L00601"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0016",
+      "variant_pair": [
+        "C",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "cost_conflict",
+      "evidence_line_ids": [
+        "L00328",
+        "L00466"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0016",
+      "variant_pair": [
+        "D",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "cost_conflict",
+      "evidence_line_ids": [
+        "L00117",
+        "L00259"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0058",
+      "variant_pair": [
+        "A",
+        "B"
+      ]
+    },
+    {
+      "defect_type": "cost_conflict",
+      "evidence_line_ids": [
+        "L00259",
+        "L00677"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0058",
+      "variant_pair": [
+        "B",
+        "C"
+      ]
+    },
+    {
+      "defect_type": "cost_conflict",
+      "evidence_line_ids": [
+        "L00259",
+        "L00398"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0058",
+      "variant_pair": [
+        "B",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "cost_conflict",
+      "evidence_line_ids": [
+        "L00259",
+        "L00533"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0058",
+      "variant_pair": [
+        "B",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "cost_conflict",
+      "evidence_line_ids": [
+        "L00035",
+        "L00314"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0109",
+      "variant_pair": [
+        "A",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "cost_conflict",
+      "evidence_line_ids": [
+        "L00170",
+        "L00314"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0109",
+      "variant_pair": [
+        "B",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "cost_conflict",
+      "evidence_line_ids": [
+        "L00314",
+        "L00586"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0109",
+      "variant_pair": [
+        "C",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "cost_conflict",
+      "evidence_line_ids": [
+        "L00314",
+        "L00451"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0109",
+      "variant_pair": [
+        "D",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "cost_conflict",
+      "evidence_line_ids": [
+        "L00072",
+        "L00623"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0124",
+      "variant_pair": [
+        "A",
+        "C"
+      ]
+    },
+    {
+      "defect_type": "cost_conflict",
+      "evidence_line_ids": [
+        "L00207",
+        "L00623"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0124",
+      "variant_pair": [
+        "B",
+        "C"
+      ]
+    },
+    {
+      "defect_type": "cost_conflict",
+      "evidence_line_ids": [
+        "L00353",
+        "L00623"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0124",
+      "variant_pair": [
+        "C",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "cost_conflict",
+      "evidence_line_ids": [
+        "L00488",
+        "L00623"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0124",
+      "variant_pair": [
+        "C",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "cost_conflict",
+      "evidence_line_ids": [
+        "L00081",
+        "L00632"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0133",
+      "variant_pair": [
+        "A",
+        "C"
+      ]
+    },
+    {
+      "defect_type": "cost_conflict",
+      "evidence_line_ids": [
+        "L00216",
+        "L00632"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0133",
+      "variant_pair": [
+        "B",
+        "C"
+      ]
+    },
+    {
+      "defect_type": "cost_conflict",
+      "evidence_line_ids": [
+        "L00362",
+        "L00632"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0133",
+      "variant_pair": [
+        "C",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "cost_conflict",
+      "evidence_line_ids": [
+        "L00497",
+        "L00632"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0133",
+      "variant_pair": [
+        "C",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00002",
+        "L00418"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0002",
+      "variant_pair": [
+        "A",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00137",
+        "L00418"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0002",
+      "variant_pair": [
+        "B",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00418",
+        "L00553"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0002",
+      "variant_pair": [
+        "C",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00281",
+        "L00418"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0002",
+      "variant_pair": [
+        "D",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00044",
+        "L00179"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0010",
+      "variant_pair": [
+        "A",
+        "B"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00044",
+        "L00595"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0010",
+      "variant_pair": [
+        "A",
+        "C"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00044",
+        "L00323"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0010",
+      "variant_pair": [
+        "A",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00044",
+        "L00460"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0010",
+      "variant_pair": [
+        "A",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00058",
+        "L00193"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0024",
+      "variant_pair": [
+        "A",
+        "B"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00058",
+        "L00609"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0024",
+      "variant_pair": [
+        "A",
+        "C"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00193",
+        "L00609"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0024",
+      "variant_pair": [
+        "B",
+        "C"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00193",
+        "L00336"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0024",
+      "variant_pair": [
+        "B",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00193",
+        "L00474"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0024",
+      "variant_pair": [
+        "B",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00336",
+        "L00609"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0024",
+      "variant_pair": [
+        "C",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00474",
+        "L00609"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0024",
+      "variant_pair": [
+        "C",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00094",
+        "L00510"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0031",
+      "variant_pair": [
+        "A",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00235",
+        "L00510"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0031",
+      "variant_pair": [
+        "B",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00510",
+        "L00651"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0031",
+      "variant_pair": [
+        "C",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00375",
+        "L00510"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0031",
+      "variant_pair": [
+        "D",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00110",
+        "L00526"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0049",
+      "variant_pair": [
+        "A",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00251",
+        "L00526"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0049",
+      "variant_pair": [
+        "B",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00526",
+        "L00668"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0049",
+      "variant_pair": [
+        "C",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00391",
+        "L00526"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0049",
+      "variant_pair": [
+        "D",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00015",
+        "L00566"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0085",
+      "variant_pair": [
+        "A",
+        "C"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00015",
+        "L00294"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0085",
+      "variant_pair": [
+        "A",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00150",
+        "L00566"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0085",
+      "variant_pair": [
+        "B",
+        "C"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00150",
+        "L00294"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0085",
+      "variant_pair": [
+        "B",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00294",
+        "L00566"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0085",
+      "variant_pair": [
+        "C",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00431",
+        "L00566"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0085",
+      "variant_pair": [
+        "C",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00294",
+        "L00431"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0085",
+      "variant_pair": [
+        "D",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00018",
+        "L00029",
+        "L00040",
+        "L00070"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0087",
+      "variant_pair": [
+        "A",
+        "A"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00018",
+        "L00029",
+        "L00040",
+        "L00070",
+        "L00153",
+        "L00164",
+        "L00175",
+        "L00205"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0087",
+      "variant_pair": [
+        "A",
+        "B"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00018",
+        "L00029",
+        "L00040",
+        "L00070",
+        "L00569",
+        "L00580",
+        "L00591",
+        "L00621"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0087",
+      "variant_pair": [
+        "A",
+        "C"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00018",
+        "L00029",
+        "L00040",
+        "L00070",
+        "L00297",
+        "L00308",
+        "L00319",
+        "L00351"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0087",
+      "variant_pair": [
+        "A",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00018",
+        "L00029",
+        "L00040",
+        "L00070",
+        "L00434",
+        "L00445",
+        "L00456",
+        "L00486"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0087",
+      "variant_pair": [
+        "A",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00153",
+        "L00164",
+        "L00175",
+        "L00205"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0087",
+      "variant_pair": [
+        "B",
+        "B"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00153",
+        "L00164",
+        "L00175",
+        "L00205",
+        "L00569",
+        "L00580",
+        "L00591",
+        "L00621"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0087",
+      "variant_pair": [
+        "B",
+        "C"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00153",
+        "L00164",
+        "L00175",
+        "L00205",
+        "L00297",
+        "L00308",
+        "L00319",
+        "L00351"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0087",
+      "variant_pair": [
+        "B",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00153",
+        "L00164",
+        "L00175",
+        "L00205",
+        "L00434",
+        "L00445",
+        "L00456",
+        "L00486"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0087",
+      "variant_pair": [
+        "B",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00569",
+        "L00580",
+        "L00591",
+        "L00621"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0087",
+      "variant_pair": [
+        "C",
+        "C"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00297",
+        "L00308",
+        "L00319",
+        "L00351",
+        "L00569",
+        "L00580",
+        "L00591",
+        "L00621"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0087",
+      "variant_pair": [
+        "C",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00434",
+        "L00445",
+        "L00456",
+        "L00486",
+        "L00569",
+        "L00580",
+        "L00591",
+        "L00621"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0087",
+      "variant_pair": [
+        "C",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00297",
+        "L00308",
+        "L00319",
+        "L00351"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0087",
+      "variant_pair": [
+        "D",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00297",
+        "L00308",
+        "L00319",
+        "L00351",
+        "L00434",
+        "L00445",
+        "L00456",
+        "L00486"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0087",
+      "variant_pair": [
+        "D",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00434",
+        "L00445",
+        "L00456",
+        "L00486"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0087",
+      "variant_pair": [
+        "E",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00021",
+        "L00300"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0090",
+      "variant_pair": [
+        "A",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00156",
+        "L00300"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0090",
+      "variant_pair": [
+        "B",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00300",
+        "L00572"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0090",
+      "variant_pair": [
+        "C",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00300",
+        "L00437"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0090",
+      "variant_pair": [
+        "D",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00038",
+        "L00589"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0112",
+      "variant_pair": [
+        "A",
+        "C"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00038",
+        "L00317"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0112",
+      "variant_pair": [
+        "A",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00173",
+        "L00589"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0112",
+      "variant_pair": [
+        "B",
+        "C"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00173",
+        "L00317"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0112",
+      "variant_pair": [
+        "B",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00454",
+        "L00589"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0112",
+      "variant_pair": [
+        "C",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00317",
+        "L00454"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0112",
+      "variant_pair": [
+        "D",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00067",
+        "L00202"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0120",
+      "variant_pair": [
+        "A",
+        "B"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00067",
+        "L00618"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0120",
+      "variant_pair": [
+        "A",
+        "C"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00067",
+        "L00348"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0120",
+      "variant_pair": [
+        "A",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00067",
+        "L00483"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0120",
+      "variant_pair": [
+        "A",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00071",
+        "L00622"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0123",
+      "variant_pair": [
+        "A",
+        "C"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00206",
+        "L00622"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0123",
+      "variant_pair": [
+        "B",
+        "C"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00352",
+        "L00622"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0123",
+      "variant_pair": [
+        "C",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00487",
+        "L00622"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0123",
+      "variant_pair": [
+        "C",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00072",
+        "L00623"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0124",
+      "variant_pair": [
+        "A",
+        "C"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00207",
+        "L00623"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0124",
+      "variant_pair": [
+        "B",
+        "C"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00353",
+        "L00623"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0124",
+      "variant_pair": [
+        "C",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00488",
+        "L00623"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0124",
+      "variant_pair": [
+        "C",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00079",
+        "L00630"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0131",
+      "variant_pair": [
+        "A",
+        "C"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00214",
+        "L00630"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0131",
+      "variant_pair": [
+        "B",
+        "C"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00360",
+        "L00630"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0131",
+      "variant_pair": [
+        "C",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00495",
+        "L00630"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0131",
+      "variant_pair": [
+        "C",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00084",
+        "L00635"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0136",
+      "variant_pair": [
+        "A",
+        "C"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00219",
+        "L00635"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0136",
+      "variant_pair": [
+        "B",
+        "C"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00365",
+        "L00635"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0136",
+      "variant_pair": [
+        "C",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00500",
+        "L00635"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0136",
+      "variant_pair": [
+        "C",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00089",
+        "L00640"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0141",
+      "variant_pair": [
+        "A",
+        "C"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00224",
+        "L00640"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0141",
+      "variant_pair": [
+        "B",
+        "C"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00370",
+        "L00640"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0141",
+      "variant_pair": [
+        "C",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00505",
+        "L00640"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0141",
+      "variant_pair": [
+        "C",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00128",
+        "L00409"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0146",
+      "variant_pair": [
+        "A",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00272",
+        "L00409"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0146",
+      "variant_pair": [
+        "B",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "duplicate_reference",
+      "evidence_line_ids": [
+        "L00409",
+        "L00544"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0146",
+      "variant_pair": [
+        "D",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "note_contradiction",
+      "evidence_line_ids": [
+        "L00514"
+      ],
+      "note_id": "N018",
+      "true_component_id": "TRUE-0035",
+      "variant_pair": [
+        "D",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "note_contradiction",
+      "evidence_line_ids": [
+        "L00398"
+      ],
+      "note_id": "N007",
+      "true_component_id": "TRUE-0058",
+      "variant_pair": [
+        "A",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "note_contradiction",
+      "evidence_line_ids": [
+        "L00265"
+      ],
+      "note_id": "N002",
+      "true_component_id": "TRUE-0064",
+      "variant_pair": [
+        "A",
+        "B"
+      ]
+    },
+    {
+      "defect_type": "note_contradiction",
+      "evidence_line_ids": [
+        "L00645"
+      ],
+      "note_id": "N013",
+      "true_component_id": "TRUE-0073",
+      "variant_pair": [
+        "B",
+        "C"
+      ]
+    },
+    {
+      "defect_type": "note_contradiction",
+      "evidence_line_ids": [
+        "L00296"
+      ],
+      "note_id": "N017",
+      "true_component_id": "TRUE-0086",
+      "variant_pair": [
+        "D",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "note_contradiction",
+      "evidence_line_ids": [
+        "L00612"
+      ],
+      "note_id": "N006",
+      "true_component_id": "TRUE-0114",
+      "variant_pair": [
+        "A",
+        "C"
+      ]
+    },
+    {
+      "defect_type": "note_contradiction",
+      "evidence_line_ids": [
+        "L00342"
+      ],
+      "note_id": "N006",
+      "true_component_id": "TRUE-0114",
+      "variant_pair": [
+        "A",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "note_contradiction",
+      "evidence_line_ids": [
+        "L00477"
+      ],
+      "note_id": "N006",
+      "true_component_id": "TRUE-0114",
+      "variant_pair": [
+        "A",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "note_contradiction",
+      "evidence_line_ids": [
+        "L00541"
+      ],
+      "note_id": "N021",
+      "true_component_id": "TRUE-0143",
+      "variant_pair": [
+        "D",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "note_contradiction",
+      "evidence_line_ids": [
+        "L00271"
+      ],
+      "note_id": "N010",
+      "true_component_id": "TRUE-0145",
+      "variant_pair": [
+        "B",
+        "B"
+      ]
+    },
+    {
+      "defect_type": "note_contradiction",
+      "evidence_line_ids": [
+        "L00545"
+      ],
+      "note_id": "N019",
+      "true_component_id": "TRUE-0147",
+      "variant_pair": [
+        "D",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "note_contradiction",
+      "evidence_line_ids": [
+        "L00411"
+      ],
+      "note_id": "N011",
+      "true_component_id": "TRUE-0148",
+      "variant_pair": [
+        "B",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "note_contradiction",
+      "evidence_line_ids": [
+        "L00546"
+      ],
+      "note_id": "N011",
+      "true_component_id": "TRUE-0148",
+      "variant_pair": [
+        "B",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "note_contradiction",
+      "evidence_line_ids": [
+        "L00277"
+      ],
+      "note_id": "N005",
+      "true_component_id": "TRUE-0151",
+      "variant_pair": [
+        "A",
+        "B"
+      ]
+    },
+    {
+      "defect_type": "note_contradiction",
+      "evidence_line_ids": [
+        "L00414"
+      ],
+      "note_id": "N005",
+      "true_component_id": "TRUE-0151",
+      "variant_pair": [
+        "A",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "note_contradiction",
+      "evidence_line_ids": [
+        "L00549"
+      ],
+      "note_id": "N005",
+      "true_component_id": "TRUE-0151",
+      "variant_pair": [
+        "A",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "supplier_conflict",
+      "evidence_line_ids": [
+        "L00046",
+        "L00462"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0012",
+      "variant_pair": [
+        "A",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "supplier_conflict",
+      "evidence_line_ids": [
+        "L00181",
+        "L00462"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0012",
+      "variant_pair": [
+        "B",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "supplier_conflict",
+      "evidence_line_ids": [
+        "L00462",
+        "L00597"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0012",
+      "variant_pair": [
+        "C",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "supplier_conflict",
+      "evidence_line_ids": [
+        "L00325",
+        "L00462"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0012",
+      "variant_pair": [
+        "D",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "supplier_conflict",
+      "evidence_line_ids": [
+        "L00095",
+        "L00236"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0032",
+      "variant_pair": [
+        "A",
+        "B"
+      ]
+    },
+    {
+      "defect_type": "supplier_conflict",
+      "evidence_line_ids": [
+        "L00236",
+        "L00652"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0032",
+      "variant_pair": [
+        "B",
+        "C"
+      ]
+    },
+    {
+      "defect_type": "supplier_conflict",
+      "evidence_line_ids": [
+        "L00236",
+        "L00376"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0032",
+      "variant_pair": [
+        "B",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "supplier_conflict",
+      "evidence_line_ids": [
+        "L00236",
+        "L00511"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0032",
+      "variant_pair": [
+        "B",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "supplier_conflict",
+      "evidence_line_ids": [
+        "L00011",
+        "L00290"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0081",
+      "variant_pair": [
+        "A",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "supplier_conflict",
+      "evidence_line_ids": [
+        "L00146",
+        "L00290"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0081",
+      "variant_pair": [
+        "B",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "supplier_conflict",
+      "evidence_line_ids": [
+        "L00290",
+        "L00562"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0081",
+      "variant_pair": [
+        "C",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "supplier_conflict",
+      "evidence_line_ids": [
+        "L00290",
+        "L00427"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0081",
+      "variant_pair": [
+        "D",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "supplier_conflict",
+      "evidence_line_ids": [
+        "L00023",
+        "L00439"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0092",
+      "variant_pair": [
+        "A",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "supplier_conflict",
+      "evidence_line_ids": [
+        "L00158",
+        "L00439"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0092",
+      "variant_pair": [
+        "B",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "supplier_conflict",
+      "evidence_line_ids": [
+        "L00439",
+        "L00574"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0092",
+      "variant_pair": [
+        "C",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "supplier_conflict",
+      "evidence_line_ids": [
+        "L00302",
+        "L00439"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0092",
+      "variant_pair": [
+        "D",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "supplier_conflict",
+      "evidence_line_ids": [
+        "L00071",
+        "L00622"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0123",
+      "variant_pair": [
+        "A",
+        "C"
+      ]
+    },
+    {
+      "defect_type": "supplier_conflict",
+      "evidence_line_ids": [
+        "L00206",
+        "L00622"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0123",
+      "variant_pair": [
+        "B",
+        "C"
+      ]
+    },
+    {
+      "defect_type": "supplier_conflict",
+      "evidence_line_ids": [
+        "L00352",
+        "L00622"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0123",
+      "variant_pair": [
+        "C",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "supplier_conflict",
+      "evidence_line_ids": [
+        "L00487",
+        "L00622"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0123",
+      "variant_pair": [
+        "C",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "unit_conflict",
+      "evidence_line_ids": [
+        "L00037",
+        "L00172"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0111",
+      "variant_pair": [
+        "A",
+        "B"
+      ]
+    },
+    {
+      "defect_type": "unit_conflict",
+      "evidence_line_ids": [
+        "L00172",
+        "L00588"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0111",
+      "variant_pair": [
+        "B",
+        "C"
+      ]
+    },
+    {
+      "defect_type": "unit_conflict",
+      "evidence_line_ids": [
+        "L00172",
+        "L00316"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0111",
+      "variant_pair": [
+        "B",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "unit_conflict",
+      "evidence_line_ids": [
+        "L00172",
+        "L00453"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0111",
+      "variant_pair": [
+        "B",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "unit_conflict",
+      "evidence_line_ids": [
+        "L00075",
+        "L00491"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0127",
+      "variant_pair": [
+        "A",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "unit_conflict",
+      "evidence_line_ids": [
+        "L00210",
+        "L00491"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0127",
+      "variant_pair": [
+        "B",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "unit_conflict",
+      "evidence_line_ids": [
+        "L00491",
+        "L00626"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0127",
+      "variant_pair": [
+        "C",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "unit_conflict",
+      "evidence_line_ids": [
+        "L00356",
+        "L00491"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0127",
+      "variant_pair": [
+        "D",
+        "E"
+      ]
+    },
+    {
+      "defect_type": "unit_conflict",
+      "evidence_line_ids": [
+        "L00132",
+        "L00413"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0150",
+      "variant_pair": [
+        "A",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "unit_conflict",
+      "evidence_line_ids": [
+        "L00276",
+        "L00413"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0150",
+      "variant_pair": [
+        "B",
+        "D"
+      ]
+    },
+    {
+      "defect_type": "unit_conflict",
+      "evidence_line_ids": [
+        "L00413",
+        "L00548"
+      ],
+      "note_id": null,
+      "true_component_id": "TRUE-0150",
+      "variant_pair": [
+        "D",
+        "E"
+      ]
+    }
+  ],
+  "must_not_merge": [
+    {
+      "id": "door_seal_outer_vs_rev0",
+      "left_reference": "DOOR-SEAL-O",
+      "left_true_component": "TRUE-0103",
+      "right_reference": "DOOR-SEAL-0",
+      "right_true_component": "TRUE-0104"
+    },
+    {
+      "id": "hvac_grille_left_vs_type11",
+      "left_reference": "HVAC-GRILLE-1L",
+      "left_true_component": "TRUE-0105",
+      "right_reference": "HVAC-GRILLE-11",
+      "right_true_component": "TRUE-0106"
+    },
+    {
+      "id": "seat_rail_inox_vs_mark1",
+      "left_reference": "SEAT-RAIL-I",
+      "left_true_component": "TRUE-0101",
+      "right_reference": "SEAT-RAIL-1",
+      "right_true_component": "TRUE-0102"
+    }
+  ],
+  "newest_variant": "C",
+  "notes": [
+    {
+      "facts": [],
+      "language": "fr",
+      "note_id": "N001"
+    },
+    {
+      "facts": [
+        {
+          "cited_reference": "ANCH-FLOOR-PLATE",
+          "effective_date": null,
+          "fact_type": "restriction",
+          "replaced_by_true_component_id": null,
+          "scope": "bike_car",
+          "true_component_id": "TRUE-0064"
+        }
+      ],
+      "language": "en",
+      "note_id": "N002"
+    },
+    {
+      "facts": [
+        {
+          "cited_reference": "TRAC-TRANSFORMER",
+          "effective_date": null,
+          "fact_type": "restriction",
+          "replaced_by_true_component_id": null,
+          "scope": "bi_mode",
+          "true_component_id": "TRUE-0015"
+        }
+      ],
+      "language": "fr",
+      "note_id": "N003"
+    },
+    {
+      "facts": [],
+      "language": "en",
+      "note_id": "N004"
+    },
+    {
+      "facts": [
+        {
+          "cited_reference": "WC-GRAB-BAR",
+          "effective_date": "2021-01-01",
+          "fact_type": "obsolescence",
+          "replaced_by_true_component_id": null,
+          "scope": null,
+          "true_component_id": "TRUE-0151"
+        }
+      ],
+      "language": "en",
+      "note_id": "N005"
+    },
+    {
+      "facts": [
+        {
+          "cited_reference": "aux-cap-bank",
+          "effective_date": "2022-01-01",
+          "fact_type": "obsolescence",
+          "replaced_by_true_component_id": null,
+          "scope": null,
+          "true_component_id": "TRUE-0114"
+        }
+      ],
+      "language": "en",
+      "note_id": "N006"
+    },
+    {
+      "facts": [
+        {
+          "cited_reference": "SEAT-TABLE",
+          "effective_date": null,
+          "fact_type": "restriction",
+          "replaced_by_true_component_id": null,
+          "scope": "bi_mode",
+          "true_component_id": "TRUE-0058"
+        }
+      ],
+      "language": "fr",
+      "note_id": "N007"
+    },
+    {
+      "facts": [],
+      "language": "mixed",
+      "note_id": "N008"
+    },
+    {
+      "facts": [],
+      "language": "fr",
+      "note_id": "N009"
+    },
+    {
+      "facts": [
+        {
+          "cited_reference": "WC-WASTE-TANK",
+          "effective_date": null,
+          "fact_type": "restriction",
+          "replaced_by_true_component_id": null,
+          "scope": "bike_car",
+          "true_component_id": "TRUE-0145"
+        }
+      ],
+      "language": "mixed",
+      "note_id": "N010"
+    },
+    {
+      "facts": [
+        {
+          "cited_reference": "WC-VACUUM-PUMP",
+          "effective_date": "2022-03-01",
+          "fact_type": "replacement",
+          "replaced_by_true_component_id": "TRUE-0164",
+          "scope": null,
+          "true_component_id": "TRUE-0148"
+        }
+      ],
+      "language": "mixed",
+      "note_id": "N011"
+    },
+    {
+      "facts": [
+        {
+          "cited_reference": "BIKE-FLOOR-MAT",
+          "effective_date": null,
+          "fact_type": "restriction",
+          "replaced_by_true_component_id": null,
+          "scope": "bi_mode",
+          "true_component_id": "TRUE-0075"
+        }
+      ],
+      "language": "en",
+      "note_id": "N012"
+    },
+    {
+      "facts": [
+        {
+          "cited_reference": "BIKE STRAP",
+          "effective_date": "2023-05-01",
+          "fact_type": "replacement",
+          "replaced_by_true_component_id": "TRUE-0162",
+          "scope": null,
+          "true_component_id": "TRUE-0073"
+        }
+      ],
+      "language": "fr",
+      "note_id": "N013"
+    },
+    {
+      "facts": [
+        {
+          "cited_reference": "PIS-SIGN-BIKE",
+          "effective_date": null,
+          "fact_type": "restriction",
+          "replaced_by_true_component_id": null,
+          "scope": "standard_car",
+          "true_component_id": "TRUE-0053"
+        }
+      ],
+      "language": "en",
+      "note_id": "N014"
+    },
+    {
+      "facts": [
+        {
+          "cited_reference": "ANCH-HOOK-POINT",
+          "effective_date": "2024-01-15",
+          "fact_type": "replacement",
+          "replaced_by_true_component_id": "TRUE-0067",
+          "scope": null,
+          "true_component_id": "TRUE-0066"
+        }
+      ],
+      "language": "fr",
+      "note_id": "N015"
+    },
+    {
+      "facts": [],
+      "language": "fr",
+      "note_id": "N016"
+    },
+    {
+      "facts": [
+        {
+          "cited_reference": "HVAC-REFRIGERANT",
+          "effective_date": null,
+          "fact_type": "restriction",
+          "replaced_by_true_component_id": null,
+          "scope": "bi_mode",
+          "true_component_id": "TRUE-0086"
+        }
+      ],
+      "language": "fr",
+      "note_id": "N017"
+    },
+    {
+      "facts": [
+        {
+          "cited_reference": "door-pushbutton-int",
+          "effective_date": "2023-01-01",
+          "fact_type": "replacement",
+          "replaced_by_true_component_id": "TRUE-0036",
+          "scope": null,
+          "true_component_id": "TRUE-0035"
+        }
+      ],
+      "language": "en",
+      "note_id": "N018"
+    },
+    {
+      "facts": [
+        {
+          "cited_reference": "WC-DOOR-SLIDING",
+          "effective_date": "2023-02-01",
+          "fact_type": "replacement",
+          "replaced_by_true_component_id": "TRUE-0156",
+          "scope": null,
+          "true_component_id": "TRUE-0147"
+        }
+      ],
+      "language": "fr",
+      "note_id": "N019"
+    },
+    {
+      "facts": [
+        {
+          "cited_reference": "TRAC-FUEL-TANK",
+          "effective_date": null,
+          "fact_type": "restriction",
+          "replaced_by_true_component_id": null,
+          "scope": "electric",
+          "true_component_id": "TRUE-0027"
+        }
+      ],
+      "language": "mixed",
+      "note_id": "N020"
+    },
+    {
+      "facts": [
+        {
+          "cited_reference": "WC-BOWL-VACUUM",
+          "effective_date": "2023-06-30",
+          "fact_type": "obsolescence",
+          "replaced_by_true_component_id": null,
+          "scope": null,
+          "true_component_id": "TRUE-0143"
+        }
+      ],
+      "language": "fr",
+      "note_id": "N021"
+    },
+    {
+      "facts": [],
+      "language": "en",
+      "note_id": "N022"
+    },
+    {
+      "facts": [],
+      "language": "mixed",
+      "note_id": "N023"
+    },
+    {
+      "facts": [
+        {
+          "cited_reference": "TRAC-EXHAUST-KIT",
+          "effective_date": "2026-02-01",
+          "fact_type": "obsolescence",
+          "replaced_by_true_component_id": null,
+          "scope": null,
+          "true_component_id": "TRUE-0028"
+        }
+      ],
+      "language": "en",
+      "note_id": "N024"
+    },
+    {
+      "facts": [
+        {
+          "cited_reference": "ANCH-SHIM",
+          "effective_date": "2023-12-01",
+          "fact_type": "obsolescence",
+          "replaced_by_true_component_id": null,
+          "scope": null,
+          "true_component_id": "TRUE-0065"
+        }
+      ],
+      "language": "mixed",
+      "note_id": "N025"
+    },
+    {
+      "facts": [],
+      "language": "fr",
+      "note_id": "N026"
+    },
+    {
+      "facts": [
+        {
+          "cited_reference": "WC-WATER-TANK",
+          "effective_date": "2024-09-01",
+          "fact_type": "replacement",
+          "replaced_by_true_component_id": "TRUE-0154",
+          "scope": null,
+          "true_component_id": "TRUE-0144"
+        }
+      ],
+      "language": "fr",
+      "note_id": "N027"
+    },
+    {
+      "facts": [],
+      "language": "en",
+      "note_id": "N028"
+    },
+    {
+      "facts": [],
+      "language": "fr",
+      "note_id": "N029"
+    },
+    {
+      "facts": [
+        {
+          "cited_reference": "HVAC_FILTER",
+          "effective_date": "2026-01-01",
+          "fact_type": "replacement",
+          "replaced_by_true_component_id": "TRUE-0163",
+          "scope": null,
+          "true_component_id": "TRUE-0081"
+        }
+      ],
+      "language": "fr",
+      "note_id": "N030"
+    },
+    {
+      "facts": [
+        {
+          "cited_reference": "BRK-PARKING-ACT",
+          "effective_date": "2026-03-01",
+          "fact_type": "obsolescence",
+          "replaced_by_true_component_id": null,
+          "scope": null,
+          "true_component_id": "TRUE-0096"
+        }
+      ],
+      "language": "fr",
+      "note_id": "N031"
+    },
+    {
+      "facts": [],
+      "language": "fr",
+      "note_id": "N032"
+    },
+    {
+      "facts": [
+        {
+          "cited_reference": "HVAC-CTRL-BOARD",
+          "effective_date": "2025-06-01",
+          "fact_type": "replacement",
+          "replaced_by_true_component_id": "TRUE-0166",
+          "scope": null,
+          "true_component_id": "TRUE-0083"
+        }
+      ],
+      "language": "mixed",
+      "note_id": "N033"
+    },
+    {
+      "facts": [],
+      "language": "mixed",
+      "note_id": "N034"
+    },
+    {
+      "facts": [
+        {
+          "cited_reference": "PIS-SIGN-STD",
+          "effective_date": "2025-09-01",
+          "fact_type": "replacement",
+          "replaced_by_true_component_id": "TRUE-0167",
+          "scope": null,
+          "true_component_id": "TRUE-0052"
+        }
+      ],
+      "language": "en",
+      "note_id": "N035"
+    },
+    {
+      "facts": [
+        {
+          "cited_reference": "SEAT-TIPUP",
+          "effective_date": "2025-12-01",
+          "fact_type": "replacement",
+          "replaced_by_true_component_id": "TRUE-0168",
+          "scope": null,
+          "true_component_id": "TRUE-0061"
+        }
+      ],
+      "language": "fr",
+      "note_id": "N036"
+    },
+    {
+      "facts": [
+        {
+          "cited_reference": "TRAC-TRANSFORMER",
+          "effective_date": "2026-03-01",
+          "fact_type": "replacement",
+          "replaced_by_true_component_id": "TRUE-0165",
+          "scope": null,
+          "true_component_id": "TRUE-0015"
+        }
+      ],
+      "language": "en",
+      "note_id": "N037"
+    },
+    {
+      "facts": [
+        {
+          "cited_reference": "light-emerg-unit",
+          "effective_date": "2026-04-01",
+          "fact_type": "replacement",
+          "replaced_by_true_component_id": "TRUE-0169",
+          "scope": null,
+          "true_component_id": "TRUE-0125"
+        }
+      ],
+      "language": "en",
+      "note_id": "N038"
+    },
+    {
+      "facts": [
+        {
+          "cited_reference": "COUP-ELEC-HEAD",
+          "effective_date": "2026-06-01",
+          "fact_type": "obsolescence",
+          "replaced_by_true_component_id": null,
+          "scope": null,
+          "true_component_id": "TRUE-0110"
+        }
+      ],
+      "language": "en",
+      "note_id": "N039"
+    },
+    {
+      "facts": [
+        {
+          "cited_reference": "SEAT-END-PANEL",
+          "effective_date": "2026-09-01",
+          "fact_type": "obsolescence",
+          "replaced_by_true_component_id": null,
+          "scope": null,
+          "true_component_id": "TRUE-0060"
+        }
+      ],
+      "language": "fr",
+      "note_id": "N040"
+    }
+  ],
+  "schema_version": "1",
+  "seed": 20260920,
+  "spec_version": "1",
+  "typo_families": [
+    {
+      "emitted": [
+        " Bgi-2031",
+        "BGI-2031 ",
+        "bgi-2031"
+      ],
+      "family_id": "case_and_whitespace",
+      "true_component_id": "TRUE-0087",
+      "within_rules_reach": true
+    },
+    {
+      "emitted": [
+        "HVAC-GRILLE-l2",
+        "HVAC-GRlLLE-12"
+      ],
+      "family_id": "homoglyph_l_one",
+      "true_component_id": "TRUE-0085",
+      "within_rules_reach": true
+    },
+    {
+      "emitted": [
+        "BGI-2O31",
+        "BGI-2O3I"
+      ],
+      "family_id": "homoglyph_o_zero",
+      "true_component_id": "TRUE-0087",
+      "within_rules_reach": true
+    },
+    {
+      "emitted": [
+        "SEAT-FIX-KIT-447"
+      ],
+      "family_id": "missing_character",
+      "true_component_id": "TRUE-0141",
+      "within_rules_reach": false
+    },
+    {
+      "emitted": [
+        "BGI 2031",
+        "BGI2031",
+        "BGI_2031"
+      ],
+      "family_id": "separator_dropped",
+      "true_component_id": "TRUE-0087",
+      "within_rules_reach": true
+    },
+    {
+      "emitted": [
+        "BGI-2013"
+      ],
+      "family_id": "transposition",
+      "true_component_id": "TRUE-0087",
+      "within_rules_reach": false
+    }
+  ]
+}

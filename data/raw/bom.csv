@@ -1,0 +1,697 @@
+line_id;variant_id;sub_assembly_ref;sub_assembly_designation;component_ref;designation;quantity;unit;supplier;unit_cost_eur
+L00001;A;SA-0101;carbody shell;SHELL-UNDERFRAME;Underframe, welded aluminium;1;units;Atelier Lys Métal;48200,00
+L00002;A;SA-0101;carbody shell;SHELL-SIDEWALL;Sidewall panel, extruded ;2;u;Atelier Lys Métal ;17650.00
+L00003;A;SA-0101;carbody shell;SHELL-ROOF;Roof assembly;1;units;Atelier Lys Métal;15400,00
+L00004;A;SA-0101;carbody shell;SHELL-ENDWALL;Endwall frame;2;u;Atelier Lys Métal;6900,00
+L00005;A;SA-0101;carbody shell;SHELL-BRACKET-KIT;Equipment bracket kit;4;pcs;Atelier Lys Métal;412.50
+L00006;A;SA-0101;carbody shell;SHELL-SEAL;carbody joint seal;24;pcs;Artois Polymères;18,40
+L00007;A;SA-0104;HVAC unit ;HVAC-COMPRESSOR;Scroll compressor;2;pcs;Scaldis Thermique ;4380,00
+L00008;A;SA-0104;HVAC unit ;HVAC-CONDENSER;condenser coil;2;units;Scaldis Thermique ;2140,00
+L00009;A;SA-0104;HVAC unit ;HVAC-EVAPORATOR;Evaporator coil;2;units;Scaldis Thermique;1960,00
+L00010;A;SA-0104;HVAC unit ;HVAC-FAN-SUPPLY;Supply air fan ;4;pcs;SCALDIS THERMIQUE;735.00
+L00011;A;SA-0104;HVAC unit ;HVAC-FILTER;Fresh air filter G4;8;u;scaldis thermique;38,00
+L00012;A;SA-0104;HVAC unit ;HVAC-DUCT-MAIN;Main air duct;18,5;m;ARTOIS POLYMÈRES;96.00
+L00013;A;SA-0104;HVAC unit ;HVAC-CTRL-BOARD;HVAC control board;1;pcs;deûle électronique;1820.00
+L00014;A;SA-0104;HVAC unit ;HVAC-TEMP-SENSOR;SALOON TEMPERATURE SENSOR;6;pcs;Deûle Électronique;54.00
+L00015;A;SA-0104;HVAC unit ;HVAC-GRILLE-12;Air outlet grille type 12 ;16;u;Artois Polymères ;42,00
+L00016;A;SA-0104;HVAC unit ;HVAC-GRILLE-1L;AIR OUTLET GRILLE, LEFT-HAND;2;pcs;Artois Polymères;46.50
+L00017;A;SA-0104;HVAC unit ;HVAC-REFRIGERANT;Refrigerant R-513A charge;6,5;kg;Scaldis Thermique;31,00
+L00018;A;SA-0104;HVAC unit ; Bgi-2031;bolt set m8, zinc-nickel;24;u;Nordrail Composants;0,85
+L00019;A;SA-0105;Braking unit;BRK-COMPRESSOR;Oil-free air compressor;1;units;Sambre Freinage;18700.00
+L00020;A;SA-0105;Braking unit;BRK-AIR-TANK;Air reservoir 100 l;2;units;Sambre Freinage;1240,00
+L00021;A;SA-0105;Braking unit;BRK-CTRL-VALVE;Brake control valve;4;u;Sambre Freinage;2680,00
+L00022;A;SA-0105;Braking unit;BRK-PIPE-STEEL;Brake pipe, stainless;32,0;m;Sambre Freinage;28.50
+L00023;A;SA-0105;Braking unit;BRK-HOSE-FLEX;Flexible brake hose;8;pcs;Sambre Freinage;93,00
+L00024;A;SA-0105;Braking unit;BRK-DRYER;air dryer;1;units;Sambre Freinage;3150,00
+L00025;A;SA-0105;Braking unit;BRK-PRESSURE-SENSOR;PRESSURE TRANSDUCER;6;pcs;Deûle Électronique;187.00
+L00026;A;SA-0105;Braking unit;BRK-ECU;Brake electronic control unit ;1;units;Deûle Électronique;9800.00
+L00027;A;SA-0105;Braking unit;BRK-PARKING-ACT;Parking brake actuator;2;pcs;Sambre Freinage;2260,00
+L00028;A;SA-0105;Braking unit;BRK-BRACKET;Pipe support bracket ;12;units;ATELIER LYS MÉTAL;14,20
+L00029;A;SA-0105;Braking unit;BGI-2O3I;Bolt set M8, zinc-nickel;36;pcs;Nordrail Composants ;0.85
+L00030;A;SA-0106;gangway and couplers;GANG-BELLOWS;Gangway bellows;2;u;Artois Polymères;12400.00
+L00031;A;SA-0106;gangway and couplers;GANG-FRAME;Gangway frame;2;pcs;Atelier Lys Métal;5350,00
+L00032;A;SA-0106;gangway and couplers;GANG-BRIDGE-PLATE;Gangway bridge plate;2;pcs;Atelier Lys Métal;1980.00
+L00033;A;SA-0106;gangway and couplers;GANG-SEAL-PROFILE;Gangway seal profile;14.4;m;Artois Polymères;22,80
+L00034;A;SA-0106;gangway and couplers;COUP-SEMI-PERM;Semi-permanent coupler;2;units;Ferroval Systèmes;15800,00
+L00035;A;SA-0106;gangway and couplers;COUP-DRAFT-GEAR;Draft gear;2;pcs;Ferroval Systèmes;6240,00
+L00036;A;SA-0106;gangway and couplers;COUP-ELEC-HEAD;Electrical coupler head;2;pcs;hainaut câblage;4470.00
+L00037;A;SA-0106;gangway and couplers;COUP-JUMPER-CABLE;INTER-CAR JUMPER CABLE;9,6;m;hainaut câblage;148.00
+L00038;A;SA-0106;gangway and couplers;GANG-HANDRAIL;Gangway handrail;4;pcs;Atelier Lys Métal;215,00
+L00039;A;SA-0106;gangway and couplers;DOOR-SEAL-O;Gangway door seal, outer;4;u;Artois Polymères;81,00
+L00040;A;SA-0106;gangway and couplers;BGI-2031;Bolt set M8, zinc-nickel;48;pcs;NORDRAIL COMPOSANTS;0,85
+L00041;A;SA-0102;Trailer bogie ;BOGIE-FRAME;Trailer bogie frame;1;pcs;Ferroval Systèmes;26800.00
+L00042;A;SA-0102;Trailer bogie ;BOGIE-WHEELSET;Wheelset, 840 mm;2;pcs;Ferroval Systèmes;11250,00
+L00043;A;SA-0102;Trailer bogie ;BOGIE-PRIMARY-SUSP;Primary suspension spring set;4;u;FERROVAL SYSTÈMES;1340.00
+L00044;A;SA-0102;Trailer bogie ;BOGlE-AIRSPRING;Secondary air spring ;2;units;Artois Polymères;2875,00
+L00045;A;SA-0102;Trailer bogie ;BOGIE-BRAKE-CALIPER;BRAKE CALIPER UNIT;4;pcs;Sambre Freinage;3120.00
+L00046;A;SA-0102;Trailer bogie ;BOGIE-DAMPER;Hydraulic damper ;8;units;Ferroval Systèmes ;486,00
+L00047;A;SA-0102;Trailer bogie ;BOGIE-AXLEBOX;Axlebox with bearing;4;pcs;Ferroval Systèmes;2240.00
+L00048;A;SA-0103;traction package;TRAC-CONV-MAIN;Main traction converter;1;u;TRACTELYS ÉNERGIE;96500,00
+L00049;A;SA-0103;traction package;TRAC-TRANSFORMER;Main transformer 25 kV;1;pcs;Tractelys Énergie;74300.00
+L00050;A;SA-0103;traction package;TRAC-MOTOR;Asynchronous traction motor ;4;units;Tractelys Énergie ;21800,00
+L00051;A;SA-0103;traction package;TRAC-COOLING-UNIT;Converter cooling unit;1;units;Scaldis Thermique;8650,00
+L00052;A;SA-0103;traction package;TRAC-HV-CABLE;High-voltage cable, shielded;42000;mm;HAINAUT CÂBLAGE;64,20
+L00053;A;SA-0103;traction package;TRAC-CIRCUIT-BREAKER;Vacuum circuit breaker;1;pcs;Tractelys Énergie;13900,00
+L00054;A;SA-0103;traction package;TRAC-EARTH-SWITCH;Earthing switch;1;units;Tractelys Énergie;4150,00
+L00055;A;SA-0103;traction package;TRAC-CTRL-RACK;Traction control rack;1;u;Deûle Électronique;17200,00
+L00056;A;SA-0103;traction package;TRAC-SENSOR-KIT;Speed and current sensor kit;4;pcs;Deûle Électronique;940,00
+L00057;A;SA-0103;traction package;TRAC-BUSBAR;Copper busbar;6;u;hainaut câblage;215.00
+L00058;A;SA-0103;traction package;TRAC-INSULATOR;Roof insulator;12;u;Tractelys Énergie ;178,00
+L00059;A;SA-0103;traction package;TRAC-FIX-KIT;Traction equipment fixing kit;8;pcs;ATELIER LYS MÉTAL;96.50
+L00060;A;SA-0107;Auxiliary converter;AUX-INVERTER;Auxiliary inverter 60 kVA;1;units;Tractelys Énergie;34600.00
+L00061;A;SA-0107;Auxiliary converter;AUX-CAP-BANK;DC-link capacitor bank;2;pcs;Tractelys Énergie;2890,00
+L00062;A;SA-0107;Auxiliary converter;AUX-BATTERY-CHARGER;Battery charger 24 V;1;pcs;Tractelys Énergie;7350.00
+L00063;A;SA-0107;Auxiliary converter;AUX-BATTERY-PACK;NiCd battery pack;2;pcs;TRACTELYS ÉNERGIE;9120.00
+L00064;A;SA-0107;Auxiliary converter;AUX-FILTER-CHOKE;Input filter choke;1;units;TRACTELYS ÉNERGIE;3480,00
+L00065;A;SA-0107;Auxiliary converter;AUX-COOLING-FAN;Converter cooling fan;2;pcs;scaldis thermique;640,00
+L00066;A;SA-0107;Auxiliary converter;AUX-CONTACTOR;POWER CONTACTOR;4;pcs;DEÛLE ÉLECTRONIQUE;385.00
+L00067;A;SA-0107;Auxiliary converter;AUXFUSEBOX;Fuse box;1;u;deûle électronique;520.00
+L00068;A;SA-0107;Auxiliary converter;AUX-LV-CABLE;low-voltage power cable;28;m;Hainaut Câblage;9,40
+L00069;A;SA-0107;Auxiliary converter;AUX-ENCLOSURE;Underfloor enclosure;1;units;Atelier Lys Métal;4250.00
+L00070;A;SA-0107;Auxiliary converter;BGI-2031;Bolt set M8, zinc-nickel;16;u;NORDRAIL COMPOSANTS;0,85
+L00071;A;SA-0108;Interior lighting;LIGHT-LED-STRIP;LED light strip 1200 mm;24;units;Deûle Électronique;118,00
+L00072;A;SA-0108;Interior lighting;LIGHT-DRIVER;LED driver;6;pcs;Deûle Électronique;96.00
+L00073;A;SA-0108;Interior lighting;LIGHT-EMERG-UNIT;emergency lighting unit;4;units;Deûle Électronique;274,00
+L00074;A;SA-0108;Interior lighting;LIGHT-DIFFUSER;Light diffuser;24;u;Artois Polymères;33,00
+L00075;A;SA-0108;Interior lighting;LIGHT-CABLE;Lighting cable;45000;mm;Hainaut Câblage;3,20
+L00076;A;SA-0108;Interior lighting;LIGHT-SWITCH-PANEL;Lighting switch panel ;1;units;DEÛLE ÉLECTRONIQUE;460,00
+L00077;A;SA-0108;Interior lighting;LIGHT-SENSOR-AMB;Ambient light sensor ;2;units;Deûle Électronique;72,00
+L00078;A;SA-0108;Interior lighting;LIGHT-READING-SPOT;Reading spot;12;pcs;Deûle Électronique;58.00
+L00079;A;SA-0108;Interior lighting;LIGHT-CONNECTOR;Lighting connector;48;pcs;Hainaut Câblage;2,70
+L00080;A;SA-0108;Interior lighting;LIGHT-CLIP;Cable clip;96;pcs;Nordrail Composants;0.35
+L00081;A;SA-0109;Floor and wall panels;PANEL-FLOOR-PLY;Plywood floor panel;14;pcs;Artois Polymères;385.00
+L00082;A;SA-0109;Floor and wall panels;PANEL-FLOOR-COVER;RUBBER FLOOR COVERING;38,5;m;Artois Polymères;58,00
+L00083;A;SA-0109;Floor and wall panels;PANEL-WALL-GRP;GRP WALL PANEL;16;pcs;Artois Polymères;640.00
+L00084;A;SA-0109;Floor and wall panels;PANEL-CEILING;CEILING PANEL;12;pcs;Artois Polymères;512.00
+L00085;A;SA-0109;Floor and wall panels;PANEL-INSUL-MAT;Thermal insulation mat;22;kg;Artois Polymères ;7,60
+L00086;A;SA-0109;Floor and wall panels;PANEL-ADHESIVE;Structural adhesive;7,5;kg;artois polymères;24,50
+L00087;A;SA-0109;Floor and wall panels;PANEL-TRIM-PROFILE;Trim profile;52000;mm;Atelier Lys Métal;11,80
+L00088;A;SA-0109;Floor and wall panels;PANEL-SCREW-KIT;PANEL SCREW KIT;40;pcs;Nordrail Composants;6.30
+L00089;A;SA-0109;Floor and wall panels;SEAT-FIX-KIT-4471;Floor insert kit for seat fixing ;12;u;Nordrail Composants;19,90
+L00090;A;SA-0109;Floor and wall panels;SEAT-RAIL-I;FLOOR RAIL, STAINLESS STEEL;6;pcs;Atelier Lys Métal;312.00
+L00091;A;SA-0109;Floor and wall panels;HVAC-GRILLE-11;Wall ventilation grille type 11;4;pcs;Artois Polymères;39,00
+L00092;A;SA-0111;Passenger door set;DOOR-LEAF;Sliding-plug door leaf;4;units;Portalys;3980,00
+L00093;A;SA-0111;Passenger door set;DOOR-DRIVE-UNIT;Door drive unit ;2;pcs;Portalys;5240,00
+L00094;A;SA-0111;Passenger door set;DOOR-GUIDE-RAIL;door guide rail;4;pcs;Portalys;612,00
+L00095;A;SA-0111;Passenger door set;DOOR-SEAL;Door leaf seal ;8;u;Artois Polymères;74,00
+L00096;A;SA-0111;Passenger door set;DOOR-OBSTACLE-SENSOR;obstacle detection sensor;4;u;Deûle Électronique ;328.00
+L00097;A;SA-0111;Passenger door set;DOOR-CTRL-UNIT;Door control unit ;2;units;deûle électronique;2150,00
+L00098;A;SA-0111;Passenger door set;DOOR-PUSHBUTTON-INT;Interior push button;4;units;Deûle Électronique;86,00
+L00099;A;SA-0111;Passenger door set;DOOR-PUSHBUTTON-EXT;Exterior push button;4;pcs;Deûle Électronique;112.00
+L00100;A;SA-0111;Passenger door set;DOOR-EMERG-HANDLE;Emergency egress handle ;2;u;Portalys;265,00
+L00101;A;SA-0111;Passenger door set;DOOR-STEP-PLATE;Step plate;2;units;Atelier Lys Métal;540.00
+L00102;A;SA-0111;Passenger door set;DOOR-THRESHOLD;Threshold profile;2;units;Atelier Lys Métal;298,00
+L00103;A;SA-0111;Passenger door set;DOOR-HARNESS;Door wiring harness;2;units;HAINAUT CÂBLAGE;386,00
+L00104;A;SA-0111;Passenger door set;DOOR-LOCK;Door locking device;4;pcs;Portalys;447.00
+L00105;A;SA-0111;Passenger door set;DOOR-DAMPER;Door end-stop damper;4;pcs;Portalys;58.50
+L00106;A;SA-0111;Passenger door set;DOOR-PICTO;Door pictogram;8;units;Artois Polymères;6.80
+L00107;A;SA-0111;Passenger door set;DOOR-FIX-KIT;DOOR FIXING KIT;4;u;atelier lys métal;72.00
+L00108;A;SA-0112;PASSENGER INFORMATION SYSTEM;PIS-DISPLAY-INT;INTERIOR TFT DISPLAY;4;pcs;Deûle Électronique;1480,00
+L00109;A;SA-0112;PASSENGER INFORMATION SYSTEM;PIS-DISPLAY-EXT;Exterior LED destination display;2;units;Deûle Électronique;2360.00
+L00110;A;SA-0112;PASSENGER INFORMATION SYSTEM;PIS-SPEAKER;Saloon loudspeaker;8;u;Deûle Électronique ;64,00
+L00111;A;SA-0112;PASSENGER INFORMATION SYSTEM;PIS-CONTROLLER;PIS controller;1;pcs;Deûle Électronique;5720,00
+L00112;A;SA-0112;PASSENGER INFORMATION SYSTEM;PIS-CABLE-TRUNK;PIS cable trunk;36;m;Hainaut Câblage;12,60
+L00113;A;SA-0112;PASSENGER INFORMATION SYSTEM;PIS-SIGN-STD;Standard signage plate;6;pcs;ARTOIS POLYMÈRES;9,50
+L00114;A;SA-0113;Seating module;SEAT-FIX-DBL;FIXED DOUBLE SEAT;24;u;Escaut Sièges ;1260.00
+L00115;A;SA-0113;Seating module;SEAT-RAIL;Seat mounting rail;12;u;Atelier Lys Métal;184,00
+L00116;A;SA-0113;Seating module;SEAT-FIX-KIT;SEAT FIXING KIT;24;u;ATELIER LYS MÉTAL;23.50
+L00117;A;SA-0113;Seating module;SEAT-TABLE;Fixed table ;6;u;Escaut Sièges;395.00
+L00118;A;SA-0113;Seating module;SEAT-GRAB-HANDLE;Seat-back grab handle;12;pcs;Escaut Sièges;31.00
+L00119;A;SA-0113;Seating module;SEAT-END-PANEL;Seat row end panel ;8;pcs;Escaut Sièges;142,00
+L00120;A;SA-0114;Floor and wall anchorage ;ANCH-SEAT-RAIL;Floor anchorage rail;12;u;Atelier Lys Métal;226,00
+L00121;A;SA-0114;Floor and wall anchorage ;ANCH-RAIL-BOLT;Anchorage rail bolt;96;pcs;Nordrail Composants ;1,85
+L00122;A;SA-0114;Floor and wall anchorage ;ANCH-FLOOR-PLATE;Floor anchorage plate;12;u;ATELIER LYS MÉTAL;47.00
+L00123;A;SA-0114;Floor and wall anchorage ;ANCH-SHIM;Levelling shim;24;pcs;Nordrail Composants;2,40
+L00124;A;SA-0110;TOILET MODULE;WC-CABIN-SHELL;toilet cabin shell;1;pcs;Sanirail Modules ;14800.00
+L00125;A;SA-0110;TOILET MODULE;WC-BOWL-VACUUM;Vacuum toilet bowl;1;units;Sanirail Modules;3260,00
+L00126;A;SA-0110;TOILET MODULE;WC-WATER-TANK;Fresh water tank 120 l;1;pcs;Sanirail Modules;1840,00
+L00127;A;SA-0110;TOILET MODULE;WC-WASTE-TANK;Waste retention tank 300 l;1;pcs;Sanirail Modules;2970,00
+L00128;A;SA-0110;TOILET MODULE;WC-WASHBASIN;Washbasin unit;1;pcs;Sanirail Modules;1120,00
+L00129;A;SA-0110;TOILET MODULE;WC-DOOR-SLIDING;manual sliding toilet door;1;units;Sanirail Modules;2380.00
+L00130;A;SA-0110;TOILET MODULE;WC-VACUUM-PUMP;Vacuum generator ;1;u;Sanirail Modules;4150,00
+L00131;A;SA-0110;TOILET MODULE;WC-PIPE-KIT;Toilet pipework kit;1;u;SANIRAIL MODULES;860,00
+L00132;A;SA-0110;TOILET MODULE;WC-SEALANT;Sanitary sealant ;1,5;kg;Artois Polymères;18,00
+L00133;A;SA-0110;TOILET MODULE;WC-GRAB-BAR;Toilet grab bar;2;u;Atelier Lys Métal;128.00
+L00134;A;SA-0110;TOILET MODULE;SEAT-RAIL-1;Mounting rail, aluminium, mark 1 ;2;pcs;Atelier Lys Métal;121,00
+L00135;A;SA-0110;TOILET MODULE;DOOR-SEAL-0;Inner door seal, revision 0;2;pcs;Artois Polymères;52.00
+L00136;B;SA-0101;Carbody shell;SHELL-UNDERFRAME;UNDERFRAME, WELDED ALUMINIUM;1;pcs;atelier lys métal;48200,00
+L00137;B;SA-0101;Carbody shell;SHELL-SIDEWALL;Sidewall panel, extruded;2;u;ATELIER LYS MÉTAL;17650,00
+L00138;B;SA-0101;Carbody shell;SHELL-ROOF;Roof assembly;1;u;Atelier Lys Métal;15400,00
+L00139;B;SA-0101;Carbody shell;SHELL-ENDWALL;Endwall frame;2;u;ATELIER LYS MÉTAL;6900,00
+L00140;B;SA-0101;Carbody shell;SHELL-BRACKET-KIT;Equipment bracket kit ;4;units;Atelier Lys Métal;412,50
+L00141;B;SA-0101;Carbody shell;SHELL-SEAL;Carbody joint seal;24;pcs;ARTOIS POLYMÈRES;18,40
+L00142;B;SA-0104;HVAC unit ;HVAC-COMPRESSOR;Scroll compressor;2;units;Scaldis Thermique;4380.00
+L00143;B;SA-0104;HVAC unit ;HVAC-CONDENSER;Condenser coil;2;pcs;scaldis thermique;2140.00
+L00144;B;SA-0104;HVAC unit ;HVAC-EVAPORATOR;Evaporator coil;2;units;Scaldis Thermique;1960,00
+L00145;B;SA-0104;HVAC unit ;HVAC-FAN-SUPPLY;SUPPLY AIR FAN;4;units;Scaldis Thermique;735,00
+L00146;B;SA-0104;HVAC unit ;HVAC-FILTER;Fresh air filter G4;8;pcs;Scaldis Thermique;38.00
+L00147;B;SA-0104;HVAC unit ;HVAC-DUCT-MAIN;Main air duct;18,5;m;Artois Polymères ;96.00
+L00148;B;SA-0104;HVAC unit ;HVAC-CTRL-BOARD;HVAC control board;1;units;Deûle Électronique;1820.00
+L00149;B;SA-0104;HVAC unit ;HVAC-TEMP-SENSOR;SALOON TEMPERATURE SENSOR;6;u;Deûle Électronique;54.00
+L00150;B;SA-0104;HVAC unit ;HVAC-GRILLE-12;Air outlet grille type 12;16;pcs;Artois Polymères;42.00
+L00151;B;SA-0104;HVAC unit ;HVAC-GRILLE-1L;Air outlet grille, left-hand;2;u;Artois Polymères;46.50
+L00152;B;SA-0104;HVAC unit ;HVAC-REFRIGERANT;Refrigerant R-513A charge;6500;g;Scaldis Thermique;31.00
+L00153;B;SA-0104;HVAC unit ;BGI-2031;Bolt set M8, zinc-nickel ;24;u;Nordrail Composants;0,85
+L00154;B;SA-0105;Braking unit;BRK-COMPRESSOR;Oil-free air compressor;1;pcs;Sambre Freinage;18700.00
+L00155;B;SA-0105;Braking unit;BRK-AIR-TANK;AIR RESERVOIR 100 L;2;pcs;Sambre Freinage;1240.00
+L00156;B;SA-0105;Braking unit;BRK-CTRL-VALVE;Brake control valve;4;u;Sambre Freinage ;2680.00
+L00157;B;SA-0105;Braking unit;BRK-PIPE-STEEL;Brake pipe, stainless ;32000;mm;Sambre Freinage;28,50
+L00158;B;SA-0105;Braking unit;BRK-HOSE-FLEX;Flexible brake hose;8;pcs;SAMBRE FREINAGE;93,00
+L00159;B;SA-0105;Braking unit;BRK-DRYER;Air dryer;1;pcs;Sambre Freinage ;3150.00
+L00160;B;SA-0105;Braking unit;BRK-PRESSURE-SENSOR;PRESSURE TRANSDUCER;6;units;DEÛLE ÉLECTRONIQUE;187.00
+L00161;B;SA-0105;Braking unit;BRK-ECU;Brake electronic control unit;1;pcs;Deûle Électronique;9800.00
+L00162;B;SA-0105;Braking unit;BRK-PARKING-ACT;parking brake actuator;2;pcs;Sambre Freinage;2260.00
+L00163;B;SA-0105;Braking unit;BRK-BRACKET;Pipe support bracket ;12;u;Atelier Lys Métal;14.20
+L00164;B;SA-0105;Braking unit;BGI_2031;Bolt set M8, zinc-nickel;36;units;nordrail composants;0,85
+L00165;B;SA-0106;GANGWAY AND COUPLERS;GANG-BELLOWS;Gangway bellows;2;units;Artois Polymères;12400.00
+L00166;B;SA-0106;GANGWAY AND COUPLERS;GANG-FRAME;Gangway frame ;2;pcs;Atelier Lys Métal;5350.00
+L00167;B;SA-0106;GANGWAY AND COUPLERS;GANG-BRIDGE-PLATE;Gangway bridge plate;2;units;Atelier Lys Métal;1980.00
+L00168;B;SA-0106;GANGWAY AND COUPLERS;GANG-SEAL-PROFILE;Gangway seal profile ;14.4;m;Artois Polymères;22,80
+L00169;B;SA-0106;GANGWAY AND COUPLERS;COUP-SEMI-PERM;Semi-permanent coupler;2;pcs;FERROVAL SYSTÈMES;15800,00
+L00170;B;SA-0106;GANGWAY AND COUPLERS;COUP-DRAFT-GEAR;Draft gear;2;units;Ferroval Systèmes;6240,00
+L00171;B;SA-0106;GANGWAY AND COUPLERS;COUP-ELEC-HEAD;Electrical coupler head ;2;u;Hainaut Câblage;4470.00
+L00172;B;SA-0106;GANGWAY AND COUPLERS;COUP-JUMPER-CABLE;Inter-car jumper cable;4;pcs;Hainaut Câblage;148,00
+L00173;B;SA-0106;GANGWAY AND COUPLERS;GANG-HANDRAIL;Gangway handrail;4;units;Atelier Lys Métal;215.00
+L00174;B;SA-0106;GANGWAY AND COUPLERS;DOOR-SEAL-O;Gangway door seal, outer;4;u;ARTOIS POLYMÈRES;81,00
+L00175;B;SA-0106;GANGWAY AND COUPLERS;BGI-2031;Bolt set M8, zinc-nickel;48;pcs;Nordrail Composants;0.85
+L00176;B;SA-0102;Trailer bogie ;BOGIE-FRAME;Trailer bogie frame;1;pcs;Ferroval Systèmes;26800.00
+L00177;B;SA-0102;Trailer bogie ;BOGIE-WHEELSET;Wheelset, 840 mm;2;pcs;Ferroval Systèmes;11250,00
+L00178;B;SA-0102;Trailer bogie ;BOGIE-PRIMARY-SUSP;Primary suspension spring set;4;pcs;Ferroval Systèmes;1340,00
+L00179;B;SA-0102;Trailer bogie ;BOGIE-AIRSPRING;Secondary air spring;2;pcs;Artois Polymères;2875.00
+L00180;B;SA-0102;Trailer bogie ;BOGIE-BRAKE-CALIPER;Brake caliper unit;4;units;sambre freinage;3120,00
+L00181;B;SA-0102;Trailer bogie ;BOGIE-DAMPER;Hydraulic damper;8;pcs;Ferroval Systèmes;486.00
+L00182;B;SA-0102;Trailer bogie ;BOGIE-AXLEBOX;Axlebox with bearing;4;pcs;Ferroval Systèmes;2240,00
+L00183;B;SA-0103;Traction package;TRAC-CONV-MAIN;MAIN TRACTION CONVERTER;1;units;Tractelys Énergie;96500.00
+L00184;B;SA-0103;Traction package;TRAC-TRANSFORMER;Main transformer 25 kV;1;pcs;Tractelys Énergie;74300,00
+L00185;B;SA-0103;Traction package;TRAC-MOTOR;asynchronous traction motor;4;u;Tractelys Énergie ;21800,00
+L00186;B;SA-0103;Traction package;TRAC-COOLING-UNIT;Converter cooling unit;1;units;Scaldis Thermique;8650.00
+L00187;B;SA-0103;Traction package;TRAC-HV-CABLE;High-voltage cable, shielded;42000;mm;Hainaut Câblage;64.20
+L00188;B;SA-0103;Traction package;TRAC-CIRCUIT-BREAKER;Vacuum circuit breaker;1;units;TRACTELYS ÉNERGIE;13900.00
+L00189;B;SA-0103;Traction package;TRAC-EARTH-SWITCH;Earthing switch;1;pcs;Tractelys Énergie;4150.00
+L00190;B;SA-0103;Traction package;TRAC-CTRL-RACK;Traction control rack;1;u;Deûle Électronique;17200.00
+L00191;B;SA-0103;Traction package;TRAC-SENSOR-KIT;Speed and current sensor kit;4;pcs;Deûle Électronique;940,00
+L00192;B;SA-0103;Traction package;TRAC-BUSBAR;Copper busbar;6;pcs;Hainaut Câblage;215.00
+L00193;B;SA-0103;Traction package;TRAC-1NSULAT0R;Roof insulator;12;u;Tractelys Énergie;178.00
+L00194;B;SA-0103;Traction package;TRAC-FIX-KIT;Traction equipment fixing kit;8;u;Atelier Lys Métal ;96,50
+L00195;B;SA-0107;Auxiliary converter;AUX-INVERTER;Auxiliary inverter 60 kVA;1;pcs;Tractelys Énergie;34600.00
+L00196;B;SA-0107;Auxiliary converter;AUX-CAP-BANK;DC-link capacitor bank ;2;units;Tractelys Énergie;2890,00
+L00197;B;SA-0107;Auxiliary converter;AUX-BATTERY-CHARGER;Battery charger 24 V ;1;pcs;Tractelys Énergie ;7350.00
+L00198;B;SA-0107;Auxiliary converter;AUX-BATTERY-PACK;NiCd battery pack;2;units;TRACTELYS ÉNERGIE;9120,00
+L00199;B;SA-0107;Auxiliary converter;AUX-FILTER-CHOKE;INPUT FILTER CHOKE;1;pcs;Tractelys Énergie;3480.00
+L00200;B;SA-0107;Auxiliary converter;AUX-COOLING-FAN;Converter cooling fan ;2;pcs;Scaldis Thermique;640.00
+L00201;B;SA-0107;Auxiliary converter;AUX-CONTACTOR;Power contactor;4;u;deûle électronique;385.00
+L00202;B;SA-0107;Auxiliary converter;AUX-FUSE-BOX;Fuse box;1;pcs;Deûle Électronique;520,00
+L00203;B;SA-0107;Auxiliary converter;AUX-LV-CABLE;Low-voltage power cable ;28000;mm;Hainaut Câblage;9.40
+L00204;B;SA-0107;Auxiliary converter;AUX-ENCLOSURE;Underfloor enclosure;1;u;Atelier Lys Métal;4250.00
+L00205;B;SA-0107;Auxiliary converter;BGI-2031;Bolt set M8, zinc-nickel;16;units;Nordrail Composants ;0.85
+L00206;B;SA-0108;Interior lighting;LIGHT-LED-STRIP;LED light strip 1200 mm;24;units;DEÛLE ÉLECTRONIQUE;118,00
+L00207;B;SA-0108;Interior lighting;LIGHT-DRIVER;LED driver ;6;pcs;Deûle Électronique ;96.00
+L00208;B;SA-0108;Interior lighting;LIGHT-EMERG-UNIT;Emergency lighting unit;4;units;Deûle Électronique;274,00
+L00209;B;SA-0108;Interior lighting;LIGHT-DIFFUSER;LIGHT DIFFUSER;24;units;Artois Polymères;33,00
+L00210;B;SA-0108;Interior lighting;LIGHT-CABLE;Lighting cable ;45000;mm;Hainaut Câblage;3,20
+L00211;B;SA-0108;Interior lighting;LIGHT-SWITCH-PANEL;Lighting switch panel;1;units;Deûle Électronique;460.00
+L00212;B;SA-0108;Interior lighting;LIGHT-SENSOR-AMB;Ambient light sensor;2;units;Deûle Électronique;72,00
+L00213;B;SA-0108;Interior lighting;LIGHT-READING-SPOT;Reading spot;12;pcs;Deûle Électronique;58.00
+L00214;B;SA-0108;Interior lighting;LIGHT-CONNECTOR;Lighting connector;48;pcs;HAINAUT CÂBLAGE;2.70
+L00215;B;SA-0108;Interior lighting;LIGHT-CLIP;Cable clip;96;u;Nordrail Composants ;0,35
+L00216;B;SA-0109;Floor and wall panels;PANEL-FLOOR-PLY;Plywood floor panel;14;u;Artois Polymères;385.00
+L00217;B;SA-0109;Floor and wall panels;PANEL-FLOOR-COVER;RUBBER FLOOR COVERING;38,5;m;Artois Polymères;58,00
+L00218;B;SA-0109;Floor and wall panels;PANEL-WALL-GRP;GRP wall panel;16;pcs;artois polymères;640.00
+L00219;B;SA-0109;Floor and wall panels;PANEL-CEILING;Ceiling panel;12;pcs;Artois Polymères;512.00
+L00220;B;SA-0109;Floor and wall panels;PANEL-INSUL-MAT;Thermal insulation mat;22.0;kg;Artois Polymères;7.60
+L00221;B;SA-0109;Floor and wall panels;PANEL-ADHESIVE;Structural adhesive;7.5;kg;Artois Polymères;24,50
+L00222;B;SA-0109;Floor and wall panels;PANEL-TRIM-PROFILE;Trim profile;52;m;ATELIER LYS MÉTAL;11.80
+L00223;B;SA-0109;Floor and wall panels;PANEL-SCREW-KIT;Panel screw kit;40;u;Nordrail Composants;6,30
+L00224;B;SA-0109;Floor and wall panels;SEAT-FIX-KIT-4471;Floor insert kit for seat fixing;12;units;Nordrail Composants;19.90
+L00225;B;SA-0109;Floor and wall panels;SEAT-RAIL-I;Floor rail, stainless steel;6;pcs;Atelier Lys Métal ;312.00
+L00226;B;SA-0109;Floor and wall panels;HVAC-GRILLE-11;WALL VENTILATION GRILLE TYPE 11;4;pcs;Artois Polymères;39,00
+L00227;B;SA-0215;Bike module;BIKE-HOOK;Vertical bike hook ;8;units;Nordrail Composants;148.00
+L00228;B;SA-0215;Bike module;BIKE-RAIL;Bike module carrier rail;2;pcs;Atelier Lys Métal;365,00
+L00229;B;SA-0215;Bike module;BIKE-STRAP;Bike retaining strap;8;units;Artois Polymères;12,90
+L00230;B;SA-0215;Bike module;BIKE-FIX-KIT;Bike rail fixing kit;8;units;Atelier Lys Métal;27.00
+L00231;B;SA-0215;Bike module;BIKE-FLOOR-MAT;Bike zone floor mat ;1;pcs;Artois Polymères;286,00
+L00232;B;SA-0215;Bike module;BIKE-PICTO;Bike zone pictogram;4;pcs;Artois Polymères;7,40
+L00233;B;SA-0111;PASSENGER DOOR SET;DOOR-LEAF;Sliding-plug door leaf ;4;units;Portalys;3980.00
+L00234;B;SA-0111;PASSENGER DOOR SET;DOOR-DRIVE-UNIT;Door drive unit;2;units;Portalys;5240,00
+L00235;B;SA-0111;PASSENGER DOOR SET;DOOR-GUIDE-RAIL;Door guide rail;4;u;Portalys;612,00
+L00236;B;SA-0111;PASSENGER DOOR SET;DOOR-SEAL;Door leaf seal;8;pcs;Portalys ;74,00
+L00237;B;SA-0111;PASSENGER DOOR SET;DOOR-OBSTACLE-SENSOR;obstacle detection sensor;4;pcs;Deûle Électronique;328.00
+L00238;B;SA-0111;PASSENGER DOOR SET;DOOR-CTRL-UNIT;Door control unit ;2;units;Deûle Électronique;2150,00
+L00239;B;SA-0111;PASSENGER DOOR SET;DOOR-PUSHBUTTON-INT;Interior push button;4;units;DEÛLE ÉLECTRONIQUE;86.00
+L00240;B;SA-0111;PASSENGER DOOR SET;DOOR-PUSHBUTTON-EXT;Exterior push button;4;units;Deûle Électronique;112,00
+L00241;B;SA-0111;PASSENGER DOOR SET;DOOR-EMERG-HANDLE;Emergency egress handle;2;pcs;PORTALYS;265,00
+L00242;B;SA-0111;PASSENGER DOOR SET;DOOR-STEP-PLATE;step plate;2;pcs;Atelier Lys Métal;540,00
+L00243;B;SA-0111;PASSENGER DOOR SET;DOOR-THRESHOLD;Threshold profile ;2;u;Atelier Lys Métal;298,00
+L00244;B;SA-0111;PASSENGER DOOR SET;DOOR-HARNESS;Door wiring harness ;2;units;Hainaut Câblage;386,00
+L00245;B;SA-0111;PASSENGER DOOR SET;DOOR-LOCK;Door locking device;4;pcs;Portalys;447,00
+L00246;B;SA-0111;PASSENGER DOOR SET;DOOR-DAMPER;Door end-stop damper;4;pcs;Portalys;58,50
+L00247;B;SA-0111;PASSENGER DOOR SET;DOOR-PICTO;Door pictogram;8;pcs;Artois Polymères;6.80
+L00248;B;SA-0111;PASSENGER DOOR SET;DOOR-FIX-KIT;Door fixing kit;4;pcs;Atelier Lys Métal;72,00
+L00249;B;SA-0212;Passenger information system;PIS-DISPLAY-INT;Interior TFT display;4;pcs;Deûle Électronique;1480,00
+L00250;B;SA-0212;Passenger information system;PIS-DISPLAY-EXT;Exterior LED destination display;2;pcs;Deûle Électronique;2360,00
+L00251;B;SA-0212;Passenger information system;PIS-SPEAKER;Saloon loudspeaker;8;units;Deûle Électronique;64.00
+L00252;B;SA-0212;Passenger information system;PIS-CONTROLLER;PIS controller;1;pcs;DEÛLE ÉLECTRONIQUE;5720.00
+L00253;B;SA-0212;Passenger information system;PIS-CABLE-TRUNK;PIS cable trunk;36;m;hainaut câblage;12.60
+L00254;B;SA-0212;Passenger information system;PIS-SIGN-STD;Standard signage plate;4;u;Artois Polymères ;9,50
+L00255;B;SA-0212;Passenger information system;PIS-SIGN-BIKE;bike area signage plate;2;u;Artois Polymères;11,20
+L00256;B;SA-0213;Seating module;SEAT-FIX-DBL;FIXED DOUBLE SEAT;18;pcs;escaut sièges;1260,00
+L00257;B;SA-0213;Seating module;SEAT-RAIL;Seat mounting rail;12;units;Atelier Lys Métal;184,00
+L00258;B;SA-0213;Seating module;SEAT-FIX-KIT;Seat fixing kit;18;pcs;Atelier Lys Métal;23,50
+L00259;B;SA-0213;Seating module;SEAT-TABLE;Fixed table;6;u;Escaut Sièges ;474.00
+L00260;B;SA-0213;Seating module;SEAT-GRAB-HANDLE;Seat-back grab handle;12;u;Escaut Sièges ;31,00
+L00261;B;SA-0213;Seating module;SEAT-END-PANEL;Seat row end panel;8;pcs;Escaut Sièges;142.00
+L00262;B;SA-0213;Seating module;SEAT-TIPUP;Tip-up seat;4;units;Escaut Sièges;610.00
+L00263;B;SA-0214;Floor and wall anchorage;ANCH-SEAT-RAIL;Floor anchorage rail ;10;units;Atelier Lys Métal;226,00
+L00264;B;SA-0214;Floor and wall anchorage;ANCH-RAIL-BOLT;Anchorage rail bolt;80;pcs;Nordrail Composants;1,85
+L00265;B;SA-0214;Floor and wall anchorage;ANCH-FLOOR-PLATE;FLOOR ANCHORAGE PLATE;10;units;ATELIER LYS MÉTAL;47.00
+L00266;B;SA-0214;Floor and wall anchorage;ANCH-SHIM;Levelling shim;20;units;Nordrail Composants;2,40
+L00267;B;SA-0214;Floor and wall anchorage;ANCH-HOOK-POINT;bike hook anchor point;8;units;Atelier Lys Métal ;38.00
+L00268;B;SA-0110;Toilet module;WC-CABIN-SHELL;Toilet cabin shell;1;units;sanirail modules;14800.00
+L00269;B;SA-0110;Toilet module;WC-BOWL-VACUUM;Vacuum toilet bowl ;1;pcs;Sanirail Modules;3260.00
+L00270;B;SA-0110;Toilet module;WC-WATER-TANK;Fresh water tank 120 l;1;pcs;Sanirail Modules;1840,00
+L00271;B;SA-0110;Toilet module;WC-WASTE-TANK;Waste retention tank 300 l;1;pcs;Sanirail Modules ;2970,00
+L00272;B;SA-0110;Toilet module;WC-WASHBASIN;Washbasin unit;1;u;SANIRAIL MODULES;1120.00
+L00273;B;SA-0110;Toilet module;WC-DOOR-SLIDING;Manual sliding toilet door;1;units;Sanirail Modules ;2380,00
+L00274;B;SA-0110;Toilet module;WC-VACUUM-PUMP;Vacuum generator;1;u;Sanirail Modules;4150.00
+L00275;B;SA-0110;Toilet module;WC-PIPE-KIT;Toilet pipework kit;1;units;Sanirail Modules;860,00
+L00276;B;SA-0110;Toilet module;WC-SEALANT;Sanitary sealant;1500;g;Artois Polymères;18,00
+L00277;B;SA-0110;Toilet module;WC-GRAB-BAR;Toilet grab bar;2;units;atelier lys métal;128,00
+L00278;B;SA-0110;Toilet module;SEAT-RAIL-1;Mounting rail, aluminium, mark 1;2;units;Atelier Lys Métal;121,00
+L00279;B;SA-0110;Toilet module;DOOR-SEAL-0;Inner door seal, revision 0;2;pcs;ARTOIS POLYMÈRES;52,00
+L00280;D;SA-0101;carbody shell;SHELL-UNDERFRAME;Underframe, welded aluminium;1;units;Atelier Lys Métal;48200,00
+L00281;D;SA-0101;carbody shell;SHELL-SIDEWALL;Sidewall panel, extruded;2;pcs;Atelier Lys Métal;17650,00
+L00282;D;SA-0101;carbody shell;SHELL-ROOF;Roof assembly;1;pcs;Atelier Lys Métal;15400.00
+L00283;D;SA-0101;carbody shell;SHELL-ENDWALL;endwall frame;2;u;Atelier Lys Métal;6900.00
+L00284;D;SA-0101;carbody shell;SHELL-BRACKET-KIT;Equipment bracket kit;4;pcs;Atelier Lys Métal;412,50
+L00285;D;SA-0101;carbody shell;SHELL-SEAL;Carbody joint seal;24;pcs;Artois Polymères;18,40
+L00286;D;SA-0104;HVAC UNIT;HVAC-COMPRESSOR;Scroll compressor;2;pcs;SCALDIS THERMIQUE;4380.00
+L00287;D;SA-0104;HVAC UNIT;HVAC-CONDENSER;Condenser coil;2;pcs;Scaldis Thermique;2140,00
+L00288;D;SA-0104;HVAC UNIT;HVAC-EVAPORATOR;Evaporator coil;2;u;SCALDIS THERMIQUE;1960.00
+L00289;D;SA-0104;HVAC UNIT;HVAC-FAN-SUPPLY;Supply air fan;4;pcs;scaldis thermique;735,00
+L00290;D;SA-0104;HVAC UNIT;HVAC-FILTER;FRESH AIR FILTER G4;8;u;Artois Polymères ;38,00
+L00291;D;SA-0104;HVAC UNIT;HVAC-DUCT-MAIN;Main air duct;18.5;m;Artois Polymères;96,00
+L00292;D;SA-0104;HVAC UNIT;HVAC-CTRL-BOARD;HVAC control board;1;units;Deûle Électronique;1820,00
+L00293;D;SA-0104;HVAC UNIT;HVAC-TEMP-SENSOR;Saloon temperature sensor;6;pcs;Deûle Électronique;54,00
+L00294;D;SA-0104;HVAC UNIT;HVAC-GRlLLE-12;Air outlet grille type 12;16;pcs;Artois Polymères;42,00
+L00295;D;SA-0104;HVAC UNIT;HVAC-GRILLE-1L;Air outlet grille, left-hand;2;u;artois polymères;46.50
+L00296;D;SA-0104;HVAC UNIT;HVAC-REFRIGERANT;Refrigerant R-513A charge;6,5;kg;Scaldis Thermique;31.00
+L00297;D;SA-0104;HVAC UNIT;BGI2031;Bolt set M8, zinc-nickel;24;pcs;Nordrail Composants;0,85
+L00298;D;SA-0105;BRAKING UNIT;BRK-COMPRESSOR;Oil-free air compressor;1;pcs;Sambre Freinage;18700.00
+L00299;D;SA-0105;BRAKING UNIT;BRK-AIR-TANK;Air reservoir 100 l;2;u;Sambre Freinage;1240,00
+L00300;D;SA-0105;BRAKING UNIT;BRK-CTRL-VALVE ;Brake control valve ;4;units;Sambre Freinage;2680.00
+L00301;D;SA-0105;BRAKING UNIT;BRK-PIPE-STEEL;Brake pipe, stainless;32;m;sambre freinage;28,50
+L00302;D;SA-0105;BRAKING UNIT;BRK-HOSE-FLEX;Flexible brake hose;8;units;Sambre Freinage;93.00
+L00303;D;SA-0105;BRAKING UNIT;BRK-DRYER;Air dryer;1;pcs;Sambre Freinage;3150.00
+L00304;D;SA-0105;BRAKING UNIT;BRK-PRESSURE-SENSOR;Pressure transducer;6;pcs;Deûle Électronique ;187.00
+L00305;D;SA-0105;BRAKING UNIT;BRK-ECU;Brake electronic control unit;1;units;deûle électronique;9800,00
+L00306;D;SA-0105;BRAKING UNIT;BRK-PARKING-ACT;Parking brake actuator;2;u;Sambre Freinage;2260,00
+L00307;D;SA-0105;BRAKING UNIT;BRK-BRACKET;Pipe support bracket ;12;units;Atelier Lys Métal;14.20
+L00308;D;SA-0105;BRAKING UNIT;BGI-2031;bolt set m8, zinc-nickel;36;pcs;nordrail composants;0,85
+L00309;D;SA-0106;Gangway and couplers;GANG-BELLOWS;Gangway bellows;2;units;Artois Polymères;12400,00
+L00310;D;SA-0106;Gangway and couplers;GANG-FRAME;Gangway frame;2;units;Atelier Lys Métal;5350.00
+L00311;D;SA-0106;Gangway and couplers;GANG-BRIDGE-PLATE;Gangway bridge plate;2;pcs;Atelier Lys Métal;1980,00
+L00312;D;SA-0106;Gangway and couplers;GANG-SEAL-PROFILE;gangway seal profile;14.4;m;Artois Polymères;22.80
+L00313;D;SA-0106;Gangway and couplers;COUP-SEMI-PERM;Semi-permanent coupler ;2;pcs;Ferroval Systèmes;15800,00
+L00314;D;SA-0106;Gangway and couplers;COUP-DRAFT-GEAR;DRAFT GEAR;2;pcs;Ferroval Systèmes;7490.00
+L00315;D;SA-0106;Gangway and couplers;COUP-ELEC-HEAD;Electrical coupler head;2;pcs;Hainaut Câblage;4470,00
+L00316;D;SA-0106;Gangway and couplers;COUP-JUMPER-CABLE;Inter-car jumper cable;9600;mm;HAINAUT CÂBLAGE;148.00
+L00317;D;SA-0106;Gangway and couplers;GANG-HANDRAlL;gangway handrail;4;u;Atelier Lys Métal ;215.00
+L00318;D;SA-0106;Gangway and couplers;DOOR-SEAL-O;Gangway door seal, outer;4;pcs;Artois Polymères;81.00
+L00319;D;SA-0106;Gangway and couplers;bgi-2031;Bolt set M8, zinc-nickel;48;u;Nordrail Composants;0.85
+L00320;D;SA-0102;Trailer bogie;BOGIE-FRAME;Trailer bogie frame;1;u;Ferroval Systèmes;26800,00
+L00321;D;SA-0102;Trailer bogie;BOGIE-WHEELSET;Wheelset, 840 mm;2;pcs;ferroval systèmes;11250.00
+L00322;D;SA-0102;Trailer bogie;BOGIE-PRIMARY-SUSP;Primary suspension spring set;4;pcs;Ferroval Systèmes;1340,00
+L00323;D;SA-0102;Trailer bogie;BOGIE-AIRSPRING;SECONDARY AIR SPRING;2;units;Artois Polymères;2875.00
+L00324;D;SA-0102;Trailer bogie;BOGIE-BRAKE-CALIPER;Brake caliper unit;4;units;sambre freinage;3120,00
+L00325;D;SA-0102;Trailer bogie;BOGIE-DAMPER;Hydraulic damper;8;units;Ferroval Systèmes;486,00
+L00326;D;SA-0102;Trailer bogie;BOGIE-AXLEBOX;AXLEBOX WITH BEARING;4;units;Ferroval Systèmes;2240,00
+L00327;D;SA-0403;Traction package ;TRAC-CONV-MAIN;Main traction converter;1;units;tractelys énergie;96500.00
+L00328;D;SA-0403;Traction package ;TRAC-MOTOR;Asynchronous traction motor;4;units;Tractelys Énergie;21800.00
+L00329;D;SA-0403;Traction package ;TRAC-COOLING-UNIT;Converter cooling unit;1;pcs;Scaldis Thermique;8650,00
+L00330;D;SA-0403;Traction package ;TRAC-HV-CABLE;HIGH-VOLTAGE CABLE, SHIELDED;42;m;Hainaut Câblage;64.20
+L00331;D;SA-0403;Traction package ;TRAC-CIRCUIT-BREAKER;Vacuum circuit breaker;1;pcs;TRACTELYS ÉNERGIE;13900.00
+L00332;D;SA-0403;Traction package ;TRAC-EARTH-SWITCH;EARTHING SWITCH;1;pcs;Tractelys Énergie;4150,00
+L00333;D;SA-0403;Traction package ;TRAC-CTRL-RACK;Traction control rack;1;pcs;Deûle Électronique ;17200.00
+L00334;D;SA-0403;Traction package ;TRAC-SENSOR-KIT;SPEED AND CURRENT SENSOR KIT;4;u;DEÛLE ÉLECTRONIQUE;940,00
+L00335;D;SA-0403;Traction package ;TRAC-BUSBAR;Copper busbar ;6;units;Hainaut Câblage;215,00
+L00336;D;SA-0403;Traction package ;TRAC-INSULATOR;ROOF INSULATOR;12;units;Tractelys Énergie;178,00
+L00337;D;SA-0403;Traction package ;TRAC-FIX-KIT;Traction equipment fixing kit;8;pcs;atelier lys métal;96,50
+L00338;D;SA-0403;Traction package ;TRAC-DIESEL-GENSET;Diesel generator set;1;pcs;TRACTELYS ÉNERGIE;118000,00
+L00339;D;SA-0403;Traction package ;TRAC-FUEL-TANK;Fuel tank 1200 l;1;units;Atelier Lys Métal;9400.00
+L00340;D;SA-0403;Traction package ;TRAC-EXHAUST-KIT;EXHAUST AND AFTER-TREATMENT KIT;1;pcs;Scaldis Thermique;14250.00
+L00341;D;SA-0107;Auxiliary converter;AUX-INVERTER;Auxiliary inverter 60 kVA ;1;pcs;Tractelys Énergie;34600.00
+L00342;D;SA-0107;Auxiliary converter;AUX-CAP-BANK;DC-link capacitor bank;2;u;Tractelys Énergie ;2890,00
+L00343;D;SA-0107;Auxiliary converter;AUX-BATTERY-CHARGER;Battery charger 24 V;1;pcs;Tractelys Énergie;7350,00
+L00344;D;SA-0107;Auxiliary converter;AUX-BATTERY-PACK;NiCd battery pack ;2;units;TRACTELYS ÉNERGIE;9120,00
+L00345;D;SA-0107;Auxiliary converter;AUX-FILTER-CHOKE;input filter choke;1;pcs;TRACTELYS ÉNERGIE;3480,00
+L00346;D;SA-0107;Auxiliary converter;AUX-COOLING-FAN;Converter cooling fan;2;units;scaldis thermique;640.00
+L00347;D;SA-0107;Auxiliary converter;AUX-CONTACTOR;Power contactor;4;pcs;deûle électronique;385,00
+L00348;D;SA-0107;Auxiliary converter;AUX-FUSE-BOX;Fuse box;1;pcs;Deûle Électronique;520.00
+L00349;D;SA-0107;Auxiliary converter;AUX-LV-CABLE;Low-voltage power cable ;28;m;Hainaut Câblage;9.40
+L00350;D;SA-0107;Auxiliary converter;AUX-ENCLOSURE;Underfloor enclosure;1;pcs;Atelier Lys Métal;4250.00
+L00351;D;SA-0107;Auxiliary converter;BGI-2031 ;BOLT SET M8, ZINC-NICKEL;16;pcs;Nordrail Composants;0,85
+L00352;D;SA-0108;Interior lighting;LIGHT-LED-STRIP;LED light strip 1200 mm;24;pcs;Deûle Électronique;118.00
+L00353;D;SA-0108;Interior lighting;LIGHT-DRIVER;LED DRIVER;6;pcs;Deûle Électronique;96,00
+L00354;D;SA-0108;Interior lighting;LIGHT-EMERG-UNIT;Emergency lighting unit;4;units;Deûle Électronique;274,00
+L00355;D;SA-0108;Interior lighting;LIGHT-DIFFUSER;LIGHT DIFFUSER;24;u;Artois Polymères ;33.00
+L00356;D;SA-0108;Interior lighting;LIGHT-CABLE;Lighting cable;45;m;Hainaut Câblage ;3,20
+L00357;D;SA-0108;Interior lighting;LIGHT-SWITCH-PANEL;Lighting switch panel;1;u;Deûle Électronique;460,00
+L00358;D;SA-0108;Interior lighting;LIGHT-SENSOR-AMB;Ambient light sensor;2;u;Deûle Électronique;72,00
+L00359;D;SA-0108;Interior lighting;LIGHT-READING-SPOT;Reading spot;12;pcs;DEÛLE ÉLECTRONIQUE;58,00
+L00360;D;SA-0108;Interior lighting;LIGHT-CONNECTOR;LIGHTING CONNECTOR;48;pcs;Hainaut Câblage;2,70
+L00361;D;SA-0108;Interior lighting;LIGHT-CLIP;Cable clip;96;units;Nordrail Composants;0,35
+L00362;D;SA-0109;Floor and wall panels;PANEL-FLOOR-PLY;plywood floor panel;14;units;Artois Polymères;385,00
+L00363;D;SA-0109;Floor and wall panels;PANEL-FLOOR-COVER;rubber floor covering;38.5;m;Artois Polymères;58.00
+L00364;D;SA-0109;Floor and wall panels;PANEL-WALL-GRP;grp wall panel;16;pcs;Artois Polymères;640,00
+L00365;D;SA-0109;Floor and wall panels;PANEL-CEILING;Ceiling panel;12;units;Artois Polymères;512.00
+L00366;D;SA-0109;Floor and wall panels;PANEL-INSUL-MAT;Thermal insulation mat;22000;g;Artois Polymères;7.60
+L00367;D;SA-0109;Floor and wall panels;PANEL-ADHESIVE;Structural adhesive;7.5;kg;Artois Polymères;24,50
+L00368;D;SA-0109;Floor and wall panels;PANEL-TRIM-PROFILE;trim profile;52000;mm;Atelier Lys Métal;11,80
+L00369;D;SA-0109;Floor and wall panels;PANEL-SCREW-KIT;Panel screw kit ;40;pcs;NORDRAIL COMPOSANTS;6.30
+L00370;D;SA-0109;Floor and wall panels;SEAT-FIX-KIT-4471;Floor insert kit for seat fixing;12;pcs;Nordrail Composants;19.90
+L00371;D;SA-0109;Floor and wall panels;SEAT-RAIL-I;Floor rail, stainless steel;6;pcs;Atelier Lys Métal;312.00
+L00372;D;SA-0109;Floor and wall panels;HVAC-GRILLE-11;Wall ventilation grille type 11;4;pcs;Artois Polymères ;39.00
+L00373;D;SA-0111;Passenger door set;DOOR-LEAF;Sliding-plug door leaf;4;pcs;Portalys;3980,00
+L00374;D;SA-0111;Passenger door set;DOOR-DRIVE-UNIT;Door drive unit;2;pcs;Portalys;5240.00
+L00375;D;SA-0111;Passenger door set;DOOR-GUIDE-RAIL;door guide rail;4;pcs;Portalys;612,00
+L00376;D;SA-0111;Passenger door set;DOOR-SEAL;Door leaf seal;8;u;Artois Polymères ;74.00
+L00377;D;SA-0111;Passenger door set;DOOR-OBSTACLE-SENSOR;Obstacle detection sensor;4;units;Deûle Électronique;328,00
+L00378;D;SA-0111;Passenger door set;DOOR-CTRL-UNIT;Door control unit;2;pcs;Deûle Électronique;2150,00
+L00379;D;SA-0111;Passenger door set;DOOR-PUSHBUTTON-INT;Interior push button;4;pcs;Deûle Électronique;86.00
+L00380;D;SA-0111;Passenger door set;DOOR-PUSHBUTTON-EXT;Exterior push button;4;pcs;Deûle Électronique ;112,00
+L00381;D;SA-0111;Passenger door set;DOOR-EMERG-HANDLE;emergency egress handle;2;u;Portalys;265,00
+L00382;D;SA-0111;Passenger door set;DOOR-STEP-PLATE;Step plate;2;u;Atelier Lys Métal;540.00
+L00383;D;SA-0111;Passenger door set;DOOR-THRESHOLD;threshold profile;2;pcs;Atelier Lys Métal;298.00
+L00384;D;SA-0111;Passenger door set;DOOR-HARNESS;DOOR WIRING HARNESS;2;u;Hainaut Câblage;386,00
+L00385;D;SA-0111;Passenger door set;DOOR-LOCK;Door locking device;4;u;Portalys;447,00
+L00386;D;SA-0111;Passenger door set;DOOR-DAMPER;Door end-stop damper;4;pcs;Portalys ;58,50
+L00387;D;SA-0111;Passenger door set;DOOR-PICTO;Door pictogram;8;u;Artois Polymères;6.80
+L00388;D;SA-0111;Passenger door set;DOOR-FIX-KIT;Door fixing kit;4;units;ATELIER LYS MÉTAL;72.00
+L00389;D;SA-0112;PASSENGER INFORMATION SYSTEM;PIS-DISPLAY-INT;Interior TFT display;4;u;Deûle Électronique;1480,00
+L00390;D;SA-0112;PASSENGER INFORMATION SYSTEM;PIS-DISPLAY-EXT;Exterior LED destination display;2;pcs;deûle électronique;2360,00
+L00391;D;SA-0112;PASSENGER INFORMATION SYSTEM;PIS-SPEAKER;Saloon loudspeaker;8;pcs;Deûle Électronique;64.00
+L00392;D;SA-0112;PASSENGER INFORMATION SYSTEM;PIS-CONTROLLER;PIS controller;1;pcs;Deûle Électronique ;5720,00
+L00393;D;SA-0112;PASSENGER INFORMATION SYSTEM;PIS-CABLE-TRUNK;PIS cable trunk ;36;m;HAINAUT CÂBLAGE;12.60
+L00394;D;SA-0112;PASSENGER INFORMATION SYSTEM;PIS-SIGN-STD;Standard signage plate;6;pcs;Artois Polymères;9.50
+L00395;D;SA-0113;Seating module;SEAT-FIX-DBL;fixed double seat;24;u;Escaut Sièges ;1260.00
+L00396;D;SA-0113;Seating module;SEAT-RAIL;Seat mounting rail;12;u;Atelier Lys Métal;184.00
+L00397;D;SA-0113;Seating module;SEAT-FIX-KIT;Seat fixing kit;24;pcs;Atelier Lys Métal;23,50
+L00398;D;SA-0113;Seating module;SEAT-TABLE;Fixed table;6;units;Escaut Sièges ;395.00
+L00399;D;SA-0113;Seating module;SEAT-GRAB-HANDLE;Seat-back grab handle;12;pcs;Escaut Sièges;31.00
+L00400;D;SA-0113;Seating module;SEAT-END-PANEL;Seat row end panel;8;units;Escaut Sièges;142.00
+L00401;D;SA-0114;Floor and wall anchorage;ANCH-SEAT-RAIL;Floor anchorage rail ;12;pcs;Atelier Lys Métal;226.00
+L00402;D;SA-0114;Floor and wall anchorage;ANCH-RAIL-BOLT;Anchorage rail bolt ;96;units;nordrail composants;1.85
+L00403;D;SA-0114;Floor and wall anchorage;ANCH-FLOOR-PLATE;floor anchorage plate;12;pcs;Atelier Lys Métal ;47.00
+L00404;D;SA-0114;Floor and wall anchorage;ANCH-SHIM;Levelling shim ;24;units;Nordrail Composants;2.40
+L00405;D;SA-0110;TOILET MODULE;WC-CABIN-SHELL;Toilet cabin shell;1;units;Sanirail Modules;14800.00
+L00406;D;SA-0110;TOILET MODULE;WC-BOWL-VACUUM;Vacuum toilet bowl;1;pcs;sanirail modules;3260.00
+L00407;D;SA-0110;TOILET MODULE;WC-WATER-TANK;Fresh water tank 120 l;1;u;Sanirail Modules;1840.00
+L00408;D;SA-0110;TOILET MODULE;WC-WASTE-TANK;Waste retention tank 300 l;1;pcs;Sanirail Modules;2970.00
+L00409;D;SA-0110;TOILET MODULE;wc-washbasin ;Washbasin unit;1;units;Sanirail Modules;1120.00
+L00410;D;SA-0110;TOILET MODULE;WC-DOOR-SLIDING;Manual sliding toilet door;1;pcs;Sanirail Modules;2380,00
+L00411;D;SA-0110;TOILET MODULE;WC-VACUUM-PUMP;Vacuum generator;1;pcs;Sanirail Modules;4150,00
+L00412;D;SA-0110;TOILET MODULE;WC-PIPE-KIT;Toilet pipework kit ;1;units;Sanirail Modules;860,00
+L00413;D;SA-0110;TOILET MODULE;WC-SEALANT;Sanitary sealant;3;pcs;Artois Polymères;18,00
+L00414;D;SA-0110;TOILET MODULE;WC-GRAB-BAR;Toilet grab bar;2;units;Atelier Lys Métal;128.00
+L00415;D;SA-0110;TOILET MODULE;SEAT-RAIL-1;Mounting rail, aluminium, mark 1;2;u;ATELIER LYS MÉTAL;121.00
+L00416;D;SA-0110;TOILET MODULE;DOOR-SEAL-0;Inner door seal, revision 0;2;u;Artois Polymères;52.00
+L00417;E;SA-0101;Carbody shell;SHELL-UNDERFRAME;Underframe, welded aluminium;1;pcs;Atelier Lys Métal;48200.00
+L00418;E;SA-0101;Carbody shell;SHELLSIDEWALL;Sidewall panel, extruded;2;units;Atelier Lys Métal;17650.00
+L00419;E;SA-0101;Carbody shell;SHELL-ROOF;Roof assembly;1;u;Atelier Lys Métal ;15400.00
+L00420;E;SA-0101;Carbody shell;SHELL-ENDWALL;Endwall frame;2;u;Atelier Lys Métal;6900,00
+L00421;E;SA-0101;Carbody shell;SHELL-BRACKET-KIT;Equipment bracket kit;4;pcs;Atelier Lys Métal;412.50
+L00422;E;SA-0101;Carbody shell;SHELL-SEAL;Carbody joint seal;24;units;Artois Polymères;18.40
+L00423;E;SA-0104;HVAC unit ;HVAC-COMPRESSOR;Scroll compressor;2;pcs;Scaldis Thermique;4380,00
+L00424;E;SA-0104;HVAC unit ;HVAC-CONDENSER;Condenser coil;2;pcs;Scaldis Thermique;2140.00
+L00425;E;SA-0104;HVAC unit ;HVAC-EVAPORATOR;evaporator coil;2;units;Scaldis Thermique;1960.00
+L00426;E;SA-0104;HVAC unit ;HVAC-FAN-SUPPLY;Supply air fan ;4;u;Scaldis Thermique ;735.00
+L00427;E;SA-0104;HVAC unit ;HVAC-FILTER;FRESH AIR FILTER G4;8;pcs;Scaldis Thermique;38.00
+L00428;E;SA-0104;HVAC unit ;HVAC-DUCT-MAIN;Main air duct;18500;mm;Artois Polymères;96,00
+L00429;E;SA-0104;HVAC unit ;HVAC-CTRL-BOARD;HVAC CONTROL BOARD;1;u;Deûle Électronique;1820,00
+L00430;E;SA-0104;HVAC unit ;HVAC-TEMP-SENSOR;Saloon temperature sensor ;6;pcs;Deûle Électronique;54.00
+L00431;E;SA-0104;HVAC unit ;HVAC-GRILLE-12;Air outlet grille type 12;16;pcs;Artois Polymères;42.00
+L00432;E;SA-0104;HVAC unit ;HVAC-GRILLE-1L;Air outlet grille, left-hand;2;pcs;Artois Polymères;46.50
+L00433;E;SA-0104;HVAC unit ;HVAC-REFRIGERANT;Refrigerant R-513A charge;6,5;kg;Scaldis Thermique ;31.00
+L00434;E;SA-0104;HVAC unit ;BGI-2031;bolt set m8, zinc-nickel;24;units;Nordrail Composants;0.85
+L00435;E;SA-0105;Braking unit;BRK-COMPRESSOR;Oil-free air compressor;1;u;Sambre Freinage;18700.00
+L00436;E;SA-0105;Braking unit;BRK-AIR-TANK;Air reservoir 100 l;2;u;Sambre Freinage;1240,00
+L00437;E;SA-0105;Braking unit;BRK-CTRL-VALVE;Brake control valve;4;units;Sambre Freinage;2680.00
+L00438;E;SA-0105;Braking unit;BRK-PIPE-STEEL;Brake pipe, stainless;32000;mm;Sambre Freinage;28.50
+L00439;E;SA-0105;Braking unit;BRK-HOSE-FLEX;Flexible brake hose;8;units;Artois Polymères;93.00
+L00440;E;SA-0105;Braking unit;BRK-DRYER;Air dryer ;1;pcs;Sambre Freinage ;3150.00
+L00441;E;SA-0105;Braking unit;BRK-PRESSURE-SENSOR;Pressure transducer;6;units;Deûle Électronique;187.00
+L00442;E;SA-0105;Braking unit;BRK-ECU;Brake electronic control unit;1;pcs;DEÛLE ÉLECTRONIQUE;9800,00
+L00443;E;SA-0105;Braking unit;BRK-PARKING-ACT;Parking brake actuator;2;units;Sambre Freinage;2260,00
+L00444;E;SA-0105;Braking unit;BRK-BRACKET;Pipe support bracket;12;pcs;Atelier Lys Métal;14.20
+L00445;E;SA-0105;Braking unit;BGI-2013;Bolt set M8, zinc-nickel ;36;u;Nordrail Composants;0.85
+L00446;E;SA-0106;Gangway and couplers;GANG-BELLOWS;Gangway bellows;2;pcs;Artois Polymères;12400,00
+L00447;E;SA-0106;Gangway and couplers;GANG-FRAME;gangway frame;2;u;Atelier Lys Métal;5350,00
+L00448;E;SA-0106;Gangway and couplers;GANG-BRIDGE-PLATE;gangway bridge plate;2;u;Atelier Lys Métal;1980.00
+L00449;E;SA-0106;Gangway and couplers;GANG-SEAL-PROFILE;Gangway seal profile;14.4;m;artois polymères;22,80
+L00450;E;SA-0106;Gangway and couplers;COUP-SEMI-PERM;Semi-permanent coupler;2;u;Ferroval Systèmes;15800.00
+L00451;E;SA-0106;Gangway and couplers;COUP-DRAFT-GEAR;Draft gear ;2;units;ferroval systèmes;6240.00
+L00452;E;SA-0106;Gangway and couplers;COUP-ELEC-HEAD;Electrical coupler head;2;pcs;Hainaut Câblage ;4470.00
+L00453;E;SA-0106;Gangway and couplers;COUP-JUMPER-CABLE;Inter-car jumper cable;9600;mm;Hainaut Câblage;148,00
+L00454;E;SA-0106;Gangway and couplers;GANG-HANDRAIL;Gangway handrail;4;units;Atelier Lys Métal ;215.00
+L00455;E;SA-0106;Gangway and couplers;DOOR-SEAL-O;Gangway door seal, outer;4;units;Artois Polymères ;81.00
+L00456;E;SA-0106;Gangway and couplers;BGI-2031;Bolt set M8, zinc-nickel ;48;pcs;Nordrail Composants;0.85
+L00457;E;SA-0102;Trailer bogie;BOGIE-FRAME;Trailer bogie frame;1;units;Ferroval Systèmes ;26800.00
+L00458;E;SA-0102;Trailer bogie;BOGIE-WHEELSET;Wheelset, 840 mm;2;u;Ferroval Systèmes;11250,00
+L00459;E;SA-0102;Trailer bogie;BOGIE-PRIMARY-SUSP;Primary suspension spring set;4;units;Ferroval Systèmes;1340.00
+L00460;E;SA-0102;Trailer bogie;BOGIE-AIRSPRING;Secondary air spring;2;pcs;ARTOIS POLYMÈRES;2875,00
+L00461;E;SA-0102;Trailer bogie;BOGIE-BRAKE-CALIPER;Brake caliper unit;4;u;Sambre Freinage;3120,00
+L00462;E;SA-0102;Trailer bogie;BOGIE-DAMPER;Hydraulic damper;8;pcs;Sambre Freinage;486.00
+L00463;E;SA-0102;Trailer bogie;BOGIE-AXLEBOX;Axlebox with bearing;4;pcs;Ferroval Systèmes;2240.00
+L00464;E;SA-0103;Traction package ;TRAC-CONV-MAIN;Main traction converter ;1;u;Tractelys Énergie;96500.00
+L00465;E;SA-0103;Traction package ;TRAC-TRANSFORMER;Main transformer 25 kV;1;u;Tractelys Énergie;74300.00
+L00466;E;SA-0103;Traction package ;TRAC-MOTOR;Asynchronous traction motor;4;units;Tractelys Énergie ;25950.00
+L00467;E;SA-0103;Traction package ;TRAC-COOLING-UNIT;Converter cooling unit ;1;pcs;Scaldis Thermique;8650,00
+L00468;E;SA-0103;Traction package ;TRAC-HV-CABLE;High-voltage cable, shielded;42;m;Hainaut Câblage;64,20
+L00469;E;SA-0103;Traction package ;TRAC-CIRCUIT-BREAKER;Vacuum circuit breaker;1;pcs;Tractelys Énergie;13900,00
+L00470;E;SA-0103;Traction package ;TRAC-EARTH-SWITCH;earthing switch;1;u;tractelys énergie;4150,00
+L00471;E;SA-0103;Traction package ;TRAC-CTRL-RACK;Traction control rack;1;pcs;Deûle Électronique;17200.00
+L00472;E;SA-0103;Traction package ;TRAC-SENSOR-KIT;Speed and current sensor kit;4;pcs;Deûle Électronique;940,00
+L00473;E;SA-0103;Traction package ;TRAC-BUSBAR;copper busbar;6;pcs;Hainaut Câblage ;215,00
+L00474;E;SA-0103;Traction package ;TRAC-INSULATOR;Roof insulator;12;units;Tractelys Énergie;178,00
+L00475;E;SA-0103;Traction package ;TRAC-FIX-KIT;TRACTION EQUIPMENT FIXING KIT;8;pcs;Atelier Lys Métal ;96,50
+L00476;E;SA-0107;Auxiliary converter;AUX-INVERTER;Auxiliary inverter 60 kVA;1;pcs;Tractelys Énergie;34600,00
+L00477;E;SA-0107;Auxiliary converter;AUX-CAP-BANK;DC-link capacitor bank;2;pcs;TRACTELYS ÉNERGIE;2890,00
+L00478;E;SA-0107;Auxiliary converter;AUX-BATTERY-CHARGER;Battery charger 24 V;1;units;Tractelys Énergie ;7350.00
+L00479;E;SA-0107;Auxiliary converter;AUX-BATTERY-PACK;NiCd battery pack;2;pcs;Tractelys Énergie;9120,00
+L00480;E;SA-0107;Auxiliary converter;AUX-FILTER-CHOKE;Input filter choke;1;pcs;Tractelys Énergie;3480.00
+L00481;E;SA-0107;Auxiliary converter;AUX-COOLING-FAN;converter cooling fan;2;u;Scaldis Thermique ;640.00
+L00482;E;SA-0107;Auxiliary converter;AUX-CONTACTOR;Power contactor ;4;u;Deûle Électronique;385.00
+L00483;E;SA-0107;Auxiliary converter;AUX-FUSE-BOX;Fuse box;1;pcs;DEÛLE ÉLECTRONIQUE;520.00
+L00484;E;SA-0107;Auxiliary converter;AUX-LV-CABLE;Low-voltage power cable;28000;mm;HAINAUT CÂBLAGE;9.40
+L00485;E;SA-0107;Auxiliary converter;AUX-ENCLOSURE;Underfloor enclosure;1;u;Atelier Lys Métal ;4250.00
+L00486;E;SA-0107;Auxiliary converter;BGI-2031;BOLT SET M8, ZINC-NICKEL;16;u;Nordrail Composants ;0,85
+L00487;E;SA-0108;Interior lighting;LIGHT-LED-STRIP;LED light strip 1200 mm;24;pcs;DEÛLE ÉLECTRONIQUE;118,00
+L00488;E;SA-0108;Interior lighting;LIGHT-DRIVER;LED driver;6;pcs;Deûle Électronique;96.00
+L00489;E;SA-0108;Interior lighting;LIGHT-EMERG-UNIT;Emergency lighting unit;4;units;Deûle Électronique;274.00
+L00490;E;SA-0108;Interior lighting;LIGHT-DIFFUSER;Light diffuser;24;units;Artois Polymères;33,00
+L00491;E;SA-0108;Interior lighting;LIGHT-CABLE;Lighting cable ;2;pcs;HAINAUT CÂBLAGE;3,20
+L00492;E;SA-0108;Interior lighting;LIGHT-SWITCH-PANEL;Lighting switch panel;1;u;Deûle Électronique;460,00
+L00493;E;SA-0108;Interior lighting;LIGHT-SENSOR-AMB;Ambient light sensor;2;pcs;Deûle Électronique ;72,00
+L00494;E;SA-0108;Interior lighting;LIGHT-READING-SPOT;Reading spot;12;u;Deûle Électronique;58,00
+L00495;E;SA-0108;Interior lighting;LIGHT-CONNECTOR;Lighting connector;48;pcs;hainaut câblage;2,70
+L00496;E;SA-0108;Interior lighting;LIGHT-CLIP;Cable clip;96;pcs;Nordrail Composants;0.35
+L00497;E;SA-0109;Floor and wall panels;PANEL-FLOOR-PLY;Plywood floor panel ;14;pcs;artois polymères;385,00
+L00498;E;SA-0109;Floor and wall panels;PANEL-FLOOR-COVER;Rubber floor covering ;38.5;m;Artois Polymères ;58.00
+L00499;E;SA-0109;Floor and wall panels;PANEL-WALL-GRP;GRP wall panel;16;u;Artois Polymères;640.00
+L00500;E;SA-0109;Floor and wall panels;PANEL-CEILING;Ceiling panel;12;units;Artois Polymères;512,00
+L00501;E;SA-0109;Floor and wall panels;PANEL-INSUL-MAT;Thermal insulation mat;22;kg;Artois Polymères;7.60
+L00502;E;SA-0109;Floor and wall panels;PANEL-ADHESIVE;Structural adhesive ;7500;g;Artois Polymères ;24,50
+L00503;E;SA-0109;Floor and wall panels;PANEL-TRIM-PROFILE;Trim profile;52000;mm;Atelier Lys Métal;11,80
+L00504;E;SA-0109;Floor and wall panels;PANEL-SCREW-KIT;Panel screw kit;40;units;Nordrail Composants;6.30
+L00505;E;SA-0109;Floor and wall panels;SEAT-FIX-KIT-4471;Floor insert kit for seat fixing ;12;u;Nordrail Composants;19.90
+L00506;E;SA-0109;Floor and wall panels;SEAT-RAIL-I;floor rail, stainless steel;6;u;Atelier Lys Métal;312.00
+L00507;E;SA-0109;Floor and wall panels;HVAC-GRILLE-11;Wall ventilation grille type 11;4;u;ARTOIS POLYMÈRES;39.00
+L00508;E;SA-0111;Passenger door set;DOOR-LEAF;Sliding-plug door leaf;4;u;Portalys;3980,00
+L00509;E;SA-0111;Passenger door set;DOOR-DRIVE-UNIT;Door drive unit;2;pcs;Portalys;5240.00
+L00510;E;SA-0111;Passenger door set;DO0R-GU1DE-RAIL;Door guide rail ;4;pcs;portalys;612,00
+L00511;E;SA-0111;Passenger door set;DOOR-SEAL;Door leaf seal ;8;u;Artois Polymères;74,00
+L00512;E;SA-0111;Passenger door set;DOOR-OBSTACLE-SENSOR;Obstacle detection sensor;4;pcs;Deûle Électronique;328,00
+L00513;E;SA-0111;Passenger door set;DOOR-CTRL-UNIT;Door control unit;2;pcs;Deûle Électronique;2150.00
+L00514;E;SA-0111;Passenger door set;DOOR-PUSHBUTTON-INT;Interior push button ;4;pcs;DEÛLE ÉLECTRONIQUE;86,00
+L00515;E;SA-0111;Passenger door set;DOOR-PUSHBUTTON-EXT;Exterior push button;4;u;Deûle Électronique ;112.00
+L00516;E;SA-0111;Passenger door set;DOOR-EMERG-HANDLE;emergency egress handle;2;units;Portalys;265,00
+L00517;E;SA-0111;Passenger door set;DOOR-STEP-PLATE;Step plate;2;pcs;ATELIER LYS MÉTAL;540,00
+L00518;E;SA-0111;Passenger door set;DOOR-THRESHOLD;Threshold profile;2;pcs;Atelier Lys Métal;298,00
+L00519;E;SA-0111;Passenger door set;DOOR-HARNESS;Door wiring harness;2;u;Hainaut Câblage;386.00
+L00520;E;SA-0111;Passenger door set;DOOR-LOCK;DOOR LOCKING DEVICE;4;u;Portalys;447,00
+L00521;E;SA-0111;Passenger door set;DOOR-DAMPER;Door end-stop damper;4;pcs;PORTALYS;58.50
+L00522;E;SA-0111;Passenger door set;DOOR-PICTO;Door pictogram;8;pcs;Artois Polymères ;6,80
+L00523;E;SA-0111;Passenger door set;DOOR-FIX-KIT;Door fixing kit ;4;units;Atelier Lys Métal;72,00
+L00524;E;SA-0112;Passenger information system ;PIS-DISPLAY-INT;Interior TFT display ;4;pcs;Deûle Électronique;1480.00
+L00525;E;SA-0112;Passenger information system ;PIS-DISPLAY-EXT;Exterior LED destination display ;2;pcs;Deûle Électronique;2360,00
+L00526;E;SA-0112;Passenger information system ;PIS SPEAKER;Saloon loudspeaker;8;u;Deûle Électronique;64.00
+L00527;E;SA-0112;Passenger information system ;PIS-CONTROLLER;PIS controller ;1;pcs;Deûle Électronique;5720.00
+L00528;E;SA-0112;Passenger information system ;PIS-CABLE-TRUNK;PIS CABLE TRUNK;36,0;m;Hainaut Câblage ;12,60
+L00529;E;SA-0112;Passenger information system ;PIS-SIGN-STD;standard signage plate;6;units;Artois Polymères;9,50
+L00530;E;SA-0513;seating module;SEAT-FIX-DBL;Fixed double seat;22;pcs;Escaut Sièges;1260,00
+L00531;E;SA-0513;seating module;SEAT-RAIL;Seat mounting rail;12;pcs;Atelier Lys Métal;184,00
+L00532;E;SA-0513;seating module;SEAT-FIX-KIT;Seat fixing kit;22;pcs;ATELIER LYS MÉTAL;23,50
+L00533;E;SA-0513;seating module;SEAT-TABLE;Fixed table;6;pcs;Escaut Sièges;395,00
+L00534;E;SA-0513;seating module;SEAT-GRAB-HANDLE;SEAT-BACK GRAB HANDLE;12;u;escaut sièges;31,00
+L00535;E;SA-0513;seating module;SEAT-END-PANEL;SEAT ROW END PANEL;8;u;Escaut Sièges;142.00
+L00536;E;SA-0114;floor and wall anchorage;ANCH-SEAT-RAIL;Floor anchorage rail;12;pcs;Atelier Lys Métal;226,00
+L00537;E;SA-0114;floor and wall anchorage;ANCH-RAIL-BOLT;Anchorage rail bolt;96;u;Nordrail Composants;1.85
+L00538;E;SA-0114;floor and wall anchorage;ANCH-FLOOR-PLATE;Floor anchorage plate;12;units;ATELIER LYS MÉTAL;47.00
+L00539;E;SA-0114;floor and wall anchorage;ANCH-SHIM;Levelling shim;24;units;Nordrail Composants;2.40
+L00540;E;SA-0110;Toilet module;WC-CABIN-SHELL;Toilet cabin shell;1;u;Sanirail Modules;14800,00
+L00541;E;SA-0110;Toilet module;WC-BOWL-VACUUM;Vacuum toilet bowl;1;pcs;Sanirail Modules;3260,00
+L00542;E;SA-0110;Toilet module;WC-WATER-TANK;Fresh water tank 120 l;1;u;Sanirail Modules;1840,00
+L00543;E;SA-0110;Toilet module;WC-WASTE-TANK;Waste retention tank 300 l ;1;pcs;Sanirail Modules;2970,00
+L00544;E;SA-0110;Toilet module;WC-WASHBASIN;Washbasin unit;1;pcs;Sanirail Modules;1120.00
+L00545;E;SA-0110;Toilet module;WC-DOOR-SLIDING;Manual sliding toilet door;1;u;Sanirail Modules;2380.00
+L00546;E;SA-0110;Toilet module;WC-VACUUM-PUMP;VACUUM GENERATOR;1;units;Sanirail Modules;4150.00
+L00547;E;SA-0110;Toilet module;WC-PIPE-KIT;Toilet pipework kit;1;pcs;Sanirail Modules;860.00
+L00548;E;SA-0110;Toilet module;WC-SEALANT;Sanitary sealant;1,5;kg;Artois Polymères;18,00
+L00549;E;SA-0110;Toilet module;WC-GRAB-BAR;Toilet grab bar;2;u;Atelier Lys Métal ;128.00
+L00550;E;SA-0110;Toilet module;SEAT-RAIL-1;Mounting rail, aluminium, mark 1;2;pcs;Atelier Lys Métal;121,00
+L00551;E;SA-0110;Toilet module;DOOR-SEAL-0;Inner door seal, revision 0;2;units;Artois Polymères;52,00
+L00552;C;SA-0101;CARBODY SHELL;SHELL-UNDERFRAME;UNDERFRAME, WELDED ALUMINIUM;1;pcs;ATELIER LYS MÉTAL;48200,00
+L00553;C;SA-0101;CARBODY SHELL;SHELL-SIDEWALL;Sidewall panel, extruded;2;pcs;Atelier Lys Métal;17650.00
+L00554;C;SA-0101;CARBODY SHELL;SHELL-ROOF;Roof assembly;1;u;Atelier Lys Métal;15400,00
+L00555;C;SA-0101;CARBODY SHELL;SHELL-ENDWALL;Endwall frame;2;u;Atelier Lys Métal;6900,00
+L00556;C;SA-0101;CARBODY SHELL;SHELL-BRACKET-KIT;Equipment bracket kit;4;u;atelier lys métal;412,50
+L00557;C;SA-0101;CARBODY SHELL;SHELL-SEAL;Carbody joint seal;24;pcs;Artois Polymères;18,40
+L00558;C;SA-0104;HVAC unit;HVAC-COMPRESSOR;Scroll compressor;2;units;Scaldis Thermique ;4380,00
+L00559;C;SA-0104;HVAC unit;HVAC-CONDENSER;Condenser coil;2;u;Scaldis Thermique;2140.00
+L00560;C;SA-0104;HVAC unit;HVAC-EVAPORATOR;Evaporator coil;2;pcs;Scaldis Thermique ;1960.00
+L00561;C;SA-0104;HVAC unit;HVAC-FAN-SUPPLY;Supply air fan;4;pcs;SCALDIS THERMIQUE;735,00
+L00562;C;SA-0104;HVAC unit;HVAC-FILTER;Fresh air filter G4;8;u;Scaldis Thermique;38.00
+L00563;C;SA-0104;HVAC unit;HVAC-DUCT-MAIN;Main air duct;18.5;m;Artois Polymères;96,00
+L00564;C;SA-0104;HVAC unit;HVAC-CTRL-BOARD;HVAC control board;1;u;Deûle Électronique;1820.00
+L00565;C;SA-0104;HVAC unit;HVAC-TEMP-SENSOR;Saloon temperature sensor;6;pcs;Deûle Électronique;54.00
+L00566;C;SA-0104;HVAC unit;HVAC-GRILLE-l2;Air outlet grille type 12;16;pcs;ARTOIS POLYMÈRES;42.00
+L00567;C;SA-0104;HVAC unit;HVAC-GRILLE-1L;Air outlet grille, left-hand;2;u;Artois Polymères;46,50
+L00568;C;SA-0104;HVAC unit;HVAC-REFRIGERANT;REFRIGERANT R-513A CHARGE;6500;g;Scaldis Thermique;31,00
+L00569;C;SA-0104;HVAC unit;BGI-2031;Bolt set M8, zinc-nickel;24;u;Nordrail Composants;0,85
+L00570;C;SA-0105;Braking unit;BRK-COMPRESSOR;Oil-free air compressor;1;pcs;Sambre Freinage;18700,00
+L00571;C;SA-0105;Braking unit;BRK-AIR-TANK;Air reservoir 100 l;2;u;Sambre Freinage ;1240.00
+L00572;C;SA-0105;Braking unit;BRK-CTRL-VALVE;Brake control valve;4;pcs;SAMBRE FREINAGE;2680,00
+L00573;C;SA-0105;Braking unit;BRK-PIPE-STEEL;Brake pipe, stainless;32,0;m;Sambre Freinage;28.50
+L00574;C;SA-0105;Braking unit;BRK-HOSE-FLEX;Flexible brake hose;8;units;sambre freinage;93.00
+L00575;C;SA-0105;Braking unit;BRK-DRYER;Air dryer;1;pcs;Sambre Freinage;3150,00
+L00576;C;SA-0105;Braking unit;BRK-PRESSURE-SENSOR;Pressure transducer;6;u;Deûle Électronique ;187.00
+L00577;C;SA-0105;Braking unit;BRK-ECU;Brake electronic control unit;1;pcs;DEÛLE ÉLECTRONIQUE;9800,00
+L00578;C;SA-0105;Braking unit;BRK-PARKING-ACT;Parking brake actuator;2;u;Sambre Freinage;2260,00
+L00579;C;SA-0105;Braking unit;BRK-BRACKET;PIPE SUPPORT BRACKET;12;pcs;Atelier Lys Métal;14,20
+L00580;C;SA-0105;Braking unit;BGI-2031;Bolt set M8, zinc-nickel;36;pcs;Nordrail Composants;0,85
+L00581;C;SA-0106;Gangway and couplers;GANG-BELLOWS;Gangway bellows;2;units;Artois Polymères;12400,00
+L00582;C;SA-0106;Gangway and couplers;GANG-FRAME;Gangway frame;2;pcs;Atelier Lys Métal;5350.00
+L00583;C;SA-0106;Gangway and couplers;GANG-BRIDGE-PLATE;Gangway bridge plate;2;pcs;Atelier Lys Métal;1980.00
+L00584;C;SA-0106;Gangway and couplers;GANG-SEAL-PROFILE;Gangway seal profile;14,4;m;Artois Polymères;22.80
+L00585;C;SA-0106;Gangway and couplers;COUP-SEMI-PERM;Semi-permanent coupler;2;pcs;Ferroval Systèmes;15800,00
+L00586;C;SA-0106;Gangway and couplers;COUP-DRAFT-GEAR;Draft gear;2;units;Ferroval Systèmes;6240.00
+L00587;C;SA-0106;Gangway and couplers;COUP-ELEC-HEAD;ELECTRICAL COUPLER HEAD;2;units;Hainaut Câblage;4470.00
+L00588;C;SA-0106;Gangway and couplers;COUP-JUMPER-CABLE;Inter-car jumper cable;9.6;m;Hainaut Câblage;148.00
+L00589;C;SA-0106;Gangway and couplers;GANG-HANDRAlL;Gangway handrail;4;units;Atelier Lys Métal;215,00
+L00590;C;SA-0106;Gangway and couplers;DOOR-SEAL-O;Gangway door seal, outer;4;pcs;artois polymères;81,00
+L00591;C;SA-0106;Gangway and couplers;BGI-2O31;Bolt set M8, zinc-nickel;48;pcs;Nordrail Composants;0.85
+L00592;C;OCC-SA-0302;TRAILER BOGIE;BOGIE-FRAME;Trailer bogie frame;1;pcs;Ferroval Systèmes;26800.00
+L00593;C;OCC-SA-0302;TRAILER BOGIE;BOGIE-WHEELSET;wheelset, 840 mm;2;pcs;Ferroval Systèmes ;11250.00
+L00594;C;OCC-SA-0302;TRAILER BOGIE;BOGIE-PRIMARY-SUSP;Primary suspension spring set ;4;units;Ferroval Systèmes;1340.00
+L00595;C;OCC-SA-0302;TRAILER BOGIE;BOGIE-AIRSPRING;Secondary air spring;2;pcs;Artois Polymères;2875.00
+L00596;C;OCC-SA-0302;TRAILER BOGIE;BOGIE-BRAKE-CALIPER;BRAKE CALIPER UNIT;4;pcs;Sambre Freinage;3120,00
+L00597;C;OCC-SA-0302;TRAILER BOGIE;BOGIE-DAMPER;Hydraulic damper;8;units;Ferroval Systèmes;486.00
+L00598;C;OCC-SA-0302;TRAILER BOGIE;BOGIE-AXLEBOX;axlebox with bearing;4;pcs;Ferroval Systèmes ;2240,00
+L00599;C;OCC-SA-0303;Traction package;TRAC-CONV-MAIN;MAIN TRACTION CONVERTER;1;u;Tractelys Énergie;96500.00
+L00600;C;OCC-SA-0303;Traction package;TRAC-TRANSFORMER;Main transformer 25 kV;1;units;tractelys énergie;74300.00
+L00601;C;OCC-SA-0303;Traction package;TRAC-MOTOR;asynchronous traction motor;4;pcs;Tractelys Énergie;21800,00
+L00602;C;OCC-SA-0303;Traction package;TRAC-COOLING-UNIT;CONVERTER COOLING UNIT;1;pcs;Scaldis Thermique;8650.00
+L00603;C;OCC-SA-0303;Traction package;TRAC-HV-CABLE;High-voltage cable, shielded ;42;m;Hainaut Câblage;64,20
+L00604;C;OCC-SA-0303;Traction package;TRAC-CIRCUIT-BREAKER;vacuum circuit breaker;1;units;Tractelys Énergie;13900.00
+L00605;C;OCC-SA-0303;Traction package;TRAC-EARTH-SWITCH;EARTHING SWITCH;1;pcs;Tractelys Énergie;4150.00
+L00606;C;OCC-SA-0303;Traction package;TRAC-CTRL-RACK;Traction control rack;1;pcs;DEÛLE ÉLECTRONIQUE;17200,00
+L00607;C;OCC-SA-0303;Traction package;TRAC-SENSOR-KIT;Speed and current sensor kit;4;units;Deûle Électronique;940,00
+L00608;C;OCC-SA-0303;Traction package;TRAC-BUSBAR;Copper busbar;6;u;Hainaut Câblage ;215.00
+L00609;C;OCC-SA-0303;Traction package;TRAC-INSULAT0R;roof insulator;12;pcs;TRACTELYS ÉNERGIE;178.00
+L00610;C;OCC-SA-0303;Traction package;TRAC-FIX-KIT;Traction equipment fixing kit;8;pcs;Atelier Lys Métal ;96.50
+L00611;C;SA-O107;Auxiliary converter;AUX-INVERTER;auxiliary inverter 60 kva;1;u;Tractelys Énergie;34600,00
+L00612;C;SA-O107;Auxiliary converter;AUX-CAP-BANK;DC-LINK CAPACITOR BANK;2;pcs;Tractelys Énergie;2890.00
+L00613;C;SA-O107;Auxiliary converter;AUX-BATTERY-CHARGER;Battery charger 24 V;1;u;TRACTELYS ÉNERGIE;7350.00
+L00614;C;SA-O107;Auxiliary converter;AUX-BATTERY-PACK;NICD BATTERY PACK;2;pcs;Tractelys Énergie;9120.00
+L00615;C;SA-O107;Auxiliary converter;AUX-FILTER-CHOKE;Input filter choke;1;units;Tractelys Énergie;3480,00
+L00616;C;SA-O107;Auxiliary converter;AUX-COOLING-FAN;Converter cooling fan;2;pcs;Scaldis Thermique;640,00
+L00617;C;SA-O107;Auxiliary converter;AUX-CONTACTOR;Power contactor;4;pcs;Deûle Électronique;385.00
+L00618;C;SA-O107;Auxiliary converter;AUX-FUSE-BOX;Fuse box;1;pcs;deûle électronique;520,00
+L00619;C;SA-O107;Auxiliary converter;AUX-LV-CABLE;LOW-VOLTAGE POWER CABLE;28000;mm;hainaut câblage;9,40
+L00620;C;SA-O107;Auxiliary converter;AUX-ENCLOSURE;UNDERFLOOR ENCLOSURE;1;units;Atelier Lys Métal;4250.00
+L00621;C;SA-O107;Auxiliary converter;BGI 2031;Bolt set M8, zinc-nickel ;16;pcs;Nordrail Composants;0.85
+L00622;C;OCC-SA-0308;INTERIOR LIGHTING;LIGHT-LED-STR1P;LED light strip 1200 mm;24;pcs;Hainaut Câblage ;118.00
+L00623;C;OCC-SA-0308;INTERIOR LIGHTING;LIGHT_DRIVER;LED driver;6;u;Deûle Électronique;118,00
+L00624;C;OCC-SA-0308;INTERIOR LIGHTING;LIGHT-EMERG-UNIT;Emergency lighting unit;4;pcs;Deûle Électronique;274,00
+L00625;C;OCC-SA-0308;INTERIOR LIGHTING;LIGHT-DIFFUSER;Light diffuser;24;pcs;Artois Polymères;33.00
+L00626;C;OCC-SA-0308;INTERIOR LIGHTING;LIGHT-CABLE;Lighting cable;45000;mm;Hainaut Câblage;3.20
+L00627;C;OCC-SA-0308;INTERIOR LIGHTING;LIGHT-SWITCH-PANEL;Lighting switch panel;1;pcs;Deûle Électronique;460,00
+L00628;C;OCC-SA-0308;INTERIOR LIGHTING;LIGHT-SENSOR-AMB;Ambient light sensor;2;units;Deûle Électronique;72,00
+L00629;C;OCC-SA-0308;INTERIOR LIGHTING;LIGHT-READING-SPOT;Reading spot;12;u;Deûle Électronique;58.00
+L00630;C;OCC-SA-0308;INTERIOR LIGHTING;light-connector ;Lighting connector;48;pcs;Hainaut Câblage ;2.70
+L00631;C;OCC-SA-0308;INTERIOR LIGHTING;LIGHT-CLIP;Cable clip;96;pcs;Nordrail Composants;0.35
+L00632;C;OCC-SA-0309;Floor and wall panels ;PANEL-FLOOR-PLY;Plywood floor panel;14;pcs;Artois Polymères ;455.00
+L00633;C;OCC-SA-0309;Floor and wall panels ;PANEL-FLOOR-COVER;Rubber floor covering;38500;mm;Artois Polymères;58.00
+L00634;C;OCC-SA-0309;Floor and wall panels ;PANEL-WALL-GRP;GRP wall panel;16;units;Artois Polymères;640.00
+L00635;C;OCC-SA-0309;Floor and wall panels ;Panel-ceiling;ceiling panel;12;u;Artois Polymères;512.00
+L00636;C;OCC-SA-0309;Floor and wall panels ;PANEL-INSUL-MAT;Thermal insulation mat;22000;g;Artois Polymères ;7.60
+L00637;C;OCC-SA-0309;Floor and wall panels ;PANEL-ADHESIVE;STRUCTURAL ADHESIVE;7500;g;Artois Polymères;24,50
+L00638;C;OCC-SA-0309;Floor and wall panels ;PANEL-TRIM-PROFILE;Trim profile;52;m;Atelier Lys Métal ;11,80
+L00639;C;OCC-SA-0309;Floor and wall panels ;PANEL-SCREW-KIT;Panel screw kit;40;pcs;Nordrail Composants;6.30
+L00640;C;OCC-SA-0309;Floor and wall panels ;SEAT-FIX-KIT-447;Floor insert kit for seat fixing;12;units;Nordrail Composants;19,90
+L00641;C;OCC-SA-0309;Floor and wall panels ;SEAT-RAIL-I;Floor rail, stainless steel ;6;pcs;Atelier Lys Métal;312.00
+L00642;C;OCC-SA-0309;Floor and wall panels ;HVAC-GRILLE-11;Wall ventilation grille type 11;4;units;Artois Polymères;39,00
+L00643;C;OCC-SA-0315;Bike module;BIKE-HOOK;Vertical bike hook;6;pcs;Nordrail Composants;148,00
+L00644;C;OCC-SA-0315;Bike module;BIKE-RAIL;BIKE MODULE CARRIER RAIL;2;units;Atelier Lys Métal;365,00
+L00645;C;OCC-SA-0315;Bike module;BIKE-STRAP;Bike retaining strap;6;pcs;Artois Polymères;12,90
+L00646;C;OCC-SA-0315;Bike module;BIKE-FIX-KIT;Bike rail fixing kit;8;u;Atelier Lys Métal;27,00
+L00647;C;OCC-SA-0315;Bike module;BIKE-FLOOR-MAT;Bike zone floor mat;1;pcs;Artois Polymères;286.00
+L00648;C;OCC-SA-0315;Bike module;BIKE-PICTO;BIKE ZONE PICTOGRAM;4;units;Artois Polymères;7,40
+L00649;C;OCC-SA-0311;Passenger door set;DOOR-LEAF;Sliding-plug door leaf;4;pcs;Portalys;3980.00
+L00650;C;OCC-SA-0311;Passenger door set;DOOR-DRIVE-UNIT;Door drive unit;2;pcs;Portalys;5240,00
+L00651;C;OCC-SA-0311;Passenger door set;DOOR-GUIDE-RAIL;DOOR GUIDE RAIL;4;u;Portalys;612,00
+L00652;C;OCC-SA-0311;Passenger door set;DOOR-SEAL;Door leaf seal;8;pcs;Artois Polymères ;74,00
+L00653;C;OCC-SA-0311;Passenger door set;DOOR-OBSTACLE-SENSOR;obstacle detection sensor;4;pcs;Deûle Électronique ;328.00
+L00654;C;OCC-SA-0311;Passenger door set;DOOR-CTRL-UNIT;Door control unit;2;u;Deûle Électronique;2150,00
+L00655;C;OCC-SA-0311;Passenger door set;DOOR-PUSHBUTTON-INT-LED;Interior push button, LED ring ;4;pcs;Deûle Électronique;104,00
+L00656;C;OCC-SA-0311;Passenger door set;DOOR-PUSHBUTTON-EXT;Exterior push button;4;pcs;Deûle Électronique;112.00
+L00657;C;OCC-SA-0311;Passenger door set;DOOR-EMERG-HANDLE;emergency egress handle;2;units;Portalys;265,00
+L00658;C;OCC-SA-0311;Passenger door set;DOOR-STEP-PLATE;Step plate;2;pcs;Atelier Lys Métal;540,00
+L00659;C;OCC-SA-0311;Passenger door set;DOOR-THRESHOLD;Threshold profile;2;pcs;ATELIER LYS MÉTAL;298,00
+L00660;C;OCC-SA-0311;Passenger door set;DOOR-HARNESS;door wiring harness;2;units;hainaut câblage;386,00
+L00661;C;OCC-SA-0311;Passenger door set;DOOR-LOCK;Door locking device;4;units;Portalys;447.00
+L00662;C;OCC-SA-0311;Passenger door set;DOOR-DAMPER;Door end-stop damper;4;pcs;Portalys;58.50
+L00663;C;OCC-SA-0311;Passenger door set;DOOR-PICTO;Door pictogram;10;pcs;Artois Polymères ;6,80
+L00664;C;OCC-SA-0311;Passenger door set;DOOR-FIX-KIT;Door fixing kit ;4;u;Atelier Lys Métal;72.00
+L00665;C;OCC-SA-0311;Passenger door set;DOOR-GAP-FILLER;Platform gap filler;2;pcs;Portalys;1875.00
+L00666;C;OCC-SA-0312;Passenger information system;PIS-DISPLAY-INT;INTERIOR TFT DISPLAY;4;u;Deûle Électronique;1480.00
+L00667;C;OCC-SA-0312;Passenger information system;PIS-DISPLAY-EXT;EXTERIOR LED DESTINATION DISPLAY;2;pcs;Deûle Électronique;2360.00
+L00668;C;OCC-SA-0312;Passenger information system;PIS-SPEAKER;Saloon loudspeaker;8;pcs;Deûle Électronique ;64,00
+L00669;C;OCC-SA-0312;Passenger information system;PIS-CONTROLLER;PIS controller;1;u;Deûle Électronique;5720,00
+L00670;C;OCC-SA-0312;Passenger information system;PIS-CABLE-TRUNK;PIS cable trunk;36;m;Hainaut Câblage;12,60
+L00671;C;OCC-SA-0312;Passenger information system;PIS-SIGN-STD;STANDARD SIGNAGE PLATE;4;u;Artois Polymères;9,50
+L00672;C;OCC-SA-0312;Passenger information system;PIS-SIGN-BIKE;Bike area signage plate;2;pcs;Artois Polymères;11,20
+L00673;C;OCC-SA-0312;Passenger information system;PIS-SIGN-REGION;Regional livery signage plate;2;units;Artois Polymères;14,00
+L00674;C;SA-0213;Seating module;SEAT-FIX-DBL;Fixed double seat;16;pcs;Escaut Sièges ;1260.00
+L00675;C;SA-0213;Seating module;SEAT-RAIL;Seat mounting rail;12;pcs;ATELIER LYS MÉTAL;184,00
+L00676;C;SA-0213;Seating module;SEAT-FIX-KIT;Seat fixing kit;16;pcs;Atelier Lys Métal ;23,50
+L00677;C;SA-0213;Seating module;SEAT-TABLE;Fixed table;6;pcs;Escaut Sièges;395.00
+L00678;C;SA-0213;Seating module;SEAT-GRAB-HANDLE;Seat-back grab handle;12;u;ESCAUT SIÈGES;31,00
+L00679;C;SA-0213;Seating module;SEAT-END-PANEL;Seat row end panel;8;pcs;Escaut Sièges;142.00
+L00680;C;SA-0213;Seating module;SEAT-TIPUP;Tip-up seat;4;units;ESCAUT SIÈGES;610,00
+L00681;C;OCC-SA-0314;floor and wall anchorage;ANCH-SEAT-RAIL;Floor anchorage rail;8;pcs;Atelier Lys Métal;226,00
+L00682;C;OCC-SA-0314;floor and wall anchorage;ANCH-RAIL-BOLT;Anchorage rail bolt;64;units;Nordrail Composants;1,85
+L00683;C;OCC-SA-0314;floor and wall anchorage;ANCH-BIKE-PLATE;Bike zone anchorage plate;4;pcs;Atelier Lys Métal;89,00
+L00684;C;OCC-SA-0314;floor and wall anchorage;ANCH-BIKE-BOLT;Bike zone anchorage bolt ;32;pcs;Nordrail Composants;2,10
+L00685;C;OCC-SA-0314;floor and wall anchorage;ANCH-WALL-BRACKET;Wall anchorage bracket;4;pcs;Atelier Lys Métal ;132,00
+L00686;C;OCC-SA-0314;floor and wall anchorage;ANCH-REINF-PANEL;Wall reinforcement panel;2;u;Atelier Lys Métal;418.00
+L00687;C;OCC-SA-0310;Toilet module ;WCU-CABIN-PRM;Universal toilet cabin, PRM;1;pcs;Sanirail Modules;23600,00
+L00688;C;OCC-SA-0310;Toilet module ;WCU-BOWL-VACUUM-G2;Vacuum toilet bowl, generation 2;1;pcs;Sanirail Modules ;3840.00
+L00689;C;OCC-SA-0310;Toilet module ;WCU-TANK-COMBO;Combined fresh and waste tank;1;pcs;Sanirail Modules;5120,00
+L00690;C;OCC-SA-0310;Toilet module ;WCU-WASHBASIN-PRM;Washbasin unit, PRM height;1;pcs;Sanirail Modules ;1490,00
+L00691;C;OCC-SA-0310;Toilet module ;WCU-DOOR-POWERED;Powered curved toilet door;1;pcs;Sanirail Modules;6750,00
+L00692;C;OCC-SA-0310;Toilet module ;WCU-CALL-ALARM;Assistance call alarm;2;pcs;Deûle Électronique;245.00
+L00693;C;OCC-SA-0310;Toilet module ;WCU-GRAB-BAR-FOLD;Folding grab bar;2;pcs;atelier lys métal;296.00
+L00694;C;OCC-SA-0310;Toilet module ;WCU-CHANGING-TABLE;Baby changing table;1;pcs;Sanirail Modules;870.00
+L00695;C;OCC-SA-0310;Toilet module ;WCU-PIPE-KIT;UNIVERSAL TOILET PIPEWORK KIT;1;pcs;Sanirail Modules;1180,00
+L00696;C;OCC-SA-0310;Toilet module ;WCU-FLOOR-TRAY;Sealed floor tray;1;units;Artois Polymères;1340.00

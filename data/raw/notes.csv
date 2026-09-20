@@ -1,0 +1,41 @@
+note_id;variant_id;date;text
+N001;A;2019-05-06;Contrôle du couple de serrage effectué sur le châssis de bogie, RAS.
+N002;A;2019-09-12;Usage restriction: ANCH-FLOOR-PLATE is not approved for bike cars.
+N003;A;2019-11-04;Ne pas monter TRAC-TRANSFORMER sur rames bi-mode.
+N004;A;2020-02-18;Drawing index updated to rev C after the design review. No change to the part list.
+N005;A;2021-01-11;Supplier end of life: WC-GRAB-BAR is obsolete as of 2021-01-01.
+N006;A;2022-01-20;Part aux-cap-bank declared obsolete, effective 2022-01-01.
+N007;A;2022-04-05;SEAT-TABLE : ne pas utiliser sur rames bi-mode.
+N008;A;2022-10-03;Retour atelier : le montage des BGI-2031 est OK, torque values as per the drawing.
+N009;B;2021-07-19;Essai de chargement de huit vélos réalisé avec le client, zone conforme.
+N010;B;2021-09-30;Safety review outcome — WC-WASTE-TANK : ne pas utiliser sur voitures vélos.
+N011;B;2022-03-14;ECR closed. WC-VACUUM-PUMP remplacé par WC-VACUUM-PUMP-G2 from 2022-03-01.
+N012;B;2022-06-08;Do not fit BIKE-FLOOR-MAT on bi-mode units.
+N013;B;2023-05-09;Évolution nomenclature : BIKE STRAP est remplacé par BIKE-STRAP-V2 (applicable au 01/05/2023).
+N014;B;2023-08-22;PIS-SIGN-BIKE: do not use on standard cars.
+N015;B;2024-01-22;ANCH-HOOK-POINT remplacé par ANCH-BIKE-PLATE à compter du 15/01/2024.
+N016;B;2024-03-04;Les sangles vélo sont à contrôler visuellement à chaque visite de maintenance.
+N017;D;2022-11-15;Restriction d'emploi : HVAC-REFRIGERANT interdit sur rames bi-mode.
+N018;D;2023-01-10;From 2023-01-01 on, fit DOOR-PUSHBUTTON-INT-LED instead of door-pushbutton-int.
+N019;D;2023-02-06;À partir du 01/02/2023, monter WCU-DOOR-POWERED à la place de WC-DOOR-SLIDING.
+N020;D;2023-03-27;Attention montage : TRAC-FUEL-TANK do not use on electric-only units, voir avis technique.
+N021;D;2023-07-03;WC-BOWL-VACUUM obsolète depuis le 30/06/2023, ne plus approvisionner.
+N022;D;2023-09-18;Genset noise measurement done at the depot, within the contractual limits.
+N023;D;2024-02-12;Point fournisseur sur le groupe diesel : delivery schedule confirmed, pas d'impact planning.
+N024;D;2026-02-09;TRAC-EXHAUST-KIT obsolete since 2026-02-01, do not order.
+N025;E;2023-12-04;Info fournisseur : ANCH-SHIM obsolete since 2023-12-01, stock restant à écouler.
+N026;E;2024-04-16;Livrée régionale validée par l'autorité organisatrice.
+N027;E;2024-09-05;Évolution nomenclature : WC-WATER-TANK est remplacé par WCU-TANK-COMBO (applicable au 01/09/2024).
+N028;E;2024-11-25;Seat pitch checked against the regional specification: compliant.
+N029;E;2025-01-13;Mise à jour de la nomenclature après revue de conception, sans changement de pièce.
+N030;E;2026-01-12;HVAC_FILTER remplacé par HVAC-FILTER-F9 à compter du 01/01/2026.
+N031;E;2026-03-09;Fin de vie fournisseur : BRK-PARKING-ACT est obsolète à compter du 01/03/2026.
+N032;C;2025-03-03;Première revue de conception avec la région : six emplacements vélos confirmés.
+N033;C;2025-06-10;Suite à la revue fournisseur : HVAC-CTRL-BOARD replaced by HVAC-CTRL-BOARD-R2, applicable au 01/06/2025.
+N034;C;2025-07-07;Toilettes universelles PMR : mock-up review done with the accessibility panel, RAS.
+N035;C;2025-09-08;Engineering change: PIS-SIGN-STD is superseded by PIS-SIGN-STD-V2, effective 2025-09-01.
+N036;C;2025-12-08;À partir du 01/12/2025, monter SEAT-TIPUP-SOFT à la place de SEAT-TIPUP.
+N037;C;2026-03-16;TRAC-TRANSFORMER replaced by TRAC-TRANSFORMER-LW as of 2026-03-01.
+N038;C;2026-04-13;From 2026-04-01 on, fit LIGHT-EMERG-UNIT-LI instead of light-emerg-unit.
+N039;C;2026-06-08;Supplier end of life: COUP-ELEC-HEAD is obsolete as of 2026-06-01.
+N040;C;2026-09-07;Pièce SEAT-END-PANEL déclarée obsolète au 01/09/2026.

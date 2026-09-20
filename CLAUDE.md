@@ -56,7 +56,10 @@ same commit.
 
 ```
 src/bomreuse/
-  generate.py     synthetic dataset + planted defects + ground truth (fixed seed)
+  generate.py     true model -> seeded dirt -> derived ground truth; imports no pipeline module
+  catalogue.py    the hand-written, seed-independent story: variants, components, contents, notes
+  dirt.py         pure seeded operators: typos by kind, mixed units, decimal commas, case noise
+  ground_truth.py pydantic schema of the ground truth (one of the two pydantic boundaries)
   ingest.py       read raw CSVs as-is, keep raw values
   normalize.py    ids, units (to SI, raw kept), text, decimal commas
   model.py        entities: Variant, SubAssembly, Component, Supplier, BomLine (n-ary)
@@ -68,9 +71,9 @@ src/bomreuse/
   spec.py         loads data/dataset_spec.toml (thresholds, planted cases) as a frozen dataclass
   evaluate.py     precision / recall per defect type, against the ground truth
   report.py       static HTML report: sponsor summary first, traceable detail after
-  cli.py          one entry point
+  cli.py          one entry point; every path, the ground truth's included, is an argument
 tests/            all tests live here
-data/             generated inputs (synthetic) + ground truth
+data/             dataset_spec.toml (the contract), raw/ (the pipeline's only input), ground_truth/
 out/              generated report and findings
 ```
 

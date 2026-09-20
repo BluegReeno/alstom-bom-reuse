@@ -96,3 +96,5 @@ from A and B, the bike module reused from B, only the anchorage new.
 - 2026-09-19 — framing committed: CLAUDE.md, CONTEXT.md, DECISIONS.md, README (problem
   statement, data requirements), case brief.
 - 2026-09-20 — PRD committed; the build runs in slices, elapsed time is not tracked.
+- 2026-09-20 — contract (#1), then the synthetic dataset and its ground truth (#2): 5 variants,
+  raw CSVs `;`-separated under `data/raw/`, identity owned by the generator.
