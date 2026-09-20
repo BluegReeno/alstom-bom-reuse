@@ -15,6 +15,7 @@ counted, never silently lost. Each parser below therefore returns `(value, None)
 anything but the rows `ingest` read (docs/ARCHITECTURE.md A5).
 """
 
+import math
 import re
 import unicodedata
 from collections import defaultdict
@@ -91,9 +92,12 @@ def reference_key(raw: str) -> str:
     """Uppercase, fold `O I L`, drop everything that is not a letter or a digit.
 
     The key is an id, not a label (`SHELL-SEAL` gives `SHE11SEA1`): nothing displays it.
-    `str.isalnum` keeps accented letters; dropping them would merge more, not less.
+    `str.isalnum` keeps accented letters; dropping them would merge more, not less. NFC comes
+    first for that reason: the combining mark of a decomposed `é` is not alphanumeric, and the
+    letter would lose its accent on one spelling and keep it on the other.
     """
-    return "".join(character for character in raw.upper().translate(_FOLD) if character.isalnum())
+    composed = unicodedata.normalize("NFC", raw)
+    return "".join(character for character in composed.upper().translate(_FOLD) if character.isalnum())
 
 
 def text_key(raw: str) -> str:
@@ -113,7 +117,11 @@ def parse_number(raw: str) -> tuple[Decimal | None, str | None]:
         return None, "ambiguous separators"  # 1.234,56 or 1,234.56: guessing would be a repair
     if not _NUMBER.fullmatch(text):
         return None, "not a number"
-    return Decimal(text.replace(",", ".")), None
+    number = Decimal(text.replace(",", "."))
+    # Every number ends as a float in the artifact; past the largest one it would be `inf`.
+    if not math.isfinite(float(number)):
+        return None, "out of range"
+    return number, None
 
 
 def parse_int(raw: str) -> tuple[int | None, str | None]:
@@ -122,7 +130,10 @@ def parse_int(raw: str) -> tuple[int | None, str | None]:
         return None, "empty"
     if not _INTEGER.fullmatch(text):
         return None, "not an integer"
-    return int(text), None
+    try:
+        return int(text), None
+    except ValueError:  # Python's int-conversion limit: a digit string over 4300 characters
+        return None, "out of range"
 
 
 def parse_date(raw: str) -> tuple[date | None, str | None]:
@@ -288,12 +299,16 @@ def _line(row: RawBomRow, known_variants: set[str], issues: list[NormalizationIs
     variant_id = cells.variant_id(row.variant_id, known_variants)
     sub_assembly_ref = cells.reference("sub_assembly_ref", row.sub_assembly_ref)
     component_ref = cells.reference("component_ref", row.component_ref)
+    # The sub-assembly's key has two halves, and both must name something: a reference, and a
+    # variant that variants.csv declares. `:SA0101` or `Q:SA0101` would be a sub-assembly of no
+    # variant, and #4 compares sub-assemblies across variants.
+    names_a_sub_assembly = bool(sub_assembly_ref.normalized) and bool(variant_id) and variant_id in known_variants
     return BomLine(
         line_id=row.line_id,
         row_number=row.row_number,
         variant_id=variant_id,
         # An empty key names nothing: the line is kept, and no entity is created for it.
-        parent_id=f"{variant_id}:{sub_assembly_ref.normalized}" if sub_assembly_ref.normalized else "",
+        parent_id=f"{variant_id}:{sub_assembly_ref.normalized}" if names_a_sub_assembly else "",
         child_id=component_ref.normalized,
         quantity=cells.quantity(row.quantity, row.unit),
         sub_assembly_ref=sub_assembly_ref,

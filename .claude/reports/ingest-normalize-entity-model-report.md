@@ -68,12 +68,15 @@ claims; `evaluate` (#5) makes those.
    the sub-assembly designation only as normalized text on `SubAssembly`. That column is dirty in
    `bom.csv` (`HVAC unit `, `TOILET MODULE`, `traction package`), so its raw characters would not
    have survived into the artifact — against the feature's own user story and AC1's spirit. With
-   the field, the test "every raw cell of every row is carried on its line untouched" covers all
-   ten columns. Landed in the 3b commit, with the reason in its message.
+   the field, the test "every raw cell of every row is carried on its line untouched" covers nine
+   of the ten columns: the raw `variant_id` is the exception, see "Issues encountered" (wording
+   corrected after the PR review, L2). Landed in the 3b commit, with the reason in its message.
 2. **Every cell is required.** The plan's D3 says "empty required cell" without listing which.
    Rule applied: an empty (or whitespace-only) cell in any column of the three files is one issue
    with reason `empty` (`empty reference` for the two reference columns). No supplier, component
-   or sub-assembly entity is created for an empty key.
+   or sub-assembly entity is created for an empty key. Since the PR review (M6) that covers both
+   halves of the sub-assembly's key: a line whose variant is empty or unknown keeps its row and
+   its issue, gets `parent_id = ""`, and creates no sub-assembly.
 3. **Extra issue reasons beyond the plan's list**: `not positive` (quantity ≤ 0; a zero *cost* is
    accepted), `duplicate variant` (two raw variant ids normalizing to one — both rows kept), and
    `parse_date` checks the `YYYY-MM-DD` shape before `date.fromisoformat`, which alone also

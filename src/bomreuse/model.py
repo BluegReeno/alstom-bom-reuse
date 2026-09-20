@@ -182,7 +182,10 @@ class BomLine:
     `component_ref.normalized == child_id`, `sub_assembly_ref.normalized` is the parent's
     reference key, `supplier.normalized` is the `Supplier.id`. Supplier, cost and designation
     stay on the line: they are what may differ from one variant to the next. Every column of
-    the raw row is carried here with its exact characters, the parent's designation included.
+    the raw row is carried here with its exact characters, the parent's designation included —
+    except `variant_id`, kept normalized only: when it is empty or unknown, the
+    `NormalizationIssue` holds its raw characters. `parent_id` is `""` when either half of the
+    sub-assembly's key, the variant or the reference, names nothing.
     """
 
     line_id: str
@@ -244,7 +247,8 @@ def dataset_to_dict(dataset: NormalizedDataset) -> dict[str, Any]:
 
 def render_dataset(dataset: NormalizedDataset) -> str:
     """The exact text of the artifact. Keys are sorted here; tuple order is `normalize`'s job."""
-    return json.dumps(dataset_to_dict(dataset), indent=2, sort_keys=True, ensure_ascii=False) + "\n"
+    # allow_nan=False: `Infinity` and `NaN` are not JSON. `normalize` lets neither through; this is the backstop.
+    return json.dumps(dataset_to_dict(dataset), indent=2, sort_keys=True, ensure_ascii=False, allow_nan=False) + "\n"
 
 
 def dump_dataset(dataset: NormalizedDataset, path: Path) -> None:

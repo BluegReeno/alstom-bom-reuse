@@ -158,6 +158,14 @@ def test_a_date_that_is_not_a_date_is_refused() -> None:
         dataset_from_dict(data)
 
 
+@pytest.mark.parametrize("value", [float("inf"), float("nan")])
+def test_the_artifact_is_json_so_a_value_json_cannot_hold_is_refused_at_writing(value: float) -> None:
+    """The backstop behind `normalize`'s range check: `Infinity` and `NaN` are Python's dialect, not JSON."""
+    line = dataclasses.replace(a_dataset().lines[0], unit_cost=RawNumber(raw="9" * 400, normalized=value))
+    with pytest.raises(ValueError, match="JSON"):
+        render_dataset(dataclasses.replace(a_dataset(), lines=(line,)))
+
+
 def test_a_file_that_is_missing_or_not_json_is_a_model_error(tmp_path: Path) -> None:
     with pytest.raises(ModelError, match="not found"):
         load_dataset(tmp_path / "nope.json")

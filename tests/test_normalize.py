@@ -16,7 +16,7 @@ import pytest
 from bomreuse.ingest import read_raw
 from bomreuse.model import NormalizationIssue, NormalizedDataset, Quantity, RawBomRow, RawDataset, RawNoteRow, RawVariantRow
 from bomreuse.normalize import normalize, normalize_quantity, parse_date, parse_int, parse_number, parse_unit, reference_key, text_key
-from bomreuse.spec import DatasetSpec, load_spec
+from bomreuse.spec import DatasetSpec, MustNotMergePair, load_spec
 
 SPEC: DatasetSpec = load_spec()
 ROOT = Path(__file__).resolve().parents[1]
@@ -61,7 +61,7 @@ def test_the_spec_plants_both_kinds_so_the_two_tests_above_are_not_vacuous() -> 
 
 
 @pytest.mark.parametrize("pair", SPEC.must_not_merge, ids=lambda pair: pair.id)
-def test_the_must_not_merge_pairs_share_a_key_and_that_is_the_accepted_cost(pair) -> None:  # type: ignore[no-untyped-def]
+def test_the_must_not_merge_pairs_share_a_key_and_that_is_the_accepted_cost(pair: MustNotMergePair) -> None:
     """Not a wish, a recorded trade-off (DECISIONS.md 27): the key cannot tell these products apart.
 
     Splitting them back is resolution's `reject` (#4), on their designations; whether it works is
@@ -80,6 +80,14 @@ def test_nothing_else_is_folded(left: str, right: str) -> None:
 @pytest.mark.parametrize("raw, key", [("0031", "0031"), ("00-31", "0031"), ("SA-0107", "SA0107"), ("SA-O107", "SA0107"), ("---", ""), ("", ""), ("   ", "")])
 def test_a_leading_zero_stays_and_a_reference_of_separators_has_an_empty_key(raw: str, key: str) -> None:
     assert reference_key(raw) == key
+
+
+def test_composed_and_decomposed_accents_are_one_reference_and_the_accent_stays() -> None:
+    """Without NFC the combining mark of a decomposed `é` is not alphanumeric and is dropped: `E`, against `É`."""
+    composed, decomposed = unicodedata.normalize("NFC", "CÂBLE-12"), unicodedata.normalize("NFD", "CÂBLE-12")
+    assert composed != decomposed
+    assert reference_key(composed) == reference_key(decomposed) == "CÂB1E12"
+    assert reference_key("CÂBLE-12") != reference_key("CABLE-12")
 
 
 def test_no_string_distance_anywhere_in_the_source() -> None:
@@ -137,6 +145,9 @@ def test_a_number_is_read_with_a_comma_or_a_dot(raw: str, expected: str) -> None
         ("１２", "not a number"),  # full-width digits
         ("NaN", "not a number"),
         ("inf", "not a number"),
+        # A float would hold these as `inf`, and `Infinity` is not JSON.
+        pytest.param("9" * 400, "out of range", id="400 digits"),
+        pytest.param("9" * 400 + ",5", "out of range", id="400 digits and a decimal"),
     ],
 )
 def test_what_is_not_plainly_a_number_is_not_read(raw: str, reason: str) -> None:
@@ -146,6 +157,11 @@ def test_what_is_not_plainly_a_number_is_not_read(raw: str, reason: str) -> None
 @pytest.mark.parametrize("raw, expected", [("48", (48, None)), (" 0 ", (0, None)), ("048", (48, None)), ("", (None, "empty")), ("48.0", (None, "not an integer")), ("-1", (None, "not an integer")), ("many", (None, "not an integer"))])
 def test_an_integer(raw: str, expected: tuple[int | None, str | None]) -> None:
     assert parse_int(raw) == expected
+
+
+def test_an_integer_longer_than_python_converts_is_not_read() -> None:
+    """`int()` refuses a digit string over 4300 characters with a `ValueError`: an issue, not a crash."""
+    assert parse_int("9" * 5000) == (None, "out of range")
 
 
 @pytest.mark.parametrize(
@@ -271,8 +287,9 @@ def test_the_committed_dataset_has_nothing_unreadable(dataset: NormalizedDataset
 
 
 def test_variants_come_in_design_order_so_the_newest_is_last(dataset: NormalizedDataset) -> None:
-    dates = [variant.design_date.normalized for variant in dataset.variants]
-    assert dates == sorted(dates)  # type: ignore[type-var]
+    dates = [variant.design_date.normalized for variant in dataset.variants if variant.design_date.normalized is not None]
+    assert len(dates) == len(dataset.variants), "every committed variant has a readable date"
+    assert dates == sorted(dates)
     assert dataset.variants[-1].id == "C", "the file lists C last too, but the order must come from the dates"
     assert [variant.seats.normalized for variant in dataset.variants] == [48, 36, 48, 44, 32]
 
@@ -404,6 +421,19 @@ def test_each_unreadable_cell_is_one_issue_naming_its_field_and_its_raw_value(ce
     assert issue.row_id == cells.get("line_id", "L7")
 
 
+def test_an_absurdly_long_number_is_counted_like_any_other_unreadable_value() -> None:
+    """Past Python's int-conversion limit and past the largest float: an issue each, no exception, no `Infinity`."""
+    variants = (variant_row("A", seats="9" * 5000),)
+    result = normalize(a_raw_dataset(bom_row(3, quantity="9" * 400, unit_cost_eur="9" * 400), variants=variants))
+    assert result.variants[0].seats.normalized is None
+    assert result.lines[0].quantity.value is None and result.lines[0].unit_cost.normalized is None
+    assert [(issue.source_file, issue.field, issue.reason) for issue in result.issues] == [
+        ("bom.csv", "quantity", "out of range"),
+        ("bom.csv", "unit_cost_eur", "out of range"),
+        ("variants.csv", "seats", "out of range"),
+    ]
+
+
 def test_a_zero_cost_is_a_cost() -> None:
     result = normalize(a_raw_dataset(bom_row(unit_cost_eur="0,00")))
     assert result.lines[0].unit_cost.normalized == 0.0 and result.issues == ()
@@ -416,6 +446,18 @@ def test_an_empty_reference_creates_no_component_and_no_sub_assembly() -> None:
     assert [component.id for component in result.components] == [reference_key("BGI-2031")]
     assert [sub_assembly.id for sub_assembly in result.sub_assemblies] == [f"A:{reference_key('SA-0101')}"]
     assert [supplier.id for supplier in result.suppliers] == [text_key("Artois Polymères")]
+
+
+@pytest.mark.parametrize("variants, variant_id", [(None, ""), (None, "Q"), ((variant_row("A"), variant_row(" ")), "")], ids=["empty", "unknown", "empty, and variants.csv has an empty id too"])
+def test_a_line_of_an_empty_or_unknown_variant_creates_no_sub_assembly(variants: tuple[RawVariantRow, ...] | None, variant_id: str) -> None:
+    """The variant is half of the sub-assembly's key: `:SA0101` or `Q:SA0101` would be a ghost for #4 to compare."""
+    result = normalize(a_raw_dataset(bom_row(1), bom_row(2, variant_id=variant_id), variants=variants))
+    assert [line.parent_id for line in result.lines] == [f"A:{reference_key('SA-0101')}", ""]
+    assert [sub_assembly.id for sub_assembly in result.sub_assemblies] == [f"A:{reference_key('SA-0101')}"]
+    kept = result.lines[1]
+    assert kept.variant_id == variant_id and kept.sub_assembly_ref.normalized == reference_key("SA-0101"), "the line keeps what it said"
+    assert kept.child_id == reference_key("BGI-2031"), "a component never names a variant: it is still one"
+    assert ("bom.csv", 2, "variant_id") in {(issue.source_file, issue.row_number, issue.field) for issue in result.issues}
 
 
 def test_a_variant_id_is_read_whatever_its_case_and_spacing() -> None:
