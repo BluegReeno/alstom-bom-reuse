@@ -1,6 +1,8 @@
 """`bomreuse normalize` reads where it is told, writes one artifact where it is told, and nothing else."""
 
+import os
 import shutil
+from collections.abc import Callable
 from pathlib import Path
 
 import pytest
@@ -60,12 +62,54 @@ def test_an_output_directory_inside_the_raw_directory_is_refused(tmp_path: Path,
     assert sorted(path.name for path in raw.iterdir()) == ["bom.csv", "notes.csv", "variants.csv"], "nothing may be written when the request is refused"
 
 
+def test_an_output_directory_inside_the_raw_directory_is_refused_however_it_is_spelled(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    """On a case-insensitive filesystem `RAW/sub` *is* `raw/sub`, and `Path.resolve()` does not say so."""
+    raw = tmp_path / "raw"
+    shutil.copytree(COMMITTED_RAW, raw)
+    if not (tmp_path / "RAW").exists():
+        pytest.skip("case-sensitive filesystem: RAW is another directory, and writing there is legitimate")
+    assert main(["normalize", "--raw", str(raw), "--out", str(tmp_path / "RAW" / "sub")]) == 2
+    assert "inputs are read-only" in capsys.readouterr().err
+    assert sorted(path.name for path in raw.iterdir()) == ["bom.csv", "notes.csv", "variants.csv"]
+
+
+@pytest.mark.parametrize("link", [os.symlink, os.link], ids=["symlink", "hard link"])
+def test_an_artifact_path_that_leads_to_an_input_is_refused(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str], link: Callable[[Path, Path], None]
+) -> None:
+    """The directory is outside `--raw`; the file the run would open for writing is not."""
+    raw, out = tmp_path / "raw", tmp_path / "out"
+    shutil.copytree(COMMITTED_RAW, raw)
+    out.mkdir()
+    link(raw / "bom.csv", out / NORMALIZED_FILE)
+    before = (raw / "bom.csv").read_bytes()
+
+    assert main(["normalize", "--raw", str(raw), "--out", str(out)]) == 2
+    assert "inputs are read-only" in capsys.readouterr().err
+    assert (raw / "bom.csv").read_bytes() == before
+
+
 def test_a_raw_directory_without_the_files_is_reported_not_raised(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     raw, out = tmp_path / "raw", tmp_path / "out"
     raw.mkdir()
     assert main(["normalize", "--raw", str(raw), "--out", str(out)]) == 1
     assert "not found" in capsys.readouterr().err
     assert not out.exists(), "nothing is written when the input cannot be read"
+
+
+def test_a_raw_path_that_is_a_file_is_reported_not_raised(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    out = tmp_path / "out"
+    assert main(["normalize", "--raw", str(COMMITTED_RAW / "bom.csv"), "--out", str(out)]) == 1
+    assert "error: variants.csv cannot be read" in capsys.readouterr().err
+    assert not out.exists()
+
+
+def test_an_output_path_that_is_a_file_is_reported_not_raised(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    out = tmp_path / "out"
+    out.write_text("already here, and not a directory", encoding="utf-8")
+    assert main(["normalize", "--raw", str(COMMITTED_RAW), "--out", str(out)]) == 1
+    assert "cannot be written" in capsys.readouterr().err
+    assert out.read_text(encoding="utf-8") == "already here, and not a directory"
 
 
 def test_a_malformed_file_is_reported_with_its_row_and_nothing_is_written(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:

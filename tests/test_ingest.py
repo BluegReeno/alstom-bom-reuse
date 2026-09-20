@@ -80,6 +80,23 @@ def test_a_quoted_cell_may_hold_a_delimiter_or_a_newline(tmp_path: Path) -> None
     assert [row.row_number for row in rows] == [1, 2, 3], "rows are counted, not physical lines"
 
 
+@pytest.mark.parametrize(
+    "designation",
+    ['"Premium" seat', '"Premium seat'],
+    ids=["text after the closing quote", "a quote that never closes"],
+)
+def test_malformed_quoting_is_refused_not_rewritten(tmp_path: Path, designation: str) -> None:
+    """A lenient reader turns `"Premium" seat` into `Premium seat`: a repair, and a silent one."""
+    raw = raw_dir_with(tmp_path, bom=f"{BOM_HEADER}\n{bom_row(designation=designation)}\n")
+    with pytest.raises(IngestError, match=r"bom\.csv row 1 cannot be parsed as CSV"):
+        read_raw(raw)
+
+
+def test_a_quote_inside_an_unquoted_cell_is_a_character_like_any_other(tmp_path: Path) -> None:
+    raw = raw_dir_with(tmp_path, bom=f"{BOM_HEADER}\n{bom_row(designation='Pipe 5\" steel')}\n")
+    assert read_raw(raw).bom[0].designation == 'Pipe 5" steel'
+
+
 def test_an_empty_cell_is_an_empty_string(tmp_path: Path) -> None:
     raw = raw_dir_with(tmp_path, bom=f"{BOM_HEADER}\n{bom_row(supplier='', unit_cost_eur='')}\n")
     row = read_raw(raw).bom[0]

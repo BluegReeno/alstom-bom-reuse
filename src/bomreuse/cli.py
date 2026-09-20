@@ -82,17 +82,21 @@ def _add_normalize(commands: "argparse._SubParsersAction[argparse.ArgumentParser
 def _normalize(args: argparse.Namespace) -> int:
     raw_dir: Path = args.raw
     out_dir: Path = args.out
+    artifact = out_dir / NORMALIZED_FILE
     # Refused before anything is read or written: inputs are read-only (CLAUDE.md rule 3).
-    if out_dir.resolve().is_relative_to(raw_dir.resolve()):
-        print(f"error: the output directory ({out_dir}) must not be inside the raw directory ({raw_dir}): inputs are read-only", file=sys.stderr)
+    if _writes_into(artifact, raw_dir):
+        print(f"error: {artifact} would be written inside the raw directory ({raw_dir}), or over one of its files: inputs are read-only", file=sys.stderr)
         return 2
     try:
         dataset = normalize(read_raw(raw_dir))
     except IngestError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
-    artifact = out_dir / NORMALIZED_FILE
-    dump_dataset(dataset, artifact)
+    try:
+        dump_dataset(dataset, artifact)
+    except OSError as exc:  # --out is a file, a read-only directory, a full disk
+        print(f"error: {artifact} cannot be written: {exc.strerror or exc}", file=sys.stderr)
+        return 1
 
     print(f"raw files         {raw_dir}")
     print(f"  BOM lines       {len(dataset.lines)}")
@@ -108,6 +112,22 @@ def _normalize(args: argparse.Namespace) -> int:
         print(f"  {source_file} {field}: {reason}  {count}")
     print(f"normalized        {artifact}")
     return 0
+
+
+def _writes_into(target: Path, directory: Path) -> bool:
+    """Whether writing `target` would write inside `directory`, or over one of its files.
+
+    Files are compared by identity (`samefile`: device and inode), never by spelling. On a
+    case-insensitive filesystem `RAW/sub` is inside `raw` and `Path.resolve()` does not say so;
+    and resolving the *file*, not only its directory, is what sees a symlink left where the
+    artifact goes. A hard link has no path to resolve: only the inode tells.
+    """
+    if not directory.is_dir():
+        return False  # nothing to protect, and ingest says what is wrong with it
+    resolved = target.resolve()
+    if any(ancestor.exists() and ancestor.samefile(directory) for ancestor in resolved.parents):
+        return True
+    return resolved.exists() and any(resolved.samefile(path) for path in directory.rglob("*") if path.is_file())
 
 
 if __name__ == "__main__":

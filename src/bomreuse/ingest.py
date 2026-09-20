@@ -68,8 +68,9 @@ def _read_rows(raw_dir: Path, name: str, columns: tuple[str, ...]) -> list[tuple
         # newline="" hands line endings to the csv module, so a quoted cell may hold a newline.
         # No `utf-8-sig`, no `skipinitialspace`, no DictReader: the first would repair an input,
         # the second would eat a leading space, the third pads short rows without a word.
+        # `strict=True` for the same reason: without it `"Premium" seat` is read as `Premium seat`.
         with path.open(encoding="utf-8", newline="") as handle:
-            reader = csv.reader(handle, delimiter=DELIMITER)
+            reader = csv.reader(handle, delimiter=DELIMITER, strict=True)
             header = next(reader, None)
             if header is None:
                 raise IngestError(f"{name} is empty: expected the header {DELIMITER.join(columns)}")
@@ -85,6 +86,8 @@ def _read_rows(raw_dir: Path, name: str, columns: tuple[str, ...]) -> list[tuple
         raise IngestError(f"{name} is not UTF-8 ({exc.reason} at byte {exc.start}): the raw files are UTF-8 without BOM") from exc
     except csv.Error as exc:
         raise IngestError(f"{name} row {len(rows) + 1} cannot be parsed as CSV: {exc}") from exc
+    except OSError as exc:  # `raw_dir` is a file, the file is a directory, permission denied
+        raise IngestError(f"{name} cannot be read in {raw_dir}: {exc.strerror or exc}") from exc
     return rows
 
 
