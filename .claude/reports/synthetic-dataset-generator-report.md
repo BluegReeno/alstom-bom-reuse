@@ -69,7 +69,7 @@ AC1 byte-identity (in and across processes) ✓ · AC2 every defect category pla
 
 ## For the human
 
-- `DECISIONS.md` was not touched. If you want dated lines for **pydantic actually landing** (Dec. 19 already covers the choice) or for the **`;` delimiter** (it constrains #3), the wording could be: *"Raw CSVs are `;`-separated, UTF-8, every value a string — a French ERP export, and a decimal comma lives unquoted. Constrains #3's ingest."*
+- `DECISIONS.md` gained line 24 (the `;` delimiter) **after** the implementation, at the human's explicit request and with the wording they validated — the agent transcribed, it did not decide. No line was added for pydantic landing: Dec. 19 covers it.
 - Forward reference for **#3**: its AST test must exempt `generate.py`, `ground_truth.py` and `cli.py`. For **#4**: must-not-merge members sit in different sub-assemblies, so a false merge costs precision instead of crashing `Signature`. For **#5**: any listed ancestor is acceptable; `components[].raw_references` is injective.
 
 ### Ready for the next step
