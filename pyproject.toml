@@ -9,8 +9,8 @@ dependencies = [
     "pydantic>=2.13,<3",
 ]
 
-# [project.scripts] lands with src/bomreuse/cli.py: declaring an entry point that
-# imports nothing yet would make `uv run bomreuse` fail for no reason.
+[project.scripts]
+bomreuse = "bomreuse.cli:main"
 
 [dependency-groups]
 dev = ["pytest>=8.3"]
