@@ -3,14 +3,17 @@
 Last updated: 2026-09-20
 
 ## Current Focus
-PRD under review. Next: the architecture decision, then the 6 issues.
+Architecture decided (`docs/ARCHITECTURE.md`). Next: the 6 GitHub issues, then the build.
 
 ## In Progress
-- [ ] Planning pass — PRD (done), architecture decision, 6 GitHub issues
+- [ ] Planning pass — PRD (done), architecture (done), 6 GitHub issues
+- [ ] `DECISIONS.md` lines 19-20 to write by hand: pydantic scoped to two boundaries; R5's
+      auto/review/reject now rates group coherence
 
 ## Done
 - [x] Framing committed: rules, problem statement, data requirements, 16 decisions
 - [x] `docs/PRD.md` — one page, assumptions marked
+- [x] `docs/ARCHITECTURE.md` — 7 open calls settled, 2 spikes named — 2026-09-20
 
 ## Backlog
 - [ ] #1 Synthetic generator + planted defects + ground truth

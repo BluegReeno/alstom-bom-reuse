@@ -64,6 +64,8 @@ src/bomreuse/
   signatures.py   sub-assembly signatures: reused (identical) / reusable (near-identical + diff)
   checks.py       inconsistencies: unit, supplier, cost conflicts, note vs BOM contradictions
   notes.py        note extraction: LLM adapter (Ollama) + keyword fallback, schema-validated
+  link.py         note facts -> canonical components; only caller of resolve.match_reference
+  spec.py         loads data/dataset_spec.toml (thresholds, planted cases) as a frozen dataclass
   evaluate.py     precision / recall per defect type, against the ground truth
   report.py       static HTML report: sponsor summary first, traceable detail after
   cli.py          one entry point
