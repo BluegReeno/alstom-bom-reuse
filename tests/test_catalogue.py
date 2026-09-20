@@ -254,3 +254,13 @@ def test_the_scopes_say_what_the_variants_are() -> None:
     assert set(catalogue.SCOPES["bi_mode"]) == {v.id for v in catalogue.VARIANTS if v.traction == "bi-mode"}
     assert set(catalogue.SCOPES["standard_car"]) == {v.id for v in catalogue.VARIANTS if v.bike_spaces == 0}
     assert set(catalogue.SCOPES["electric"]) == {v.id for v in catalogue.VARIANTS if v.traction == "electric"}
+
+
+def test_notes_read_like_a_log_in_date_order_and_never_announce_the_past_as_future() -> None:
+    """"Obsolete since 2026-02-01" in a note dated 2025 reads wrong: a dated fact is filed once it is effective."""
+    for variant in catalogue.VARIANTS:
+        dates = [note.date for note in catalogue.NOTES if note.variant_id == variant.id]
+        assert dates == sorted(dates), variant.id
+    for note in catalogue.NOTES:
+        if note.fact and note.fact.effective_date:
+            assert note.date >= note.fact.effective_date, note
