@@ -27,7 +27,9 @@ claims; `evaluate` (#5) makes those.
 
 ## Tests added
 
-273 tests (suite: 301 → 574, 1.4 s of a 30 s budget, offline).
+273 tests (suite: 301 → 574, 1.4 s of a 30 s budget, offline). These counts, and those of
+"Validation results", are the ones measured when the PR was opened (`f931395`); the counts after
+the two reviews are under "After the reviews", at the end.
 
 - `test_model.py` (36) — round-trip to equal objects, tuples rebuilt, `None` and floats survive,
   byte-stable text, unknown / missing key and wrong `schema_version` refused by name, every type
@@ -106,3 +108,21 @@ None blocking. Worth knowing for #4 and #5:
   label. Reports should show `raw`.
 - The three must-not-merge components (`SEATRA111`, `D00RSEA10`, `HVACGR111E11`) each hold two
   designations, as the plan predicted — the signal `reject` needs.
+
+## After the reviews
+
+Two reviews of PR #12 (`.claude/code-reviews/pr-12-review.md`, `pr-12-review-2.md`) added tests
+with their fixes. Measured after the second review's fixes: **613 passed in 1.5 s** — 312 tests
+in this feature's five files (273 when the PR was opened):
+
+| File | When the PR was opened | After the reviews |
+| --- | --- | --- |
+| `test_model.py` | 36 | 38 |
+| `test_ingest.py` | 32 | 35 |
+| `test_normalize.py` | 156 | 164 |
+| `test_cli_normalize.py` | 12 | 18 |
+| `test_pipeline_invariants.py` | 37 | 57 |
+
+`bomreuse normalize` on the committed data is unchanged: `696 160 72 12 0`. Deferred: leaf-type
+validation in `dataset_from_dict` (#13), the generator's guard (#14), and the second review's L-B
+(a positive quantity that underflows to `0.0` raises no issue).
