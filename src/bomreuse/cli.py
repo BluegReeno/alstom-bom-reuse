@@ -11,7 +11,8 @@ import sys
 from collections.abc import Callable
 from pathlib import Path
 
-from bomreuse.generate import DEFAULT_SEED, GenerationError, generate
+from bomreuse.catalogue import CatalogueError
+from bomreuse.generate import DEFAULT_SEED, GenerationError, OutputPathError, generate
 from bomreuse.spec import DEFAULT_SPEC_PATH, SpecError, load_spec
 
 Handler = Callable[[argparse.Namespace], int]
@@ -40,18 +41,12 @@ def _add_generate(commands: "argparse._SubParsersAction[argparse.ArgumentParser]
 
 
 def _generate(args: argparse.Namespace) -> int:
-    out_dir: Path = args.out
-    truth_path: Path = args.ground_truth
-    if truth_path.resolve().is_relative_to(out_dir.resolve()):
-        print(
-            f"error: the ground truth ({truth_path}) must not be written inside the raw directory ({out_dir}): "
-            f"the pipeline reads that directory, and it never reads the ground truth",
-            file=sys.stderr,
-        )
-        return 2
     try:
-        summary = generate(load_spec(args.spec), args.seed, out_dir, truth_path)
-    except (SpecError, GenerationError) as exc:
+        summary = generate(load_spec(args.spec), args.seed, args.out, args.ground_truth)
+    except OutputPathError as exc:  # a usage error, like a missing argument
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+    except (SpecError, CatalogueError, GenerationError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
 

@@ -4,6 +4,8 @@ from pathlib import Path
 
 import pytest
 
+from bomreuse import catalogue
+from bomreuse.catalogue import SameAs, SubAssemblyDef
 from bomreuse.cli import main
 from bomreuse.ground_truth import load_ground_truth
 
@@ -43,3 +45,13 @@ def test_an_unreadable_spec_is_reported_not_raised(tmp_path: Path, capsys: pytes
     code = main(["generate", "--out", str(tmp_path / "raw"), "--ground-truth", str(tmp_path / "gt.json"), "--spec", str(tmp_path / "nope.toml")])
     assert code == 1
     assert "not found" in capsys.readouterr().err
+
+
+def test_a_catalogue_that_contradicts_itself_is_reported_not_raised(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    orphan = SubAssemblyDef("A", "Orphan", "SA-0199", SameAs("A", "Never defined"))
+    monkeypatch.setattr(catalogue, "SUB_ASSEMBLIES", (*catalogue.SUB_ASSEMBLIES, orphan))
+    assert main(["generate", "--out", str(tmp_path / "raw"), "--ground-truth", str(tmp_path / "gt.json")]) == 1
+    assert "never defined" in capsys.readouterr().err
+    assert not (tmp_path / "raw").exists()

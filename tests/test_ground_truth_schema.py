@@ -209,6 +209,14 @@ def _stale_schema(data: dict[str, Any]) -> None:
     data["schema_version"] = "0"
 
 
+def _unknown_base_unit(data: dict[str, Any]) -> None:
+    data["components"][1]["base_unit"] = "mm"
+
+
+def _date_not_iso(data: dict[str, Any]) -> None:
+    data["notes"][0]["facts"][0]["effective_date"] = "01/01/2024"
+
+
 VIOLATIONS: list[tuple[Callable[[dict[str, Any]], None], str]] = [
     (_shared_raw_string, "injective"),
     (_new_with_an_ancestor, "labelled 'new'"),
@@ -227,6 +235,8 @@ VIOLATIONS: list[tuple[Callable[[dict[str, Any]], None], str]] = [
     (_note_cites_a_foreign_string, "RL-1"),
     (_label_on_an_older_variant, "not the newest"),
     (_stale_schema, "schema_version"),
+    (_unknown_base_unit, "base_unit"),
+    (_date_not_iso, "01/01/2024"),
 ]
 
 

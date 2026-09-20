@@ -15,6 +15,7 @@ in this file is something the pipeline produces, so nothing the pipeline does ca
 
 import json
 import re
+from datetime import date
 from pathlib import Path
 from typing import Final, Literal
 
@@ -30,6 +31,7 @@ PlantedAs = Literal["open_reuse", "hidden_reuse", "near_reuse", "ref_reused_cont
 DefectType = Literal["duplicate_reference", "unit_conflict", "supplier_conflict", "cost_conflict", "note_contradiction"]
 FactType = Literal["replacement", "obsolescence", "restriction"]
 Language = Literal["fr", "en", "mixed"]
+BaseUnit = Literal["pcs", "m", "kg"]
 
 
 class _Strict(BaseModel):
@@ -51,7 +53,7 @@ class TrueComponent(_Strict):
 
     true_component_id: str
     designation: str
-    base_unit: str
+    base_unit: BaseUnit
     raw_references: tuple[str, ...]
 
     @model_validator(mode="after")
@@ -89,14 +91,14 @@ class MustNotMerge(_Strict):
 class DiffItem(_Strict):
     true_component_id: str
     quantity: float
-    unit: str
+    unit: BaseUnit
 
 
 class QuantityChange(_Strict):
     true_component_id: str
     left: float
     right: float
-    unit: str
+    unit: BaseUnit
 
 
 class Diff(_Strict):
@@ -108,7 +110,14 @@ class Diff(_Strict):
 
 
 class Ancestor(_Strict):
-    """An older sub-assembly, named by the raw reference it was emitted under."""
+    """An older sub-assembly, named by the raw reference it was emitted under.
+
+    Ancestors are equal (`reused`) or close (`reusable`) in **true** content. The raw lines of
+    one of them may still differ — a planted unit conflict, an out-of-reach spelling — so a
+    finding that names **any one** listed ancestor is a hit: the evaluation never scores the
+    ancestor set, nor asks for a particular member of it. A test keeps at least one ancestor of
+    every `reused` label free of such dirt.
+    """
 
     variant_id: str
     sub_assembly_ref: str
@@ -181,6 +190,15 @@ class NoteFact(_Strict):
     replaced_by_true_component_id: str | None
     effective_date: str | None
     scope: str | None
+
+    @model_validator(mode="after")
+    def _check(self) -> "NoteFact":
+        if self.effective_date is not None:
+            try:
+                date.fromisoformat(self.effective_date)
+            except ValueError:
+                raise ValueError(f"effective_date {self.effective_date!r} is not an ISO date (YYYY-MM-DD)") from None
+        return self
 
 
 class NoteTruth(_Strict):

@@ -61,6 +61,10 @@ class GenerationError(ValueError):
     """The catalogue and the spec cannot be turned into an honest dataset."""
 
 
+class OutputPathError(GenerationError):
+    """The ground truth was asked to land where the pipeline reads."""
+
+
 # --- the true model ------------------------------------------------------------------------
 
 
@@ -145,6 +149,11 @@ def build_true_model(spec: DatasetSpec) -> TrueModel:
                 )
 
     notes = tuple((f"N{index:03d}", script) for index, script in enumerate(catalogue.NOTES, start=1))
+    for note_id, script in notes:
+        if script.fact is not None:
+            for reference in (script.fact.reference, script.fact.replaced_by):
+                if reference is not None and reference not in parts:
+                    raise GenerationError(f"note {note_id} is about {reference!r}, which is not in the component master")
     return TrueModel(
         variants=variants,
         newest=variants[-1].id,
@@ -570,7 +579,7 @@ def _defects(model: TrueModel, dataset: Dataset, contradictions: Sequence[_Contr
     records: list[gt.DefectRecord] = []
     for true_id in sorted(rows_of):
         by_variant = rows_of[true_id]
-        observed: dict[str, dict[str, set[Hashable]]] = {
+        observed: dict[gt.DefectType, dict[str, set[Hashable]]] = {
             "duplicate_reference": {v: {row.component_ref for row in rows} for v, rows in by_variant.items()},
             "unit_conflict": {v: {row.dimension for row in rows} for v, rows in by_variant.items()},
             "supplier_conflict": {v: {row.true.supplier for row in rows} for v, rows in by_variant.items()},
@@ -581,7 +590,7 @@ def _defects(model: TrueModel, dataset: Dataset, contradictions: Sequence[_Contr
                 line_ids = sorted({row.line_id for variant_id in set(pair) for row in by_variant[variant_id]})
                 records.append(
                     gt.DefectRecord(
-                        defect_type=defect_type,  # type: ignore[arg-type]
+                        defect_type=defect_type,
                         true_component_id=true_id,
                         variant_pair=pair,
                         evidence_line_ids=tuple(line_ids),
@@ -670,7 +679,16 @@ def _write_csv(path: Path, header: Sequence[str], rows: Iterable[Sequence[str]])
 
 
 def generate(spec: DatasetSpec, seed: int, out_dir: Path, ground_truth_path: Path) -> GenerationSummary:
-    """Build, render, derive, write. Both destinations are given by the caller (docs/ARCHITECTURE.md A5)."""
+    """Build, render, derive, write. Both destinations are given by the caller (docs/ARCHITECTURE.md A5).
+
+    The ground truth never lands inside the raw directory, whoever calls: the pipeline reads
+    that directory, and it never reads the ground truth. Refused before anything is written.
+    """
+    if ground_truth_path.resolve().is_relative_to(out_dir.resolve()):
+        raise OutputPathError(
+            f"the ground truth ({ground_truth_path}) must not be written inside the raw directory ({out_dir}): "
+            f"the pipeline reads that directory, and it never reads the ground truth"
+        )
     model = build_true_model(spec)
     dataset = render(model, spec, seed)
     truth = derive_ground_truth(model, dataset, spec, seed)

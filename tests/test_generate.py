@@ -2,12 +2,23 @@
 
 from collections import Counter, defaultdict
 from dataclasses import dataclass, replace
+from pathlib import Path
 
 import pytest
 
 from bomreuse import catalogue
 from bomreuse.catalogue import FactScript, NoteScript
-from bomreuse.generate import DEFAULT_SEED, Dataset, GenerationError, TrueModel, build_true_model, derive_ground_truth, render
+from bomreuse.generate import (
+    DEFAULT_SEED,
+    Dataset,
+    GenerationError,
+    OutputPathError,
+    TrueModel,
+    build_true_model,
+    derive_ground_truth,
+    generate,
+    render,
+)
 from bomreuse.ground_truth import GroundTruth
 from bomreuse.spec import DatasetRules, DatasetSpec, MustNotMergePair, StoryCase, TypoFamily, load_spec
 
@@ -247,6 +258,23 @@ def test_any_seed_yields_a_dataset_that_holds_together(seed: int) -> None:
     assert build(seed).truth.seed == seed
 
 
+@pytest.mark.parametrize("seed", [DEFAULT_SEED, *range(1, 26)])
+def test_every_reused_label_keeps_an_ancestor_whose_raw_lines_say_what_the_truth_says(seed: int) -> None:
+    """Ancestors are equal in true content; a unit conflict or an out-of-reach spelling makes one
+    of them differ in the raw files. The evaluation accepts any listed ancestor — which is only
+    fair while one of them, at least, can honestly be seen as identical."""
+    built = build(seed)
+    dirty = {
+        (row.variant_id, row.sub_assembly_ref)
+        for row in built.dataset.bom
+        if row.dimension != row.true.base_unit or row.component_ref in OUT_OF_REACH
+    }
+    for label in built.truth.backtest:
+        if label.label == "reused":
+            clean = [a for a in label.ancestors if (a.variant_id, a.sub_assembly_ref) not in dirty]
+            assert clean, f"{label.sub_assembly_designation}: every listed ancestor carries a unit conflict or an out-of-reach spelling"
+
+
 # --- what stops the generation -----------------------------------------------------------------
 
 
@@ -272,3 +300,18 @@ def test_a_spelling_with_nowhere_to_go_stops_the_generation(monkeypatch: pytest.
     monkeypatch.setattr(catalogue, "FORCED_SPELLINGS", {"SEAT-FIX-KIT-447": ("C", catalogue.BIKE)})
     with pytest.raises(GenerationError, match="no line left"):
         build(DEFAULT_SEED)
+
+
+def test_a_note_about_a_part_the_master_does_not_hold_stops_the_generation(monkeypatch: pytest.MonkeyPatch) -> None:
+    stray = NoteScript("A", "2020-01-06", "en", fact=FactScript("obsolescence", "NOT-IN-MASTER", effective_date="2020-01-01"))
+    monkeypatch.setattr(catalogue, "NOTES", (*catalogue.NOTES, stray))
+    with pytest.raises(GenerationError, match="NOT-IN-MASTER"):
+        build_true_model(SPEC)
+
+
+def test_generate_itself_refuses_a_ground_truth_inside_the_raw_directory(tmp_path: Path) -> None:
+    """docs/ARCHITECTURE.md A5: the guard belongs to the function, not to one of its callers."""
+    raw = tmp_path / "raw"
+    with pytest.raises(OutputPathError, match="must not be written inside"):
+        generate(SPEC, DEFAULT_SEED, raw, raw / "nested" / "gt.json")
+    assert not raw.exists(), "nothing may be written when the request is refused"
