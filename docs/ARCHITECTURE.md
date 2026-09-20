@@ -114,7 +114,7 @@ formed:
 | Verdict | Meaning |
 | --- | --- |
 | `auto` | the group is homogeneous; it feeds the signatures |
-| `review` | the rows share a key but diverge on designation, unit, supplier or cost — grouped, and reported as a finding |
+| `review` | the rows share a key but diverge on designation, unit, supplier or cost — grouped, reported as a finding, **and it feeds the signatures too** (Decision 26) |
 | `reject` | the designations clearly describe two different products; the group is split back apart |
 
 The consequence of rules-only is that transpositions (`BGI-2031` → `BGI-2013`) and missing
@@ -307,11 +307,12 @@ discovering it at evaluation time.
 
 ## Open questions
 
-- **Does the `review` lane feed the catalogue?** The pipeline computes signatures on `auto`
-  groups only, which is the conservative reading of "propose, never write". Whether `evaluate`
-  should also report a ceiling — what the score would become if every `review` item were
-  accepted — is deferred. It would show what an hour of human review is worth, but it is an
-  extra number to explain and the priority order puts it after the pipeline it measures.
+- ~~Does the `review` lane feed the catalogue?~~ **Settled by Decision 26: yes.** Signatures
+  are built on every merged group, `auto` and `review`; only `reject` splits. Identity and
+  attribute coherence are separate questions, and the dataset plants a conflict on 13 components
+  touching 9 of the newest variant's 15 sub-assemblies — reading `auto` groups only would blind
+  the backtest exactly where the data is dirty. The `review`-lane ceiling this question also
+  raised has no object any more.
 - **Regression floors.** Set from the first real measurement and written into `DECISIONS.md`,
   per `CLAUDE.md`. They cannot be chosen before a number exists.
 - **Nested sub-assemblies.** Out of scope by [A1]; the signature would need to become recursive.

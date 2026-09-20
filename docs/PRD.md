@@ -82,7 +82,8 @@ report polish.
 - **[A1]** The BOM is two levels: variant → sub-assembly → component. Sub-assembly is the unit
   of reuse and the unit of comparison; nested sub-assemblies are out of scope for this build.
 - **[A2]** A sub-assembly signature is the multiset of (canonical component, normalized
-  quantity, SI unit) it contains; *reusable* means a signature distance within the threshold
+  quantity, SI unit) it contains, built on every merged component group — a supplier, cost or
+  unit conflict is a finding, not a doubt about what the part is (Dec. 26); *reusable* means a signature distance within the threshold
   fixed by the dataset spec, written before the data is generated (Dec. 17). The threshold is a
   contract `generate.py` and `signatures.py` both read; `evaluate` reports against it and never
   moves it.
