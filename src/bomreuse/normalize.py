@@ -179,7 +179,14 @@ def normalize_quantity(raw_value: str, raw_unit: str) -> tuple[Quantity, list[Fi
         # A number without its unit is not an amount, and neither is a unit without its number.
         return Quantity(raw_value=raw_value, raw_unit=raw_unit, value=None, unit=None), issues
     target, factor = unit
-    return Quantity(raw_value=raw_value, raw_unit=raw_unit, value=float(number * factor), unit=target), issues
+    value = float(number * factor)
+    if value <= 0.0:
+        # `not positive` above is checked on the `Decimal`, and this is the float the artifact
+        # holds: an amount too small for one is unreadable, not zero. The upper end of the same
+        # range is `parse_number`'s.
+        issues.append(("quantity", raw_value, "out of range"))
+        return Quantity(raw_value=raw_value, raw_unit=raw_unit, value=None, unit=None), issues
+    return Quantity(raw_value=raw_value, raw_unit=raw_unit, value=value, unit=target), issues
 
 
 # --- rows into entities -----------------------------------------------------------------------
