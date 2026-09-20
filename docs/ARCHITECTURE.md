@@ -59,7 +59,9 @@ data/ground_truth/*.json ──────────────────�
 The evaluation is deliberately outside that chain: **one scorer, two predictors.** The tool and
 the naive baseline both emit the same prediction shape, and a single scoring function consumes
 both. The baseline reads the *raw* ingested rows, never the normalized ones — otherwise it
-inherits our normalization and the measured gap closes artificially.
+inherits our normalization and the measured gap closes artificially. A second baseline, *same
+name*, was added after the project review (PRD [A3], issue #5): it goes through the same scorer,
+so "two predictors" now reads "one tool, two baselines".
 
 ## Key decisions
 

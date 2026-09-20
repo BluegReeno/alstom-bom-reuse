@@ -26,8 +26,8 @@ re-costed. (Decision 13.)
 - **G2 — Inconsistencies.** Duplicate references, unit conflicts, supplier and cost conflicts,
   notes contradicting the BOM — each traceable to its source rows and rule.
 - **G3 — Backtest.** The newest variant plays the new tender: given only the older variants,
-  classify each of its sub-assemblies, and measure the tool against a naive exact-reference
-  search on the same data. The gap is the only value claim made.
+  classify each of its sub-assemblies, and measure the tool against two naive searches on the
+  same data — exact reference, and same name. The gap is the only value claim made.
 - **G4 — On-prem path.** The pipeline runs offline end to end; the LLM reads notes only, and a
   cloud and a local model are scored on the same ground truth with latency per note.
 
@@ -57,8 +57,9 @@ client defines it. Web UI, graph DB, real PLM connector, mandatory LLM, generali
 ## 6. Success criteria
 
 1. `uv run bomreuse evaluate` prints precision and recall per defect type on the default
-   dataset, and the same figures for the naive exact-reference baseline. **The gap between the
-   two is the only value claim this build makes** (Dec. 3, Dec. 17).
+   dataset, and the same backtest figures for the two naive baselines of [A3], with counts next
+   to every ratio. **The gap between the tool and the baselines is the only value claim this
+   build makes** (Dec. 3, Dec. 17).
 2. Every planted *reused* case and every *re-designed in the newest variant* case is found by
    the end-to-end test, on a small dataset generated with a test seed.
 3. The README's Results section contains only numbers `evaluate` computed. (Dec. 3.)
@@ -87,8 +88,12 @@ report polish.
   fixed by the dataset spec, written before the data is generated (Dec. 17). The threshold is a
   contract `generate.py` and `signatures.py` both read; `evaluate` reports against it and never
   moves it.
-- **[A3]** The naive baseline is: a sub-assembly of the newest variant counts as "already
-  exists" only if its raw reference string matches an older variant's raw reference exactly.
+- **[A3]** Two naive baselines, both reading raw rows only. *Exact reference*: a sub-assembly
+  of the newest variant counts as "already exists" only if its raw reference string matches an
+  older variant's raw reference exactly. *Same name*: it counts as "already exists" if its raw
+  designation, compared case- and whitespace-insensitively, equals an older variant's — the
+  search a data engineer would try first, which finds a namesake almost everywhere and cannot
+  tell identical from changed from re-designed.
 - **[A4]** Defect types scored separately by `evaluate`: duplicate reference, unit conflict,
   supplier conflict, cost conflict, note-vs-BOM contradiction, and the three reuse classes.
 - **[A5]** Confidence is a 0–1 score per finding, produced by the rule that emitted it; it
