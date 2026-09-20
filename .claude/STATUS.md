@@ -3,11 +3,11 @@
 Last updated: 2026-09-20
 
 ## Current Focus
-Planning done: 7 GitHub issues created, dependency graph fixed. Next: issue #1 — the dataset
-spec, the spec loader and the reuse verdict rule (spike S1), before anything is generated.
+The contract is in place: thresholds, story cases and the verdict rule agree, spike S1 closed.
+Next: issue #2 — the generator, which must reproduce the counts `data/dataset_spec.toml` fixes.
 
 ## In Progress
-- [ ] #1 Contract: dataset spec, spec loader and reuse verdict rule (spike S1)
+- (nothing)
 
 ## Done (current sprint)
 - [x] Framing committed: rules, problem statement, data requirements, 16 decisions
@@ -15,6 +15,7 @@ spec, the spec loader and the reuse verdict rule (spike S1), before anything is 
 - [x] `docs/ARCHITECTURE.md` — 7 open calls settled, 2 spikes named — 2026-09-20
 - [x] `DECISIONS.md` 19-20 — pydantic scope, R5 verdict meaning — 2026-09-20
 - [x] 7 GitHub issues created, backlog renumbered — 2026-09-20
+- [x] #1 Contract: dataset spec, spec loader, verdict rule; spike S1 run — 2026-09-20
 
 ## Backlog
 - [ ] #2 Synthetic dataset generator, planted defects and ground truth — `piv-full`
@@ -26,6 +27,10 @@ spec, the spec loader and the reuse verdict rule (spike S1), before anything is 
 
 ## Note
 The build runs in slices across several sessions. This file carries state, not elapsed time.
+
+Spike S1 result: of eight story cases, two came out `specific` where the story says `reusable`,
+and the part counts changed rather than the threshold (DECISIONS.md 17) — the seating module's
+armrests belong to the seat, the bike module's fixing kit follows the rail.
 
 Order of execution: #1 -> #2 -> #3 -> #4 -> #5, then #6 and #7 in parallel. Spike S2 (does the
 local model return usable JSON) is throwaway, off the critical path, and can run at any time.
