@@ -20,22 +20,22 @@ N018;D;2023-01-10;From 2023-01-01 on, fit DOOR-PUSHBUTTON-INT-LED instead of doo
 N019;D;2023-02-06;À partir du 01/02/2023, monter WCU-DOOR-POWERED à la place de WC-DOOR-SLIDING.
 N020;D;2023-03-27;Attention montage : TRAC-FUEL-TANK do not use on electric-only units, voir avis technique.
 N021;D;2023-07-03;WC-BOWL-VACUUM obsolète depuis le 30/06/2023, ne plus approvisionner.
-N022;D;2023-09-18;Genset noise measurement done at the depot, within the contractual limits.
+N022;D;2023-09-18;Proposal to declare TRAC-DIESEL-GENSET obsolete: rejected at the design review, the part stays approved for new builds.
 N023;D;2024-02-12;Point fournisseur sur le groupe diesel : delivery schedule confirmed, pas d'impact planning.
 N024;D;2026-02-09;TRAC-EXHAUST-KIT obsolete since 2026-02-01, do not order.
 N025;E;2023-12-04;Info fournisseur : ANCH-SHIM obsolete since 2023-12-01, stock restant à écouler.
-N026;E;2024-04-16;Livrée régionale validée par l'autorité organisatrice.
-N027;E;2024-09-05;Évolution nomenclature : WC-WATER-TANK est remplacé par WCU-TANK-COMBO (applicable au 01/09/2024).
-N028;E;2024-11-25;Seat pitch checked against the regional specification: compliant.
+N026;E;2024-04-16;Contrairement à ce qui était envisagé, HVAC-FILTER n'est pas remplacé par HVAC-FILTER-F9 à ce stade : essais d'encrassement en cours.
+N027;E;2024-09-05;Le réservoir WC-WATER-TANK n'est plus monté depuis le 01/09/2024 : c'est désormais WCU-TANK-COMBO qui équipe les sanitaires.
+N028;E;2024-11-25;Open question for the next design review: should DOOR-LOCK be replaced by a reinforced version? No decision yet.
 N029;E;2025-01-13;Mise à jour de la nomenclature après revue de conception, sans changement de pièce.
-N030;E;2026-01-12;HVAC_FILTER remplacé par HVAC-FILTER-F9 à compter du 01/01/2026.
+N030;E;2026-01-12;Évolution nomenclature : HVAC_FILTER est remplacé par HVAC-FILTER-F9 (applicable au 01/01/2026).
 N031;E;2026-03-09;Fin de vie fournisseur : BRK-PARKING-ACT est obsolète à compter du 01/03/2026.
 N032;C;2025-03-03;Première revue de conception avec la région : six emplacements vélos confirmés.
 N033;C;2025-06-10;Suite à la revue fournisseur : HVAC-CTRL-BOARD replaced by HVAC-CTRL-BOARD-R2, applicable au 01/06/2025.
 N034;C;2025-07-07;Toilettes universelles PMR : mock-up review done with the accessibility panel, RAS.
 N035;C;2025-09-08;Engineering change: PIS-SIGN-STD is superseded by PIS-SIGN-STD-V2, effective 2025-09-01.
-N036;C;2025-12-08;À partir du 01/12/2025, monter SEAT-TIPUP-SOFT à la place de SEAT-TIPUP.
+N036;C;2025-12-08;SEAT-TIPUP remplacé par SEAT-TIPUP-SOFT à compter du 01/12/2025.
 N037;C;2026-03-16;TRAC-TRANSFORMER replaced by TRAC-TRANSFORMER-LW as of 2026-03-01.
 N038;C;2026-04-13;From 2026-04-01 on, fit LIGHT-EMERG-UNIT-LI instead of light-emerg-unit.
-N039;C;2026-06-08;Supplier end of life: COUP-ELEC-HEAD is obsolete as of 2026-06-01.
+N039;C;2026-06-08;Last-time-buy notice for COUP-ELEC-HEAD: the supplier stopped production on 2026-06-01, no further orders possible.
 N040;C;2026-09-07;Pièce SEAT-END-PANEL déclarée obsolète au 01/09/2026.

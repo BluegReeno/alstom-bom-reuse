@@ -168,7 +168,11 @@ class FactScript:
 
 @dataclass(frozen=True, slots=True)
 class NoteScript:
-    """One technical note. A note with no fact carries its literal `text`."""
+    """One technical note. A note with no fact carries its literal `text`.
+
+    A note with both states its fact in a wording of its own (`{ref}`, `{new}`, `{date_fr}`...)
+    instead of drawing one from `NOTE_TEMPLATES`.
+    """
 
     variant_id: str
     date: str
@@ -723,6 +727,11 @@ TYPO_PLANS: Final[tuple[TypoPlan, ...]] = (
 # About half of the fact-bearing notes are respected by the BOM: precision needs negatives.
 # Only two contradictions reach the newest variant through an obsolete or replaced part —
 # BIKE-STRAP and AUX-CAP-BANK — and they are the two planted unsafe reuses.
+#
+# Five notes are traps for a pattern reader, so that reading notes with a model can be told
+# apart from matching keywords. Three state nothing while citing a part next to a stock phrase
+# (a replacement that was turned down, an obsolescence that was rejected, an open question).
+# Two state a fact in a wording of their own that uses none of the stock phrases.
 
 NOTES: Final[tuple[NoteScript, ...]] = (
     NoteScript("A", "2019-05-06", "fr", text="Contrôle du couple de serrage effectué sur le châssis de bogie, RAS."),
@@ -746,13 +755,17 @@ NOTES: Final[tuple[NoteScript, ...]] = (
     NoteScript("D", "2023-02-06", "fr", fact=FactScript("replacement", "WC-DOOR-SLIDING", replaced_by="WCU-DOOR-POWERED", effective_date="2023-02-01")),
     NoteScript("D", "2023-03-27", "mixed", fact=FactScript("restriction", "TRAC-FUEL-TANK", scope="electric")),
     NoteScript("D", "2023-07-03", "fr", fact=FactScript("obsolescence", "WC-BOWL-VACUUM", effective_date="2023-06-30")),
-    NoteScript("D", "2023-09-18", "en", text="Genset noise measurement done at the depot, within the contractual limits."),
+    NoteScript("D", "2023-09-18", "en", text="Proposal to declare TRAC-DIESEL-GENSET obsolete: rejected at the design review, the part stays approved for new builds."),
     NoteScript("D", "2024-02-12", "mixed", text="Point fournisseur sur le groupe diesel : delivery schedule confirmed, pas d'impact planning."),
     NoteScript("D", "2026-02-09", "en", fact=FactScript("obsolescence", "TRAC-EXHAUST-KIT", effective_date="2026-02-01")),
     NoteScript("E", "2023-12-04", "mixed", fact=FactScript("obsolescence", "ANCH-SHIM", effective_date="2023-12-01")),
-    NoteScript("E", "2024-04-16", "fr", text="Livrée régionale validée par l'autorité organisatrice."),
-    NoteScript("E", "2024-09-05", "fr", fact=FactScript("replacement", "WC-WATER-TANK", replaced_by="WCU-TANK-COMBO", effective_date="2024-09-01")),
-    NoteScript("E", "2024-11-25", "en", text="Seat pitch checked against the regional specification: compliant."),
+    NoteScript("E", "2024-04-16", "fr", text="Contrairement à ce qui était envisagé, HVAC-FILTER n'est pas remplacé par HVAC-FILTER-F9 à ce stade : essais d'encrassement en cours."),
+    NoteScript(
+        "E", "2024-09-05", "fr",
+        fact=FactScript("replacement", "WC-WATER-TANK", replaced_by="WCU-TANK-COMBO", effective_date="2024-09-01"),
+        text="Le réservoir {ref} n'est plus monté depuis le {date_fr} : c'est désormais {new} qui équipe les sanitaires.",
+    ),
+    NoteScript("E", "2024-11-25", "en", text="Open question for the next design review: should DOOR-LOCK be replaced by a reinforced version? No decision yet."),
     NoteScript("E", "2025-01-13", "fr", text="Mise à jour de la nomenclature après revue de conception, sans changement de pièce."),
     NoteScript("E", "2026-01-12", "fr", fact=FactScript("replacement", "HVAC-FILTER", cited_as="HVAC_FILTER", replaced_by="HVAC-FILTER-F9", effective_date="2026-01-01")),
     NoteScript("E", "2026-03-09", "fr", fact=FactScript("obsolescence", "BRK-PARKING-ACT", effective_date="2026-03-01")),
@@ -763,7 +776,11 @@ NOTES: Final[tuple[NoteScript, ...]] = (
     NoteScript("C", "2025-12-08", "fr", fact=FactScript("replacement", "SEAT-TIPUP", replaced_by="SEAT-TIPUP-SOFT", effective_date="2025-12-01")),
     NoteScript("C", "2026-03-16", "en", fact=FactScript("replacement", "TRAC-TRANSFORMER", replaced_by="TRAC-TRANSFORMER-LW", effective_date="2026-03-01")),
     NoteScript("C", "2026-04-13", "en", fact=FactScript("replacement", "LIGHT-EMERG-UNIT", cited_as="light-emerg-unit", replaced_by="LIGHT-EMERG-UNIT-LI", effective_date="2026-04-01")),
-    NoteScript("C", "2026-06-08", "en", fact=FactScript("obsolescence", "COUP-ELEC-HEAD", effective_date="2026-06-01")),
+    NoteScript(
+        "C", "2026-06-08", "en",
+        fact=FactScript("obsolescence", "COUP-ELEC-HEAD", effective_date="2026-06-01"),
+        text="Last-time-buy notice for {ref}: the supplier stopped production on {date_iso}, no further orders possible.",
+    ),
     NoteScript("C", "2026-09-07", "fr", fact=FactScript("obsolescence", "SEAT-END-PANEL", effective_date="2026-09-01")),
 )
 
