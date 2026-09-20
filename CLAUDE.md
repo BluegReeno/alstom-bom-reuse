@@ -94,10 +94,13 @@ product.
 The workflow is PRD → architecture → issues → plan / implement / validate per issue, using the
 PIV skills, in a **light** version:
 
-- Planning is one pass, not a phase: a one-page PRD, one architecture decision, 6 GitHub issues.
-- The full PIV loop (plan, implement, validate) only on the 3 risky issues: data generator,
-  normalization, resolution plus evaluation.
-- The LLM layer, the report and the README get a light or direct loop.
+- Planning is one pass, not a phase: a one-page PRD, one architecture decision, 7 GitHub issues.
+- The full PIV loop (plan, implement, validate) only on the 4 risky issues: data generator,
+  normalization, resolution, and evaluation. Resolution and evaluation are two issues rather
+  than one because the priority order never cuts the evaluation, and inside a single large
+  issue it would have been the last part written and the first sacrificed (Decision 22).
+- The contract issue (dataset spec, spec loader, verdict rule), the LLM layer, the report and
+  the README get a light or direct loop.
 - The build is done when the issues are done, not when a clock runs out. Whatever is dropped
   goes into the README's "Known limits", with the reason.
 - **Priority order, and it is the cut order**: the evaluation first and never cut, then the
