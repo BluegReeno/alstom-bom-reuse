@@ -8,9 +8,11 @@ something if they hold, so they are written with the first pipeline stage, not a
 Two angles on the isolation, because each one alone can be fooled (docs/ARCHITECTURE.md A5):
 
 - **runtime**: the pipeline runs on a copy of the raw files in a directory where no ground truth
-  exists. It proves the pipeline does not *need* it — not that it would not peek if it could.
+  exists, which proves it does not *need* it; then with the real one laid out beside the raw
+  files exactly as in the repository, which proves it does not *peek*: same artifact byte for
+  byte, and no file of that name opened.
 - **static**: no pipeline module so much as names it. It proves nobody wrote the peek — for the
-  spellings a scanner can see.
+  spellings a scanner can see (`'ground' + '_truth'` passes it; the runtime test is what catches that).
 
 Later issues extend the runtime test to `bomreuse run`; the static one covers new modules by itself.
 """
@@ -39,7 +41,9 @@ COMMITTED_RAW = ROOT / "data" / "raw"
 #: quietly widened, on the day it lands. Every other module of `src/bomreuse/` is scanned,
 #: including the ones that do not exist yet.
 NOT_PIPELINE = {"generate.py", "catalogue.py", "dirt.py", "ground_truth.py", "cli.py", "evaluate.py"}
-PIPELINE_MODULES = sorted(path.name for path in SRC.glob("*.py") if path.name not in NOT_PIPELINE)
+#: `rglob`, so that a sub-package added later is scanned without anyone remembering to list it.
+PIPELINE_MODULES = sorted(str(path.relative_to(SRC)) for path in SRC.rglob("*.py") if str(path.relative_to(SRC)) not in NOT_PIPELINE)
+GENERATOR_SIDE = {"generate", "catalogue", "dirt", "ground_truth", "evaluate"}
 
 _MENTION = re.compile(r"ground[\s_\-]*truth", re.IGNORECASE)
 
@@ -150,17 +154,76 @@ def test_no_pipeline_module_names_the_ground_truth(module: str) -> None:
     )
 
 
+def package_imports(source: str) -> set[str]:
+    """The modules of this package a source imports, however the import is spelled.
+
+    `from bomreuse.generate import x`, `from bomreuse import generate`, `import bomreuse.generate`
+    — and the relative forms, `from .generate import x` and `from . import generate`, where
+    `node.module` holds no package name at all and only `node.level` says the import is ours.
+    """
+    imported: set[str] = set()
+    for node in ast.walk(ast.parse(source)):
+        if isinstance(node, ast.ImportFrom):
+            parts = node.module.split(".") if node.module else []
+            if node.level == 0 and parts[:1] == ["bomreuse"]:
+                parts = parts[1:]
+            elif node.level == 0:
+                continue
+            imported |= {parts[0]} if parts else {alias.name for alias in node.names}
+        elif isinstance(node, ast.Import):
+            imported |= {alias.name.split(".")[1] for alias in node.names if alias.name.startswith("bomreuse.")}
+    return imported
+
+
+def dynamic_imports(source: str) -> list[str]:
+    """`importlib` and `__import__` take a module name as a string a scanner cannot follow: neither has a use in the pipeline."""
+    found: list[str] = []
+    for node in ast.walk(ast.parse(source)):
+        if isinstance(node, ast.Import) and any(alias.name.split(".")[0] == "importlib" for alias in node.names):
+            found.append(f"line {node.lineno}: import importlib")
+        elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module and node.module.split(".")[0] == "importlib":
+            found.append(f"line {node.lineno}: from {node.module} import …")
+        elif isinstance(node, ast.Name) and node.id == "__import__":
+            found.append(f"line {node.lineno}: __import__")
+    return found
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        "from bomreuse.generate import generate\n",
+        "from bomreuse import generate\n",
+        "from bomreuse import spec, generate as g\n",
+        "import bomreuse.generate\n",
+        "import bomreuse.generate as g\n",
+        "from .generate import generate\n",
+        "from . import generate\n",
+        "from . import spec, generate as g\n",
+        "from ..generate import generate\n",
+        "def run():\n    from .generate import generate\n    return generate\n",
+    ],
+)
+def test_the_import_scanner_sees_the_generator_however_it_is_imported(source: str) -> None:
+    assert "generate" in package_imports(source), source
+
+
+@pytest.mark.parametrize("source", ["import generate\n", "from csv import reader\n", "from bomreuse.model import RawText\n", "from .model import RawText\n", "from other.generate import x\n"])
+def test_the_import_scanner_lets_the_rest_through(source: str) -> None:
+    assert not package_imports(source) & GENERATOR_SIDE
+
+
+@pytest.mark.parametrize("source", ["import importlib\n", "import importlib.util\n", "from importlib import import_module\n", "X = __import__('bomreuse.generate')\n"])
+def test_the_import_scanner_flags_an_import_it_could_not_follow(source: str) -> None:
+    assert dynamic_imports(source), source
+
+
 @pytest.mark.parametrize("module", PIPELINE_MODULES)
 def test_no_pipeline_module_imports_the_generator_side(module: str) -> None:
     """The other half of docs/ARCHITECTURE.md A3: the generator imports no pipeline module, and the reverse."""
-    imported: set[str] = set()
-    for node in ast.walk(ast.parse((SRC / module).read_text(encoding="utf-8"))):
-        if isinstance(node, ast.ImportFrom) and node.module and node.module.split(".")[0] == "bomreuse":
-            parts = node.module.split(".")
-            imported |= {parts[1]} if len(parts) > 1 else {alias.name for alias in node.names}
-        elif isinstance(node, ast.Import):
-            imported |= {alias.name.split(".")[1] for alias in node.names if alias.name.startswith("bomreuse.")}
-    assert not imported & {"generate", "catalogue", "dirt", "ground_truth", "evaluate"}, f"{module} imports {sorted(imported)}"
+    source = (SRC / module).read_text(encoding="utf-8")
+    imported = package_imports(source)
+    assert not imported & GENERATOR_SIDE, f"{module} imports {sorted(imported)}"
+    assert dynamic_imports(source) == [], f"{module} imports by name, which no static check can follow"
 
 
 # --- runtime isolation, and read-only inputs -------------------------------------------------------
@@ -188,6 +251,50 @@ def test_the_pipeline_runs_where_no_ground_truth_exists(tmp_path: Path, monkeypa
 
     assert main(["normalize", "--raw", "raw", "--out", "out"]) == 0
     assert (out / NORMALIZED_FILE).is_file()
+
+
+#: Paths opened while the list is armed. An audit hook cannot be removed once added, so it is
+#: added once and only records between `_OPENED.clear()` and the end of the test that armed it.
+_OPENED: list[str] = []
+_ARMED: list[bool] = []
+
+
+def _record_opens(event: str, args: tuple[object, ...]) -> None:
+    if _ARMED and event == "open":
+        _OPENED.append(os.fsdecode(args[0]) if isinstance(args[0], (str, bytes, os.PathLike)) else repr(args[0]))
+
+
+def test_a_decoy_beside_the_raw_files_changes_nothing_and_is_never_opened(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """The differential half of the isolation: the repository's layout, with and without its ground truth.
+
+    Same bytes out proves a peek had no effect; the audit hook proves there was no peek, which
+    is the stronger claim — a pipeline could read the file and, today, do nothing with it.
+    """
+    assert not _MENTION.search(str(tmp_path)), "the temporary directory itself must not look like a hit"
+    artifacts = {}
+    for name in ("without", "with"):
+        root = tmp_path / name
+        shutil.copytree(COMMITTED_RAW, root / "data" / "raw")
+    decoy = tmp_path / "with" / "data" / "ground_truth"
+    shutil.copytree(ROOT / "data" / "ground_truth", decoy)
+    before = snapshot(decoy)
+    assert before, "the decoy is the committed ground truth: the most tempting one there is"
+
+    sys.addaudithook(_record_opens)
+    for name in ("without", "with"):
+        monkeypatch.chdir(tmp_path / name)
+        _OPENED.clear()
+        _ARMED.append(True)
+        try:
+            assert main(["normalize", "--raw", "data/raw", "--out", "out"]) == 0
+        finally:
+            _ARMED.clear()
+        assert [path for path in _OPENED if path.endswith("bom.csv")], "the hook sees what the run opens"
+        assert [path for path in _OPENED if _MENTION.search(path)] == []
+        artifacts[name] = (tmp_path / name / "out" / NORMALIZED_FILE).read_bytes()
+
+    assert artifacts["with"] == artifacts["without"]
+    assert snapshot(decoy) == before
 
 
 def test_a_run_leaves_its_inputs_exactly_as_they_were(tmp_path: Path) -> None:
