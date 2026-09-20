@@ -1,0 +1,371 @@
+# dataset_spec.toml — the contract the synthetic dataset is generated from.
+#
+# Written in full BEFORE any data exists, and read through src/bomreuse/spec.py only.
+# generate.py (#2) honours it, signatures.py applies its thresholds, evaluate.py reports
+# against it and never moves it.
+#
+# DECISIONS.md 17 governs this file: the thresholds are never tuned against a score. If the
+# reuse rule and a story case below disagree, the PART COUNTS change here — never the
+# thresholds — and the commit message says which case forced the change.
+
+version = "1"
+
+[thresholds]
+# Both counters of the signature distance are judged against the same budget, so the rule
+# stays symmetric: three quantity differences are no more acceptable than three missing
+# parts.  budget = min(max_abs_diff, ceil(diff_ratio * min(len(a), len(b))))
+max_abs_diff = 3
+diff_ratio = 0.25
+
+[dataset]
+# Below four components the relative budget degenerates: with min(len) == 1,
+# ceil(0.25 * 1) == 1, so a one-component sub-assembly and a two-component one would come out
+# "reusable".  The fix belongs to the data, not to the rule (docs/ARCHITECTURE.md A1).
+min_subassembly_size = 4
+# Unit assumed for a story-case component that declares none. Counts have no SI unit; "pcs"
+# is the normalized spelling of the raw "pcs" / "units" / "u" the generator plants.
+default_unit = "pcs"
+
+# ---------------------------------------------------------------------------------------
+# Story cases — the hand-written cases of CONTEXT.md's worked example, with the component
+# counts the generator must reproduce. Spike S1 runs the verdict rule against them before
+# anything is generated.
+# ---------------------------------------------------------------------------------------
+
+[[story_cases]]
+id = "carbody_shell_identical"
+sub_assembly = "Carbody shell"
+left_variant = "A"
+right_variant = "B"
+expected_verdict = "identical"
+source = "CONTEXT.md worked example: shell, bogies, doors, HVAC, traction are the same"
+
+[story_cases.left]
+"SHELL-UNDERFRAME" = 1
+"SHELL-SIDEWALL" = 2
+"SHELL-ROOF" = 1
+"SHELL-ENDWALL" = 2
+"SHELL-BRACKET-KIT" = 4
+"SHELL-SEAL" = 24
+
+[story_cases.right]
+"SHELL-UNDERFRAME" = 1
+"SHELL-SIDEWALL" = 2
+"SHELL-ROOF" = 1
+"SHELL-ENDWALL" = 2
+"SHELL-BRACKET-KIT" = 4
+"SHELL-SEAL" = 24
+
+
+[[story_cases]]
+id = "trailer_bogie_identical"
+sub_assembly = "Trailer bogie"
+left_variant = "A"
+right_variant = "C"
+expected_verdict = "identical"
+source = "CONTEXT.md worked example; C is the newest variant, the backtest target"
+
+[story_cases.left]
+"BOGIE-FRAME" = 1
+"BOGIE-WHEELSET" = 2
+"BOGIE-PRIMARY-SUSP" = 4
+"BOGIE-AIRSPRING" = 2
+"BOGIE-BRAKE-CALIPER" = 4
+"BOGIE-DAMPER" = 8
+"BOGIE-AXLEBOX" = 4
+
+[story_cases.right]
+"BOGIE-FRAME" = 1
+"BOGIE-WHEELSET" = 2
+"BOGIE-PRIMARY-SUSP" = 4
+"BOGIE-AIRSPRING" = 2
+"BOGIE-BRAKE-CALIPER" = 4
+"BOGIE-DAMPER" = 8
+"BOGIE-AXLEBOX" = 4
+
+
+[[story_cases]]
+id = "seating_module_tipup"
+sub_assembly = "Seating module"
+left_variant = "A"
+right_variant = "B"
+expected_verdict = "reusable"
+source = "CONTEXT.md worked example: fewer fixed seats + tip-up seats, same seat"
+
+[story_cases.left]
+"SEAT-FIX-DBL" = 24
+"SEAT-RAIL" = 12
+"SEAT-FIX-KIT" = 24
+"SEAT-ARMREST" = 48
+"SEAT-CUSHION" = 48
+"SEAT-TABLE" = 6
+"SEAT-GRAB-HANDLE" = 12
+"SEAT-END-PANEL" = 8
+
+[story_cases.right]
+"SEAT-FIX-DBL" = 18
+"SEAT-RAIL" = 12
+"SEAT-FIX-KIT" = 18
+"SEAT-ARMREST" = 36
+"SEAT-CUSHION" = 36
+"SEAT-TABLE" = 6
+"SEAT-GRAB-HANDLE" = 12
+"SEAT-END-PANEL" = 8
+"SEAT-TIPUP" = 4
+
+
+[[story_cases]]
+id = "bike_module_two_fewer_hooks"
+sub_assembly = "Bike module"
+left_variant = "B"
+right_variant = "C"
+expected_verdict = "reusable"
+source = "docs/ARCHITECTURE.md S1: the bike module with two fewer hooks"
+
+[story_cases.left]
+"BIKE-HOOK" = 8
+"BIKE-RAIL" = 2
+"BIKE-STRAP" = 8
+"BIKE-FIX-KIT" = 8
+"BIKE-FLOOR-MAT" = 1
+"BIKE-PICTO" = 4
+
+[story_cases.right]
+"BIKE-HOOK" = 6
+"BIKE-RAIL" = 2
+"BIKE-STRAP" = 6
+"BIKE-FIX-KIT" = 6
+"BIKE-FLOOR-MAT" = 1
+"BIKE-PICTO" = 4
+
+
+[[story_cases]]
+id = "floor_wall_anchorage_new"
+sub_assembly = "Floor and wall anchorage"
+left_variant = "A"
+right_variant = "C"
+expected_verdict = "specific"
+source = "CONTEXT.md worked example: the new anchorage is variant-specific"
+
+[story_cases.left]
+"ANCH-SEAT-RAIL" = 12
+"ANCH-RAIL-BOLT" = 96
+"ANCH-FLOOR-PLATE" = 12
+"ANCH-SHIM" = 24
+
+[story_cases.right]
+"ANCH-SEAT-RAIL" = 8
+"ANCH-RAIL-BOLT" = 64
+"ANCH-BIKE-PLATE" = 4
+"ANCH-BIKE-BOLT" = 32
+"ANCH-WALL-BRACKET" = 4
+"ANCH-REINF-PANEL" = 2
+
+
+[[story_cases]]
+id = "pis_bike_pictograms"
+sub_assembly = "Passenger information system"
+left_variant = "A"
+right_variant = "B"
+expected_verdict = "reusable"
+source = "CONTEXT.md worked example: same part, small change (bike pictograms)"
+
+[story_cases.left]
+"PIS-DISPLAY-INT" = 4
+"PIS-DISPLAY-EXT" = 2
+"PIS-SPEAKER" = 8
+"PIS-CONTROLLER" = 1
+"PIS-CABLE-TRUNK" = 36.0
+"PIS-SIGN-STD" = 6
+
+[story_cases.right]
+"PIS-DISPLAY-INT" = 4
+"PIS-DISPLAY-EXT" = 2
+"PIS-SPEAKER" = 8
+"PIS-CONTROLLER" = 1
+"PIS-CABLE-TRUNK" = 36.0
+"PIS-SIGN-STD" = 4
+"PIS-SIGN-BIKE" = 2
+
+[story_cases.units]
+"PIS-CABLE-TRUNK" = "m"
+
+
+[[story_cases]]
+id = "passenger_door_set_reusable"
+sub_assembly = "Passenger door set"
+left_variant = "A"
+right_variant = "C"
+expected_verdict = "reusable"
+source = "README: near-reuse means differing by 1-3 parts; here the absolute clamp binds"
+
+[story_cases.left]
+"DOOR-LEAF" = 4
+"DOOR-DRIVE-UNIT" = 2
+"DOOR-GUIDE-RAIL" = 4
+"DOOR-SEAL" = 8
+"DOOR-OBSTACLE-SENSOR" = 4
+"DOOR-CTRL-UNIT" = 2
+"DOOR-PUSHBUTTON-INT" = 4
+"DOOR-PUSHBUTTON-EXT" = 4
+"DOOR-EMERG-HANDLE" = 2
+"DOOR-STEP-PLATE" = 2
+"DOOR-THRESHOLD" = 2
+"DOOR-HARNESS" = 2
+"DOOR-LOCK" = 4
+"DOOR-DAMPER" = 4
+"DOOR-PICTO" = 8
+"DOOR-FIX-KIT" = 4
+
+[story_cases.right]
+"DOOR-LEAF" = 4
+"DOOR-DRIVE-UNIT" = 2
+"DOOR-GUIDE-RAIL" = 4
+"DOOR-SEAL" = 8
+"DOOR-OBSTACLE-SENSOR" = 4
+"DOOR-CTRL-UNIT" = 2
+"DOOR-PUSHBUTTON-INT-LED" = 4
+"DOOR-PUSHBUTTON-EXT" = 4
+"DOOR-EMERG-HANDLE" = 2
+"DOOR-STEP-PLATE" = 2
+"DOOR-THRESHOLD" = 2
+"DOOR-HARNESS" = 2
+"DOOR-LOCK" = 4
+"DOOR-DAMPER" = 4
+"DOOR-PICTO" = 10
+"DOOR-FIX-KIT" = 4
+"DOOR-GAP-FILLER" = 2
+
+
+[[story_cases]]
+id = "traction_package_bimode_specific"
+sub_assembly = "Traction package"
+left_variant = "A"
+right_variant = "D"
+expected_verdict = "specific"
+source = "CONTEXT.md: the bi-mode variant; four parts differ, one over the absolute clamp"
+
+[story_cases.left]
+"TRAC-CONV-MAIN" = 1
+"TRAC-TRANSFORMER" = 1
+"TRAC-MOTOR" = 4
+"TRAC-COOLING-UNIT" = 1
+"TRAC-HV-CABLE" = 42.0
+"TRAC-CIRCUIT-BREAKER" = 1
+"TRAC-EARTH-SWITCH" = 1
+"TRAC-CTRL-RACK" = 1
+"TRAC-SENSOR-KIT" = 4
+"TRAC-BUSBAR" = 6
+"TRAC-INSULATOR" = 12
+"TRAC-FIX-KIT" = 8
+
+[story_cases.right]
+"TRAC-CONV-MAIN" = 1
+"TRAC-MOTOR" = 4
+"TRAC-COOLING-UNIT" = 1
+"TRAC-HV-CABLE" = 42.0
+"TRAC-CIRCUIT-BREAKER" = 1
+"TRAC-EARTH-SWITCH" = 1
+"TRAC-CTRL-RACK" = 1
+"TRAC-SENSOR-KIT" = 4
+"TRAC-BUSBAR" = 6
+"TRAC-INSULATOR" = 12
+"TRAC-FIX-KIT" = 8
+"TRAC-DIESEL-GENSET" = 1
+"TRAC-FUEL-TANK" = 1
+"TRAC-EXHAUST-KIT" = 1
+
+[story_cases.units]
+"TRAC-HV-CABLE" = "m"
+
+# ---------------------------------------------------------------------------------------
+# Typo families — the reference-duplication defects the generator plants.
+#
+# `within_rules_reach = false` families are planted ON PURPOSE: the canonical-key rules of
+# resolve.py (#4) cannot catch them, evaluate.py measures the shortfall, and the README's
+# "Known limits" carries a figure instead of a caveat. A dataset that only plants defects
+# the tool catches proves nothing (docs/ARCHITECTURE.md A2).
+# ---------------------------------------------------------------------------------------
+
+[[typo_families]]
+id = "case_and_whitespace"
+kind = "case_and_whitespace"
+canonical = "BGI-2031"
+variants = ["bgi-2031", "BGI-2031 ", " Bgi-2031"]
+within_rules_reach = true
+note = "Uppercasing and whitespace collapsing catch this family."
+
+[[typo_families]]
+id = "separator_dropped"
+kind = "separator"
+canonical = "BGI-2031"
+variants = ["BGI2031", "BGI 2031", "BGI_2031"]
+within_rules_reach = true
+note = "Non-alphanumerics are dropped from the canonical key."
+
+[[typo_families]]
+id = "homoglyph_o_zero"
+kind = "homoglyph"
+canonical = "BGI-2031"
+variants = ["BGI-2O31", "BGI-2O3I"]
+within_rules_reach = true
+note = "O folds to 0 and I folds to 1."
+
+[[typo_families]]
+id = "homoglyph_l_one"
+kind = "homoglyph"
+canonical = "HVAC-GRILLE-12"
+variants = ["HVAC-GRILLE-l2", "HVAC-GRlLLE-12"]
+within_rules_reach = true
+note = "Lowercase l folds to 1."
+
+[[typo_families]]
+id = "transposition"
+kind = "transposition"
+canonical = "BGI-2031"
+variants = ["BGI-2013"]
+within_rules_reach = false
+note = "Out of reach by construction: rules-only resolution cannot undo a transposition without string-distance matching, which would manufacture false merges."
+
+[[typo_families]]
+id = "missing_character"
+kind = "missing_character"
+canonical = "SEAT-FIX-KIT-4471"
+variants = ["SEAT-FIX-KIT-447"]
+within_rules_reach = false
+note = "Out of reach by construction: a dropped character is indistinguishable from a different reference under rules only."
+
+# ---------------------------------------------------------------------------------------
+# Must-not-merge pairs — genuinely different products whose references are separated by
+# exactly one character the folding rules collapse. The ground truth declares them as two
+# distinct true components. If resolve.py merges them, resolution precision drops below 1
+# and the miss is shown on purpose; if the rules hold, the 1.0 is a result rather than an
+# artefact of the dataset (docs/ARCHITECTURE.md A2).
+# ---------------------------------------------------------------------------------------
+
+[[must_not_merge]]
+id = "seat_rail_inox_vs_mark1"
+left_reference = "SEAT-RAIL-I"
+right_reference = "SEAT-RAIL-1"
+left_true_component = "TRUE-0101"
+right_true_component = "TRUE-0102"
+collapsing_rule = "homoglyph_i_one"
+reason = "Stainless-steel rail (I) against the mark-1 aluminium rail (1): different material, different price, not interchangeable."
+
+[[must_not_merge]]
+id = "door_seal_outer_vs_rev0"
+left_reference = "DOOR-SEAL-O"
+right_reference = "DOOR-SEAL-0"
+left_true_component = "TRUE-0103"
+right_true_component = "TRUE-0104"
+collapsing_rule = "homoglyph_o_zero"
+reason = "Outer seal (O) against revision 0 of the inner seal: different geometry."
+
+[[must_not_merge]]
+id = "hvac_grille_left_vs_type11"
+left_reference = "HVAC-GRILLE-1L"
+right_reference = "HVAC-GRILLE-11"
+left_true_component = "TRUE-0105"
+right_true_component = "TRUE-0106"
+collapsing_rule = "homoglyph_l_one"
+reason = "Left-hand grille (1L) against the type-11 grille: mirrored part, different drilling."
