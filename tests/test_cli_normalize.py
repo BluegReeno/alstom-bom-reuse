@@ -89,6 +89,18 @@ def test_an_artifact_path_that_leads_to_an_input_is_refused(
     assert (raw / "bom.csv").read_bytes() == before
 
 
+def test_an_artifact_path_that_cannot_be_checked_is_reported_not_raised(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    """A symlink pointing at itself cannot be resolved: the guard refuses, it does not raise."""
+    raw, out = tmp_path / "raw", tmp_path / "out"
+    shutil.copytree(COMMITTED_RAW, raw)
+    out.mkdir()
+    os.symlink(out / NORMALIZED_FILE, out / NORMALIZED_FILE)
+
+    assert main(["normalize", "--raw", str(raw), "--out", str(out)]) == 2
+    assert "cannot be checked" in capsys.readouterr().err
+    assert (out / NORMALIZED_FILE).is_symlink(), "nothing may be written when the request is refused"
+
+
 def test_a_raw_directory_without_the_files_is_reported_not_raised(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     raw, out = tmp_path / "raw", tmp_path / "out"
     raw.mkdir()

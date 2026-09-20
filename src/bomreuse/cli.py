@@ -84,7 +84,12 @@ def _normalize(args: argparse.Namespace) -> int:
     out_dir: Path = args.out
     artifact = out_dir / NORMALIZED_FILE
     # Refused before anything is read or written: inputs are read-only (CLAUDE.md rule 3).
-    if _writes_into(artifact, raw_dir):
+    try:
+        refused = _writes_into(artifact, raw_dir)
+    except (OSError, RuntimeError) as exc:  # a symlink loop, a name too long: unknown is not safe
+        print(f"error: {artifact} cannot be checked against the raw directory ({raw_dir}): {exc}", file=sys.stderr)
+        return 2
+    if refused:
         print(f"error: {artifact} would be written inside the raw directory ({raw_dir}), or over one of its files: inputs are read-only", file=sys.stderr)
         return 2
     try:
