@@ -98,3 +98,6 @@ from A and B, the bike module reused from B, only the anchorage new.
 - 2026-09-20 — PRD committed; the build runs in slices, elapsed time is not tracked.
 - 2026-09-20 — contract (#1), then the synthetic dataset and its ground truth (#2): 5 variants,
   raw CSVs `;`-separated under `data/raw/`, identity owned by the generator.
+- 2026-09-20 — ingest, normalize and the entity model (#3): `bomreuse normalize` writes
+  `out/normalized.json`, raw and normalized values side by side; the ground-truth isolation and
+  read-only invariants have their tests.

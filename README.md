@@ -84,8 +84,21 @@ Both paths are required arguments: the ground-truth location is never a constant
 and the pipeline only ever reads `data/raw/`. The seed (`--seed`) moves the dirt — spellings,
 units, decimal commas — never the story: every seed yields the same backtest answers.
 
-The rest of the pipeline (`normalize`, `run`, `evaluate`, `report`) is to be written during
-the build.
+Read the raw files and write the normalized dataset:
+
+```bash
+uv run bomreuse normalize --raw data/raw --out out
+```
+
+This is the first stage of the pipeline. It reads the three CSV files exactly as they are —
+nothing is stripped or cast on read — and writes `out/normalized.json`, where every value keeps
+its raw characters next to what the tool made of them (`36000` `mm` next to `36.0` `m`). A value
+it cannot read keeps its row, is stored as `null`, and is counted as an issue; a file that does
+not have the expected structure stops the run. `--out` may not be inside `--raw`: inputs are
+read-only. A component here is a *candidate group* — every reference sharing one key — not yet a
+resolved component.
+
+The rest of the pipeline (`run`, `evaluate`, `report`) is to be written during the build.
 
 ## Results
 

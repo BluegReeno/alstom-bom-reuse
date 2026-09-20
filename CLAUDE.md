@@ -60,9 +60,11 @@ src/bomreuse/
   catalogue.py    the hand-written, seed-independent story: variants, components, contents, notes
   dirt.py         pure seeded operators: typos by kind, mixed units, decimal commas, case noise
   ground_truth.py pydantic schema of the ground truth (one of the two pydantic boundaries)
-  ingest.py       read raw CSVs as-is, keep raw values
-  normalize.py    ids, units (to SI, raw kept), text, decimal commas
-  model.py        entities: Variant, SubAssembly, Component, Supplier, BomLine (n-ary)
+  ingest.py       read raw CSVs as-is, keep raw values; structure checked strictly (IngestError)
+  normalize.py    reference key (uppercase, then O/I/L folding), units to SI (m, kg, pcs), text,
+                  decimal commas; unreadable values kept and counted (NormalizationIssue)
+  model.py        raw rows; entities: Variant, SubAssembly, Component (candidate group), Supplier,
+                  BomLine (n-ary), Note; JSON round-trip of out/normalized.json
   resolve.py      duplicate references -> canonical component (auto / review / reject)
   signatures.py   sub-assembly signatures: reused (identical) / reusable (near-identical + diff)
   checks.py       inconsistencies: unit, supplier, cost conflicts, note vs BOM contradictions
