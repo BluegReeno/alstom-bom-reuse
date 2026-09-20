@@ -60,9 +60,32 @@ be measured.
 - Unsafe reuse: a matched older sub-assembly containing a part a note declares obsolete.
 - A ground truth, read only by the evaluation, never by the pipeline.
 
+As generated: 5 variants (A, B, D, E and C), 696 BOM lines (135 to 145 per variant) and 40
+notes, in three `;`-separated UTF-8 files under `data/raw/` — `variants.csv`, `bom.csv`,
+`notes.csv`. `data/dataset_spec.toml` is the contract they are generated from.
+
 ## How to run
 
-To be written during the build.
+Python 3.12 and [`uv`](https://docs.astral.sh/uv/). Everything runs offline.
+
+```bash
+uv sync
+uv run pytest
+```
+
+Regenerate the synthetic dataset (the committed one uses the default seed, and a test checks
+that it is byte-identical to a fresh generation):
+
+```bash
+uv run bomreuse generate --out data/raw --ground-truth data/ground_truth/ground_truth.json
+```
+
+Both paths are required arguments: the ground-truth location is never a constant in the code,
+and the pipeline only ever reads `data/raw/`. The seed (`--seed`) moves the dirt — spellings,
+units, decimal commas — never the story: every seed yields the same backtest answers.
+
+The rest of the pipeline (`normalize`, `run`, `evaluate`, `report`) is to be written during
+the build.
 
 ## Results
 

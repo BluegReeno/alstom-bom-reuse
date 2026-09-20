@@ -3,8 +3,8 @@
 Last updated: 2026-09-20
 
 ## Current Focus
-The contract is in place: thresholds, story cases and the verdict rule agree, spike S1 closed.
-Next: issue #2 — the generator, which must reproduce the counts `data/dataset_spec.toml` fixes.
+The dataset exists: `data/raw/` (5 variants, `;`-separated) and its ground truth, byte-reproducible.
+Next: issue #3 — ingest, normalize and the entity model, reading `data/raw/` only.
 
 ## In Progress
 - (nothing)
@@ -16,9 +16,9 @@ Next: issue #2 — the generator, which must reproduce the counts `data/dataset_
 - [x] `DECISIONS.md` 19-20 — pydantic scope, R5 verdict meaning — 2026-09-20
 - [x] 7 GitHub issues created, backlog renumbered — 2026-09-20
 - [x] #1 Contract: dataset spec, spec loader, verdict rule; spike S1 run — 2026-09-20
+- [x] #2 Synthetic dataset generator, planted defects and ground truth — 2026-09-20
 
 ## Backlog
-- [ ] #2 Synthetic dataset generator, planted defects and ground truth — `piv-full`
 - [ ] #3 Ingest, normalize and the entity model — `piv-full`
 - [ ] #4 Reference resolution, signatures and inconsistency checks — `piv-full`
 - [ ] #5 Evaluation: one scorer, two predictors, and the naive baseline — `piv-full`
@@ -31,6 +31,11 @@ The build runs in slices across several sessions. This file carries state, not e
 Spike S1 result: of eight story cases, two came out `specific` where the story says `reusable`,
 and the part counts changed rather than the threshold (DECISIONS.md 17) — the seating module's
 armrests belong to the seat, the bike module's fixing kit follows the rail.
+
+Handover from #2 to #3: the raw layout is fixed (`;` delimiter, UTF-8, `\n`, every value a string;
+columns in `generate.py`). #3's AST test "no module but `evaluate.py` mentions the ground truth" must
+exempt `generate.py`, `ground_truth.py` and `cli.py` — it guards the pipeline modules. Details and
+deviations: `.claude/reports/synthetic-dataset-generator-report.md`.
 
 Order of execution: #1 -> #2 -> #3 -> #4 -> #5, then #6 and #7 in parallel. Spike S2 (does the
 local model return usable JSON) is throwaway, off the critical path, and can run at any time.

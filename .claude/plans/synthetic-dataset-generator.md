@@ -779,4 +779,15 @@ split across sessions, the natural cut is after task 4 (catalogue committed and 
 
 ## AMENDMENTS
 
-- (none yet)
+- 2026-09-20 (implementation) — D5 "unit conflicts never in C" is read as: the *deviating line* is
+  never in the newest variant nor in a story sub-assembly. D3 puts one conflict in E's Interior
+  lighting, which C also carries, so the mechanically derived record for the pair `(C, E)` exists.
+- 2026-09-20 (implementation) — `catalogue.py` carries one function, `contents(spec)`, which
+  resolves its own content sources; the plan said "data and tiny dataclasses only". Its tests
+  need resolved contents before `generate.py` exists.
+- 2026-09-20 (implementation) — `unsafe` entries are derived from the note contradictions rather
+  than declared; the catalogue is written so that exactly the two planted ones come out.
+- 2026-09-20 (implementation) — C's mistyped sub-assembly reference (`SA-O107`) is hand-written in
+  the catalogue, not seeded: a seeded one would make the backtest section depend on the seed.
+- 2026-09-20 (implementation) — one extra commit (`fix:` notes filed once effective, in date
+  order), produced by reading `notes.csv` by eye as task 8 asks.
