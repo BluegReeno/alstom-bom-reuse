@@ -84,8 +84,21 @@ Both paths are required arguments: the ground-truth location is never a constant
 and the pipeline only ever reads `data/raw/`. The seed (`--seed`) moves the dirt — spellings,
 units, decimal commas — never the story: every seed yields the same backtest answers.
 
-The rest of the pipeline (`normalize`, `run`, `evaluate`, `report`) is to be written during
-the build.
+Read the raw files and write the normalized dataset:
+
+```bash
+uv run bomreuse normalize --raw data/raw --out out
+```
+
+This is the first stage of the pipeline. It reads the three CSV files exactly as they are —
+nothing is stripped or cast on read — and writes `out/normalized.json`, where every value keeps
+its raw characters next to what the tool made of them (line `L00052`: `42000` `mm` next to
+`42.0` `m`). A value it cannot read keeps its row, is stored as `null`, and is counted as an
+issue; a file that does not have the expected structure stops the run. `--out` may not be inside `--raw`: inputs are
+read-only. A component here is a *candidate group* — every reference sharing one key — not yet a
+resolved component.
+
+The rest of the pipeline (`run`, `evaluate`, `report`) is to be written during the build.
 
 ## Results
 
@@ -93,7 +106,14 @@ To be filled from `evaluate` output only.
 
 ## Known limits
 
-To be written when the build lands: what was dropped, and why.
+To be completed when the build lands: what was dropped, and why. Known so far:
+
+- **A lone separator is always the decimal mark.** `1,500` and `1.500` are both read as `1.5`,
+  never as fifteen hundred: the comma is the decimal mark of the export (DECISIONS.md 24), and
+  the dot is read the same way. `1.234,56` is refused as ambiguous rather than guessed, so the
+  tool is stricter with two separators than with one. No value of the committed dataset is
+  affected; an export that uses a thousands separator would be misread without an issue being
+  raised.
 
 ## How this was built
 
