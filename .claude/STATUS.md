@@ -21,11 +21,11 @@ Next: issue #5, first slice — the scorer and the two naive baselines, before #
 - [x] #3 PR #12 review fixed: H1, M1, M3–M6, L1–L5 (M2 → #13, generator guard → #14) — 2026-09-20
 
 ## Backlog
-- [ ] #4 Reference resolution, signatures and inconsistency checks — `piv-full`
 - [ ] #5 Evaluation: one scorer, two predictors, and the naive baseline — `piv-full`
+- [ ] #13 `dataset_from_dict` validates leaf types, plus review 2's L-B (quantity underflow) — `piv-direct`, **before #4**: #4 is the first stage that loads the artifact (#5's first slice reads raw rows only)
+- [ ] #4 Reference resolution, signatures and inconsistency checks — `piv-full`, depends on #13
 - [ ] #6 Note extraction: LLM adapter, keyword fallback and linking — `piv-direct`, after S2
 - [ ] #7 HTML report, findings artifact and a true README — `piv-direct`
-- [ ] #13 `dataset_from_dict` validates leaf types — before the first stage that loads the artifact (#4 or #5)
 - [ ] #14 `generate`: the ground-truth-inside-raw guard compares by identity, like `cli._writes_into`
 
 ## Note
@@ -49,7 +49,7 @@ reads. A line whose variant is empty or unknown has `parent_id = ""` and creates
 #5's baselines read `RawBomRow` (ingested rows), never `BomLine`. `evaluate.py` is already
 exempt from the AST isolation test. Details: `.claude/reports/ingest-normalize-entity-model-report.md`.
 
-Order of execution: #1 -> #2 -> #3 -> #5 first slice (scorer + two baselines) -> #4 -> #5 second
-slice, then #6 and #7 in parallel. Spike S2 (does the
+Order of execution: #1 -> #2 -> #3 -> #5 first slice (scorer + two baselines) -> #13 -> #4 -> #5
+second slice, then #6 and #7 in parallel. #14 is off the critical path. Spike S2 (does the
 local model return usable JSON) is throwaway, off the critical path, and can run at any time.
 The cut order is the reverse: #7 first, then #6; #5 is never cut.
