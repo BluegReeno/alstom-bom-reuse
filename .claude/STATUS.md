@@ -26,6 +26,13 @@ Next: issue #3 — ingest, normalize and the entity model, reading `data/raw/` o
 - [ ] #7 HTML report, findings artifact and a true README — `piv-direct`
 
 ## Note
+Project review, 2026-09-20: #4 now builds signatures on every merged group (`auto` and `review`),
+Decision 26. #5 follows
+Decision 25, adds a same-name baseline and lands its scorer before #4. Five trap notes replace
+bland ones in `catalogue.py` (N022, N026, N028 state nothing; N027, N039 state a fact in words of
+their own): `bom.csv` and the ground truth are byte-identical, only `notes.csv` moved. #6's keyword
+lexicon must be written from the brief's patterns, not from `notes.csv`, or the traps measure nothing.
+
 The build runs in slices across several sessions. This file carries state, not elapsed time.
 
 Spike S1 result: of eight story cases, two came out `specific` where the story says `reusable`,
@@ -37,6 +44,7 @@ columns in `generate.py`). #3's AST test "no module but `evaluate.py` mentions t
 exempt `generate.py`, `ground_truth.py` and `cli.py` — it guards the pipeline modules. Details and
 deviations: `.claude/reports/synthetic-dataset-generator-report.md`.
 
-Order of execution: #1 -> #2 -> #3 -> #4 -> #5, then #6 and #7 in parallel. Spike S2 (does the
+Order of execution: #1 -> #2 -> #3 -> #5 first slice (scorer + two baselines) -> #4 -> #5 second
+slice, then #6 and #7 in parallel. Spike S2 (does the
 local model return usable JSON) is throwaway, off the critical path, and can run at any time.
 The cut order is the reverse: #7 first, then #6; #5 is never cut.
