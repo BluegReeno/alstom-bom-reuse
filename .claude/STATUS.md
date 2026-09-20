@@ -1,55 +1,56 @@
 # STATUS — alstom-bom-reuse
 
-Last updated: 2026-09-20
+Last updated: 2026-09-20 — **refocus session**
 
-## Current Focus
-The first pipeline stage exists: `bomreuse normalize` reads `data/raw/` and writes `out/normalized.json`.
-Next: issue #5, first slice — the scorer and the two naive baselines, before #4.
+## Where this stands
 
-## In Progress
-- (nothing)
+The dataset and its measurement apparatus are built and tested. The half of the tool that
+answers the client's question is not written: `resolve`, `checks`, `notes`, `link`, `report`
+and the `run` entry point do not exist, and `signatures.py` is not wired to anything. The CLI
+has two commands, `generate` and `normalize`, neither of which a client would look at.
 
-## Done (current sprint)
-- [x] Framing committed: rules, problem statement, data requirements, 16 decisions
-- [x] `docs/PRD.md` — one page, assumptions marked
-- [x] `docs/ARCHITECTURE.md` — 7 open calls settled, 2 spikes named — 2026-09-20
-- [x] `DECISIONS.md` 19-20 — pydantic scope, R5 verdict meaning — 2026-09-20
-- [x] 7 GitHub issues created, backlog renumbered — 2026-09-20
-- [x] #1 Contract: dataset spec, spec loader, verdict rule; spike S1 run — 2026-09-20
-- [x] #2 Synthetic dataset generator, planted defects and ground truth — 2026-09-20
-- [x] #3 Ingest, normalize and the entity model; isolation and read-only invariants — 2026-09-20
-- [x] #3 PR #12 review fixed: H1, M1, M3–M6, L1–L5 (M2 → #13, generator guard → #14) — 2026-09-20
+Two thirds of the source (2 437 of 3 710 lines) and most of the tests are the synthetic-data
+factory, which the brief asks for in one bullet. That is the overrun, and it is now closed:
+**the data layer is frozen** (CLAUDE.md, "How we work").
 
-## Backlog
-- [ ] #5 Evaluation: one scorer, two predictors, and the naive baseline — `piv-full`
-- [ ] #13 `dataset_from_dict` validates leaf types, plus review 2's L-B (quantity underflow) — `piv-direct`, **before #4**: #4 is the first stage that loads the artifact (#5's first slice reads raw rows only)
-- [ ] #4 Reference resolution, signatures and inconsistency checks — `piv-full`, depends on #13
-- [ ] #6 Note extraction: LLM adapter, keyword fallback and linking — `piv-direct`, after S2
-- [ ] #7 HTML report, findings artifact and a true README — `piv-direct`
-- [ ] #14 `generate`: the ground-truth-inside-raw guard compares by identity, like `cli._writes_into`
+## Tomorrow, in this order
 
-## Note
-Project review, 2026-09-20: #4 now builds signatures on every merged group (`auto` and `review`),
-Decision 26. #5 follows
-Decision 25, adds a same-name baseline and lands its scorer before #4. Five trap notes replace
-bland ones in `catalogue.py` (N022, N026, N028 state nothing; N027, N039 state a fact in words of
-their own): `bom.csv` and the ground truth are byte-identical, only `notes.csv` moved. #6's keyword
-lexicon must be written from the brief's patterns, not from `notes.csv`, or the traps measure nothing.
+Each step leaves the repo demoable. Stop wherever the time runs out and write the rest into the
+README's "Known limits" — that is a normal outcome, not a failure.
 
-The build runs in slices across several sessions. This file carries state, not elapsed time.
+1. **`resolve.py` + `bomreuse run`** — candidate groups to canonical components, `auto` /
+   `review` / `reject` per Decision 20, and a `findings.json` carrying the duplicate-reference
+   findings. First end-to-end command.
+2. **Wire `signatures.py` into `run`** — classify every sub-assembly of the newest variant as
+   *reused* / *reusable* (with the diff) / *specific*, against the older variants only.
+   **This is the minimum viable demo: the client's question is answered here.** Everything
+   after it is upside.
+3. **`checks.py`** — unit, supplier and cost conflicts across variants. Cheap, and it is the
+   second half of the client's question ("where are the inconsistencies").
+4. **`notes.py` (keyword only) + `link.py`** — a note declaring a part obsolete, linked to a
+   sub-assembly classified reusable, is the unsafe-reuse finding. The moment that makes the
+   demo land.
+5. **`backtest.py`** — two numbers: how many of the newest variant's sub-assemblies the tool
+   finds as already existing, and how many the exact-reference search finds. Nothing else.
+6. **`report.py`** — one static HTML: five numbers for Bruno at the top, the findings table
+   with its evidence for Thomas below.
+7. **README** — Results filled from the code's own output, Known limits filled honestly.
 
-Spike S1 result: of eight story cases, two came out `specific` where the story says `reusable`,
-and the part counts changed rather than the threshold (DECISIONS.md 17) — the seating module's
-armrests belong to the seat, the bike module's fixing kit follows the rail.
+Reserve the last half hour, whatever state the code is in, for the email and the 40-minute
+narrative. They are half the deliverable and neither is started.
 
-Handover from #3 to #4 and #5: `normalize.reference_key` is the key — #4 inherits it and never
-recomputes one. A `Component` is a candidate group (one per key); the three must-not-merge pairs
-share a key on purpose (Decision 27) and carry two designations each, which is what #4's `reject`
-reads. A line whose variant is empty or unknown has `parent_id = ""` and creates no sub-assembly.
-#5's baselines read `RawBomRow` (ingested rows), never `BomLine`. `evaluate.py` is already
-exempt from the AST isolation test. Details: `.claude/reports/ingest-normalize-entity-model-report.md`.
+## Cut, explicitly
 
-Order of execution: #1 -> #2 -> #3 -> #5 first slice (scorer + two baselines) -> #13 -> #4 -> #5
-second slice, then #6 and #7 in parallel. #14 is off the critical path. Spike S2 (does the
-local model return usable JSON) is throwaway, off the critical path, and can run at any time.
-The cut order is the reverse: #7 first, then #6; #5 is never cut.
+- Issues #13 and #14 — won't do. Both are dataset-factory polish.
+- Precision / recall per defect type, the same-name baseline, regression floors: replaced by
+  step 5's two counts.
+- The two-LLM comparison with latency per note: one backend, or none, plus the keyword
+  fallback. The on-prem path is argued in the meeting from the adapter interface.
+- PIV full loops, plan documents, implementation reports, self-reviews of own PRs. Direct
+  implementation, one commit per module.
+
+## What does not change
+
+The non-negotiable rules of CLAUDE.md: inputs read-only, the pipeline never reads the ground
+truth, findings carry their evidence, offline by default, no number that the code did not
+compute.
