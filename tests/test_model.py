@@ -182,6 +182,9 @@ def _with(data: dict[str, Any], path: str, value: Any) -> dict[str, Any]:
         ("lines.0.quantity.value", True, r"lines\[0\]\.quantity\.value must be a number or null, got bool"),
         ("lines.0.quantity.unit", 3, r"lines\[0\]\.quantity\.unit must be a string or null, got int"),
         ("variants.0.seats.normalized", "48", r"variants\[0\]\.seats\.normalized must be an integer or null, got str"),
+        # An integer passes the type test and then overflows the conversion; both float leaves are fed one.
+        pytest.param("lines.0.quantity.value", 10**400, r"lines\[0\]\.quantity\.value is out of range for a float", id="quantity.value-10**400"),
+        pytest.param("lines.0.unit_cost.normalized", 10**400, r"lines\[0\]\.unit_cost\.normalized is out of range for a float", id="unit_cost.normalized-10**400"),
     ],
 )
 def test_a_leaf_of_the_wrong_type_is_refused_and_named(path: str, value: Any, message: str) -> None:
@@ -196,6 +199,14 @@ def test_the_artifact_is_json_so_a_value_json_cannot_hold_is_refused_at_writing(
     line = dataclasses.replace(a_dataset().lines[0], unit_cost=RawNumber(raw="9" * 400, normalized=value))
     with pytest.raises(ValueError, match="JSON"):
         render_dataset(dataclasses.replace(a_dataset(), lines=(line,)))
+
+
+@pytest.mark.parametrize("literal", ["NaN", "Infinity", "-Infinity", "1e400"])
+def test_a_number_json_cannot_hold_is_refused_at_reading_too(literal: str) -> None:
+    """`json.loads` reads Python's dialect, so a dataset can be loaded that `render_dataset` could never write."""
+    text = json.dumps(_with(dataset_to_dict(a_dataset()), "lines.0.quantity.value", "@")).replace('"@"', literal)
+    with pytest.raises(ModelError, match=r"lines\[0\]\.quantity\.value must be a finite number or null"):
+        dataset_from_dict(json.loads(text))
 
 
 def test_a_file_that_is_missing_or_not_json_is_a_model_error(tmp_path: Path) -> None:
@@ -214,6 +225,18 @@ def test_a_path_that_is_not_readable_utf8_text_is_a_model_error(tmp_path: Path) 
     latin1.write_bytes('{"supplier": "Artois Polymères"}'.encode("latin-1"))
     with pytest.raises(ModelError, match="cannot be read"):
         load_dataset(latin1)
+
+
+def test_a_json_file_python_itself_refuses_to_parse_is_a_model_error(tmp_path: Path) -> None:
+    """Past the integer-digit limit and past the recursion limit, `json.loads` raises neither `JSONDecodeError`."""
+    huge = tmp_path / "huge.json"
+    huge.write_text(f'{{"row_number": {"9" * 5000}}}', encoding="utf-8")
+    with pytest.raises(ModelError, match="not valid JSON"):
+        load_dataset(huge)
+    deep = tmp_path / "deep.json"
+    deep.write_text("[" * 100_000 + "]" * 100_000, encoding="utf-8")
+    with pytest.raises(ModelError, match="not valid JSON"):
+        load_dataset(deep)
 
 
 # --- the shape of the types ------------------------------------------------------------------

@@ -27,6 +27,7 @@ only the keys — a stage told to expect `ModelError` must not meet a `TypeError
 
 import dataclasses
 import json
+import math
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import date
@@ -282,7 +283,10 @@ def load_dataset(path: Path) -> NormalizedDataset:
         # A directory, an unreadable file, a file written in another encoding: the caller asked
         # for a dataset and gets the one error type this module promises.
         raise ModelError(f"normalized dataset at {path} cannot be read: {exc}") from exc
-    except json.JSONDecodeError as exc:
+    except (ValueError, RecursionError) as exc:
+        # `JSONDecodeError` is a `ValueError`, and so is the integer-digit limit `json.loads` hits
+        # on a huge number literal; deep nesting gives a `RecursionError`. None of the three is a
+        # dataset, and the caller was promised one error type.
         raise ModelError(f"normalized dataset at {path} is not valid JSON: {exc}") from exc
     return dataset_from_dict(data)
 
@@ -480,7 +484,16 @@ def _opt_float(value: Any, where: str) -> float | None:
         return None
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         raise ModelError(f"{where} must be a number or null, got {type(value).__name__}")
-    return float(value)
+    try:
+        number = float(value)
+    except OverflowError as exc:
+        raise ModelError(f"{where} is out of range for a float: {exc}") from exc
+    # `render_dataset` refuses to write these (`allow_nan=False`) but `json.loads` reads the bare
+    # `NaN` / `Infinity` literals, and turns `1e400` into `inf`: without this the reader would
+    # hand back a dataset the writer cannot save, and `None` is the only way to say "unreadable".
+    if not math.isfinite(number):
+        raise ModelError(f"{where} must be a finite number or null, got {number!r}")
+    return number
 
 
 def _str_tuple(values: Any, where: str) -> tuple[str, ...]:
