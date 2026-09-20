@@ -181,7 +181,8 @@ class BomLine:
 
     `component_ref.normalized == child_id`, `sub_assembly_ref.normalized` is the parent's
     reference key, `supplier.normalized` is the `Supplier.id`. Supplier, cost and designation
-    stay on the line: they are what may differ from one variant to the next.
+    stay on the line: they are what may differ from one variant to the next. Every column of
+    the raw row is carried here with its exact characters, the parent's designation included.
     """
 
     line_id: str
@@ -191,6 +192,7 @@ class BomLine:
     child_id: str
     quantity: Quantity
     sub_assembly_ref: RawText
+    sub_assembly_designation: RawText
     component_ref: RawText
     designation: RawText
     supplier: RawText
@@ -331,7 +333,20 @@ def _sub_assembly(d: Any, where: str) -> SubAssembly:
 def _line(d: Any, where: str) -> BomLine:
     _check_keys(
         d,
-        {"line_id", "row_number", "variant_id", "parent_id", "child_id", "quantity", "sub_assembly_ref", "component_ref", "designation", "supplier", "unit_cost"},
+        {
+            "line_id",
+            "row_number",
+            "variant_id",
+            "parent_id",
+            "child_id",
+            "quantity",
+            "sub_assembly_ref",
+            "sub_assembly_designation",
+            "component_ref",
+            "designation",
+            "supplier",
+            "unit_cost",
+        },
         where,
     )
     return BomLine(
@@ -342,6 +357,7 @@ def _line(d: Any, where: str) -> BomLine:
         child_id=d["child_id"],
         quantity=_quantity(d["quantity"], f"{where}.quantity"),
         sub_assembly_ref=_raw_text(d["sub_assembly_ref"], f"{where}.sub_assembly_ref"),
+        sub_assembly_designation=_raw_text(d["sub_assembly_designation"], f"{where}.sub_assembly_designation"),
         component_ref=_raw_text(d["component_ref"], f"{where}.component_ref"),
         designation=_raw_text(d["designation"], f"{where}.designation"),
         supplier=_raw_text(d["supplier"], f"{where}.supplier"),

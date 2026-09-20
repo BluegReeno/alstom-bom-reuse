@@ -5,6 +5,7 @@ duplicates it finds, how many false merges it causes — is `evaluate`'s measure
 test here opens the ground truth.
 """
 
+import inspect
 import unicodedata
 from datetime import date
 from decimal import Decimal
@@ -12,7 +13,9 @@ from pathlib import Path
 
 import pytest
 
-from bomreuse.normalize import normalize_quantity, parse_date, parse_int, parse_number, parse_unit, reference_key, text_key
+from bomreuse.ingest import read_raw
+from bomreuse.model import NormalizationIssue, NormalizedDataset, Quantity, RawBomRow, RawDataset, RawNoteRow, RawVariantRow
+from bomreuse.normalize import normalize, normalize_quantity, parse_date, parse_int, parse_number, parse_unit, reference_key, text_key
 from bomreuse.spec import DatasetSpec, load_spec
 
 SPEC: DatasetSpec = load_spec()
@@ -214,3 +217,241 @@ def test_an_unreadable_half_makes_the_whole_amount_unreadable(raw_value: str, ra
     assert quantity.value is None and quantity.unit is None, "a number without its unit is not an amount"
     assert (quantity.raw_value, quantity.raw_unit) == (raw_value, raw_unit)
     assert issues == expected_issues
+
+
+# --- rows into entities ------------------------------------------------------------------------
+
+COMMITTED_RAW = ROOT / "data" / "raw"
+
+
+@pytest.fixture(scope="module")
+def raw() -> RawDataset:
+    return read_raw(COMMITTED_RAW)
+
+
+@pytest.fixture(scope="module")
+def dataset(raw: RawDataset) -> NormalizedDataset:
+    return normalize(raw)
+
+
+def variant_row(variant_id: str = "A", **cells: str) -> RawVariantRow:
+    defaults = {"name": "Standard car", "design_date": "2019-03-14", "region": "Hauts-de-France", "seats": "48", "bike_spaces": "0", "traction": "electric"}
+    return RawVariantRow(row_number=1, variant_id=variant_id, **{**defaults, **cells})
+
+
+def bom_row(row_number: int = 1, **cells: str) -> RawBomRow:
+    defaults = {
+        "line_id": f"L{row_number}",
+        "variant_id": "A",
+        "sub_assembly_ref": "SA-0101",
+        "sub_assembly_designation": "Carbody shell",
+        "component_ref": "BGI-2031",
+        "designation": "Bolt set M8",
+        "quantity": "4",
+        "unit": "pcs",
+        "supplier": "Artois Polymères",
+        "unit_cost_eur": "12,50",
+    }
+    return RawBomRow(row_number=row_number, **{**defaults, **cells})
+
+
+def a_raw_dataset(*bom: RawBomRow, variants: tuple[RawVariantRow, ...] | None = None, notes: tuple[RawNoteRow, ...] = ()) -> RawDataset:
+    return RawDataset(variants=variants if variants is not None else (variant_row("A"), variant_row("B", design_date="2021-06-02")), bom=bom, notes=notes)
+
+
+def test_every_row_of_the_committed_dataset_becomes_an_entity(dataset: NormalizedDataset) -> None:
+    assert (len(dataset.lines), len(dataset.notes), len(dataset.variants)) == (696, 40, 5)
+    assert len(dataset.sub_assemblies) == 72
+
+
+def test_the_committed_dataset_has_nothing_unreadable(dataset: NormalizedDataset) -> None:
+    """Its dirt is all of the kinds this module reads. An issue here means the generator and the reader drifted apart."""
+    assert dataset.issues == ()
+    assert all(line.quantity.value is not None and line.unit_cost.normalized is not None for line in dataset.lines)
+
+
+def test_variants_come_in_design_order_so_the_newest_is_last(dataset: NormalizedDataset) -> None:
+    dates = [variant.design_date.normalized for variant in dataset.variants]
+    assert dates == sorted(dates)  # type: ignore[type-var]
+    assert dataset.variants[-1].id == "C", "the file lists C last too, but the order must come from the dates"
+    assert [variant.seats.normalized for variant in dataset.variants] == [48, 36, 48, 44, 32]
+
+
+def test_the_variant_order_does_not_come_from_the_file_order() -> None:
+    newest_first = (variant_row("C", design_date="2025-02-17"), variant_row("A", design_date="2019-03-14"), variant_row("Z", design_date="someday"))
+    assert [variant.id for variant in normalize(a_raw_dataset(variants=newest_first)).variants] == ["A", "C", "Z"]
+
+
+def test_every_line_points_at_a_component_and_a_sub_assembly_that_exist(dataset: NormalizedDataset) -> None:
+    components = {component.id for component in dataset.components}
+    sub_assemblies = {sub_assembly.id for sub_assembly in dataset.sub_assemblies}
+    variants = {variant.id for variant in dataset.variants}
+    for line in dataset.lines:
+        assert line.child_id in components and line.parent_id in sub_assemblies and line.variant_id in variants
+        assert line.component_ref.normalized == line.child_id
+        assert line.parent_id == f"{line.variant_id}:{line.sub_assembly_ref.normalized}"
+
+
+def test_duplicate_spellings_fold_into_fewer_components_with_distinct_ids(dataset: NormalizedDataset, raw: RawDataset) -> None:
+    ids = [component.id for component in dataset.components]
+    assert len(ids) == len(set(ids)) and ids == sorted(ids)
+    assert len(ids) < len({row.component_ref for row in raw.bom})
+    assert {reference for component in dataset.components for reference in component.raw_references} == {row.component_ref for row in raw.bom}
+
+
+def test_a_component_used_by_five_variants_is_one_entity_not_five(dataset: NormalizedDataset) -> None:
+    key = reference_key("BGI-2031")
+    [component] = [component for component in dataset.components if component.id == key]
+    assert len(component.raw_references) >= 4 and "BGI-2031" in component.raw_references
+    assert {line.variant_id for line in dataset.lines if line.child_id == key} == {"A", "B", "C", "D", "E"}
+
+
+def test_a_sub_assembly_is_one_per_variant_even_when_the_reference_is_shared(dataset: NormalizedDataset) -> None:
+    """C spells it `SA-O107`, A `SA-0107`: one reference key, two sub-assemblies — their contents are what #4 compares."""
+    by_id = {sub_assembly.id: sub_assembly for sub_assembly in dataset.sub_assemblies}
+    a, c = by_id[f"A:{reference_key('SA-0107')}"], by_id[f"C:{reference_key('SA-0107')}"]
+    assert a.reference_key == c.reference_key and a.id != c.id
+    assert a.raw_references == ("SA-0107",) and c.raw_references == ("SA-O107",)
+    assert (a.variant_id, c.variant_id) == ("A", "C")
+
+
+def test_the_spellings_of_a_supplier_fold_into_one(dataset: NormalizedDataset) -> None:
+    [supplier] = [supplier for supplier in dataset.suppliers if supplier.id == text_key("Artois Polymères")]
+    assert {"Artois Polymères", "Artois Polymères "} <= set(supplier.raw_names)
+    assert len(dataset.suppliers) < len({line.supplier.raw for line in dataset.lines})
+    assert all(line.supplier.normalized in {supplier.id for supplier in dataset.suppliers} for line in dataset.lines)
+
+
+def test_every_raw_cell_of_every_row_is_carried_on_its_line_untouched(dataset: NormalizedDataset, raw: RawDataset) -> None:
+    assert len(dataset.lines) == len(raw.bom)
+    for line, row in zip(dataset.lines, raw.bom, strict=True):
+        carried = (
+            line.row_number,
+            line.line_id,
+            line.sub_assembly_ref.raw,
+            line.sub_assembly_designation.raw,
+            line.component_ref.raw,
+            line.designation.raw,
+            line.quantity.raw_value,
+            line.quantity.raw_unit,
+            line.supplier.raw,
+            line.unit_cost.raw,
+        )
+        assert carried == (
+            row.row_number,
+            row.line_id,
+            row.sub_assembly_ref,
+            row.sub_assembly_designation,
+            row.component_ref,
+            row.designation,
+            row.quantity,
+            row.unit,
+            row.supplier,
+            row.unit_cost_eur,
+        )
+
+
+def test_notes_are_carried_through_untouched_with_their_date_read(dataset: NormalizedDataset, raw: RawDataset) -> None:
+    assert [(note.note_id, note.text, note.date.raw) for note in dataset.notes] == [(row.note_id, row.text, row.date) for row in raw.notes]
+    assert all(isinstance(note.date.normalized, date) for note in dataset.notes)
+
+
+@pytest.mark.parametrize("reference", ["0031", " Bgi-2031", "BGI-2031 ", "bgi 2031"])
+def test_a_reference_survives_normalization_byte_for_byte_in_its_raw_field(reference: str) -> None:
+    result = normalize(a_raw_dataset(bom_row(component_ref=reference, sub_assembly_ref=f" {reference}")))
+    assert result.lines[0].component_ref.raw == reference
+    assert result.lines[0].sub_assembly_ref.raw == f" {reference}"
+    assert reference in result.components[0].raw_references
+    assert result.issues == ()
+
+
+# --- unreadable values: kept, and counted ------------------------------------------------------
+
+
+def test_an_unreadable_quantity_keeps_its_row_and_yields_exactly_one_issue() -> None:
+    result = normalize(a_raw_dataset(bom_row(1), bom_row(2, line_id="L00002", quantity="abc")))
+    assert len(result.lines) == 2
+    line = result.lines[1]
+    assert line.quantity == Quantity(raw_value="abc", raw_unit="pcs", value=None, unit=None)
+    assert line.child_id == reference_key("BGI-2031"), "the rest of the row is still read"
+    assert result.issues == (NormalizationIssue(source_file="bom.csv", row_number=2, row_id="L00002", field="quantity", raw="abc", reason="not a number"),)
+
+
+@pytest.mark.parametrize(
+    "cells, field, reason",
+    [
+        ({"quantity": "0"}, "quantity", "not positive"),
+        ({"quantity": "1.234,56"}, "quantity", "ambiguous separators"),
+        ({"unit": "cm"}, "unit", "unknown unit"),
+        ({"unit_cost_eur": ""}, "unit_cost_eur", "empty"),
+        ({"unit_cost_eur": "12 EUR"}, "unit_cost_eur", "not a number"),
+        ({"supplier": "  "}, "supplier", "empty"),
+        ({"designation": ""}, "designation", "empty"),
+        ({"sub_assembly_designation": ""}, "sub_assembly_designation", "empty"),
+        ({"variant_id": "Q"}, "variant_id", "unknown variant"),
+        ({"variant_id": ""}, "variant_id", "empty"),
+        ({"component_ref": "---"}, "component_ref", "empty reference"),
+        ({"sub_assembly_ref": ""}, "sub_assembly_ref", "empty reference"),
+        ({"line_id": " "}, "line_id", "empty"),
+    ],
+)
+def test_each_unreadable_cell_is_one_issue_naming_its_field_and_its_raw_value(cells: dict[str, str], field: str, reason: str) -> None:
+    result = normalize(a_raw_dataset(bom_row(7, **cells)))
+    assert len(result.lines) == 1, "the row is kept"
+    [issue] = result.issues
+    assert (issue.source_file, issue.row_number, issue.field, issue.reason) == ("bom.csv", 7, field, reason)
+    assert issue.raw == cells[field]
+    assert issue.row_id == cells.get("line_id", "L7")
+
+
+def test_a_zero_cost_is_a_cost() -> None:
+    result = normalize(a_raw_dataset(bom_row(unit_cost_eur="0,00")))
+    assert result.lines[0].unit_cost.normalized == 0.0 and result.issues == ()
+
+
+def test_an_empty_reference_creates_no_component_and_no_sub_assembly() -> None:
+    result = normalize(a_raw_dataset(bom_row(1, component_ref="---"), bom_row(2, sub_assembly_ref=" ", supplier="")))
+    assert [line.child_id for line in result.lines] == ["", reference_key("BGI-2031")]
+    assert [line.parent_id for line in result.lines] == [f"A:{reference_key('SA-0101')}", ""]
+    assert [component.id for component in result.components] == [reference_key("BGI-2031")]
+    assert [sub_assembly.id for sub_assembly in result.sub_assemblies] == [f"A:{reference_key('SA-0101')}"]
+    assert [supplier.id for supplier in result.suppliers] == [text_key("Artois Polymères")]
+
+
+def test_a_variant_id_is_read_whatever_its_case_and_spacing() -> None:
+    result = normalize(a_raw_dataset(bom_row(variant_id=" a ")))
+    assert result.lines[0].variant_id == "A" and result.issues == ()
+
+
+def test_unreadable_variant_and_note_cells_are_issues_too() -> None:
+    variants = (variant_row("A", seats="forty-eight", design_date="14/03/2019"), variant_row("a "))
+    notes = (RawNoteRow(row_number=1, note_id="N1", variant_id="B", date="yesterday", text="Ne pas monter."),)
+    result = normalize(a_raw_dataset(variants=variants, notes=notes))
+    assert len(result.variants) == 2 and len(result.notes) == 1
+    assert result.notes[0].text == "Ne pas monter." and result.notes[0].date.normalized is None
+    assert [(issue.source_file, issue.field, issue.reason) for issue in result.issues] == [
+        ("notes.csv", "date", "not an ISO date"),
+        ("notes.csv", "variant_id", "unknown variant"),
+        ("variants.csv", "design_date", "not an ISO date"),
+        ("variants.csv", "seats", "not an integer"),
+        ("variants.csv", "variant_id", "duplicate variant"),
+    ]
+
+
+def test_issues_come_in_file_row_and_field_order() -> None:
+    result = normalize(a_raw_dataset(bom_row(2, unit="cm", quantity="x"), bom_row(1, quantity="x")))
+    assert [(issue.row_number, issue.field) for issue in result.issues] == [(1, "quantity"), (2, "quantity"), (2, "unit")]
+
+
+def test_two_designations_under_one_key_are_both_kept_for_resolution(dataset: NormalizedDataset) -> None:
+    """The three must-not-merge pairs share a key; their two product names are what #4's `reject` will read."""
+    by_id = {component.id: component for component in dataset.components}
+    for pair in SPEC.must_not_merge:
+        component = by_id[reference_key(pair.left_reference)]
+        assert {pair.left_reference, pair.right_reference} <= set(component.raw_references)
+        assert len(component.designations) >= 2
+
+
+def test_normalize_takes_the_raw_rows_and_nothing_else() -> None:
+    """docs/ARCHITECTURE.md A5: no path, no spec — the signature has no room for anything but `ingest`'s rows."""
+    assert list(inspect.signature(normalize).parameters) == ["raw"]
