@@ -18,12 +18,15 @@ Next: issue #5, first slice — the scorer and the two naive baselines, before #
 - [x] #1 Contract: dataset spec, spec loader, verdict rule; spike S1 run — 2026-09-20
 - [x] #2 Synthetic dataset generator, planted defects and ground truth — 2026-09-20
 - [x] #3 Ingest, normalize and the entity model; isolation and read-only invariants — 2026-09-20
+- [x] #3 PR #12 review fixed: H1, M1, M3–M6, L1–L5 (M2 → #13, generator guard → #14) — 2026-09-20
 
 ## Backlog
 - [ ] #4 Reference resolution, signatures and inconsistency checks — `piv-full`
 - [ ] #5 Evaluation: one scorer, two predictors, and the naive baseline — `piv-full`
 - [ ] #6 Note extraction: LLM adapter, keyword fallback and linking — `piv-direct`, after S2
 - [ ] #7 HTML report, findings artifact and a true README — `piv-direct`
+- [ ] #13 `dataset_from_dict` validates leaf types — before the first stage that loads the artifact (#4 or #5)
+- [ ] #14 `generate`: the ground-truth-inside-raw guard compares by identity, like `cli._writes_into`
 
 ## Note
 Project review, 2026-09-20: #4 now builds signatures on every merged group (`auto` and `review`),
@@ -42,7 +45,8 @@ armrests belong to the seat, the bike module's fixing kit follows the rail.
 Handover from #3 to #4 and #5: `normalize.reference_key` is the key — #4 inherits it and never
 recomputes one. A `Component` is a candidate group (one per key); the three must-not-merge pairs
 share a key on purpose (Decision 27) and carry two designations each, which is what #4's `reject`
-reads. #5's baselines read `RawBomRow` (ingested rows), never `BomLine`. `evaluate.py` is already
+reads. A line whose variant is empty or unknown has `parent_id = ""` and creates no sub-assembly.
+#5's baselines read `RawBomRow` (ingested rows), never `BomLine`. `evaluate.py` is already
 exempt from the AST isolation test. Details: `.claude/reports/ingest-normalize-entity-model-report.md`.
 
 Order of execution: #1 -> #2 -> #3 -> #5 first slice (scorer + two baselines) -> #4 -> #5 second
