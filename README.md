@@ -92,9 +92,9 @@ uv run bomreuse normalize --raw data/raw --out out
 
 This is the first stage of the pipeline. It reads the three CSV files exactly as they are —
 nothing is stripped or cast on read — and writes `out/normalized.json`, where every value keeps
-its raw characters next to what the tool made of them (`36000` `mm` next to `36.0` `m`). A value
-it cannot read keeps its row, is stored as `null`, and is counted as an issue; a file that does
-not have the expected structure stops the run. `--out` may not be inside `--raw`: inputs are
+its raw characters next to what the tool made of them (line `L00052`: `42000` `mm` next to
+`42.0` `m`). A value it cannot read keeps its row, is stored as `null`, and is counted as an
+issue; a file that does not have the expected structure stops the run. `--out` may not be inside `--raw`: inputs are
 read-only. A component here is a *candidate group* — every reference sharing one key — not yet a
 resolved component.
 
