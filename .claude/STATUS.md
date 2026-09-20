@@ -48,8 +48,9 @@ share a key on purpose (Decision 27) and carry two designations each, which is w
 reads. A line whose variant is empty or unknown has `parent_id = ""` and creates no sub-assembly.
 #5's baselines read `RawBomRow` (ingested rows), never `BomLine`. `evaluate.py` is already
 exempt from the AST isolation test. Loading the artifact raises `ModelError` and nothing else,
-whatever is wrong with it (#13). Details: `.claude/reports/ingest-normalize-entity-model-report.md`
-and `.claude/reports/model-leaf-types-report.md`.
+whatever is wrong with it, and a number it returns is finite (#13). Details:
+`.claude/reports/ingest-normalize-entity-model-report.md` and
+`.claude/reports/model-leaf-types-report.md`.
 
 Order of execution: #1 -> #2 -> #3 -> #13 -> #5 first slice (scorer + two baselines) -> #4 -> #5
 second slice, then #6 and #7 in parallel. #14 is off the critical path. Spike S2 (does the
