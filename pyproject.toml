@@ -3,9 +3,11 @@ name = "bomreuse"
 version = "0.1.0"
 description = "Cross-variant sub-assembly reuse finder for a multi-variant Bill of Materials."
 requires-python = ">=3.12"
-# Standard library only so far. pydantic arrives with the two untrusted boundaries
-# (LLM output, ground-truth schema) — DECISIONS.md 19.
-dependencies = []
+# pydantic guards the two untrusted boundaries only (LLM output, ground-truth schema) —
+# DECISIONS.md 19. Everything internal stays on the standard library.
+dependencies = [
+    "pydantic>=2.13,<3",
+]
 
 # [project.scripts] lands with src/bomreuse/cli.py: declaring an entry point that
 # imports nothing yet would make `uv run bomreuse` fail for no reason.
