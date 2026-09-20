@@ -3,14 +3,14 @@
 Last updated: 2026-09-20
 
 ## Current Focus
-Build clock running: it started at the PRD commit (decision 16).
+PRD under review. Next: the architecture decision, then the 6 issues.
 
 ## In Progress
-- [ ] Build 0:00–0:45 — PRD (done), architecture decision, 6 GitHub issues
+- [ ] Planning pass — PRD (done), architecture decision, 6 GitHub issues
 
-## Done (current sprint)
-- [x] Framing committed: rules, problem statement, data requirements, 16 decisions — 2026-09-19
-- [x] `docs/PRD.md` — one page, 7 assumptions marked — 2026-09-20
+## Done
+- [x] Framing committed: rules, problem statement, data requirements, 16 decisions
+- [x] `docs/PRD.md` — one page, assumptions marked
 
 ## Backlog
 - [ ] #1 Synthetic generator + planted defects + ground truth
@@ -19,3 +19,6 @@ Build clock running: it started at the PRD commit (decision 16).
 - [ ] #4 LLM note extraction (glm cloud vs gemma local) + keyword fallback
 - [ ] #5 HTML report
 - [ ] #6 README, fresh-clone check, push
+
+## Note
+The build runs in slices across several sessions. This file carries state, not elapsed time.

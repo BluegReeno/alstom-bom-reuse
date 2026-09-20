@@ -68,11 +68,12 @@ measurement, per CLAUDE.md.
 
 ## 7. Constraints
 
-4-hour hard stop, clock starting at this PRD's commit (Dec. 16); planning capped at 45 min
-(Dec. 10). Python 3.12 + `uv`, few pinned dependencies. Offline by default; Ollama at
-`http://localhost:11434` with `glm-5.3-flash:cloud` and `gemma4:12b-mlx` (Dec. 6). Tests never
-call a live model or the network. Cut order if time runs short: report polish, then LLM extras,
-then nothing — never the evaluation.
+Scope is small on purpose, and the build runs in slices across several sessions: elapsed time
+is not a constraint the tool is judged on. Python 3.12 + `uv`, few pinned dependencies. Offline
+by default; Ollama at `http://localhost:11434` with `glm-5.3-flash:cloud` and `gemma4:12b-mlx`
+(Dec. 6). Tests never call a live model or the network. Priority order, and it is the cut
+order: the evaluation first and never cut, then the pipeline it scores, then LLM extras, then
+report polish.
 
 ## 8. Assumptions
 
@@ -91,4 +92,4 @@ then nothing — never the evaluation.
 - **[A6]** The report is a single self-contained HTML file written to `out/`, plus findings as
   JSON for the reviewer.
 - **[A7]** One backtest target only — the newest variant (C). Leave-one-out across all variants
-  is a later idea, not in the timebox.
+  is a later idea, out of scope here.

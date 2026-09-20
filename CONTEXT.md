@@ -94,5 +94,5 @@ from A and B, the bike module reused from B, only the anchorage new.
 ## Status
 
 - 2026-09-19 — framing committed: CLAUDE.md, CONTEXT.md, DECISIONS.md, README (problem
-  statement, data requirements), case brief. The 4-hour build clock starts at the PRD commit
-  (decision 16).
+  statement, data requirements), case brief.
+- 2026-09-20 — PRD committed; the build runs in slices, elapsed time is not tracked.

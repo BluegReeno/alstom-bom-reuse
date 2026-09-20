@@ -5,7 +5,7 @@ Rules for any AI agent (and any human) working in this repository. Read this fil
 
 ## What this is
 
-A small working tool, built in a **4-hour timebox**, for a fictional pilot: Cognyx at Alstom
+A small working tool, **deliberately small in scope**, for a fictional pilot: Cognyx at Alstom
 Valenciennes (regional trains). It ingests a multi-variant Bill of Materials and free-text
 technical notes, normalizes them into a simple entity model, and answers one client question:
 
@@ -92,13 +92,16 @@ product.
 The workflow is PRD → architecture → issues → plan / implement / validate per issue, using the
 PIV skills, in a **light** version:
 
-- Planning is capped at 45 minutes: a one-page PRD, one architecture decision, 6 GitHub issues.
+- Planning is one pass, not a phase: a one-page PRD, one architecture decision, 6 GitHub issues.
 - The full PIV loop (plan, implement, validate) only on the 3 risky issues: data generator,
   normalization, resolution plus evaluation.
 - The LLM layer, the report and the README get a light or direct loop.
-- **Hard stop at 4 hours.** Whatever is not done goes into the README's "Known limits".
-- If time runs short, cut scope in this order: report polish, LLM layer extras, then nothing
-  else. **Never cut the evaluation.**
+- The build is done when the issues are done, not when a clock runs out. Whatever is dropped
+  goes into the README's "Known limits", with the reason.
+- **Priority order, and it is the cut order**: the evaluation first and never cut, then the
+  pipeline it scores, then the LLM layer extras, then report polish.
+- The work happens in slices across several sessions. Elapsed wall-clock time is not tracked
+  and is not a quality signal: `.claude/STATUS.md` carries state, not a stopwatch.
 
 Commits:
 

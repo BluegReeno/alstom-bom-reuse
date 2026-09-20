@@ -1,7 +1,7 @@
 # alstom-bom-reuse
 
-> Status: work in progress. Built in a 4-hour timebox for the Cognyx FDE case study
-> (fictional pilot at Alstom Valenciennes). All data is synthetic.
+> Status: work in progress. Built for the Cognyx FDE case study (fictional pilot at Alstom
+> Valenciennes), scoped small on purpose. All data is synthetic.
 
 ## The problem
 
@@ -70,7 +70,7 @@ To be filled from `evaluate` output only.
 
 ## Known limits
 
-To be written at the end of the timebox.
+To be written when the build lands: what was dropped, and why.
 
 ## How this was built
 
