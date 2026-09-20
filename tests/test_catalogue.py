@@ -218,10 +218,38 @@ def test_the_notes_have_the_planned_mix() -> None:
     assert languages["fr"] > languages["en"] > languages["mixed"] >= 6
 
 
-def test_a_note_is_either_a_fact_or_a_text_and_is_filed_after_its_variant_was_designed() -> None:
+def test_a_note_states_a_fact_or_carries_a_text_and_is_filed_after_its_variant_was_designed() -> None:
     for note in catalogue.NOTES:
-        assert (note.fact is None) != (note.text is None), note
+        assert note.fact is not None or note.text is not None, note
         assert note.date >= VARIANTS[note.variant_id].design_date, note
+
+
+STOCK_PHRASES = (
+    "remplacé par", "à la place de", "replaced by", "instead of", "superseded by",
+    "obsolète", "obsolete", "ne pas utiliser", "ne pas monter", "interdit", "do not use", "do not fit", "not approved",
+)  # fmt: skip
+
+
+def test_some_notes_state_nothing_while_citing_a_part_next_to_a_stock_phrase() -> None:
+    """The trap for a keyword reader: a replacement turned down, an obsolescence rejected, an open question."""
+    references = {component.reference for component in catalogue.COMPONENTS}
+    traps = [
+        note
+        for note in catalogue.NOTES
+        if note.fact is None
+        and any(reference in note.text for reference in references)
+        and any(phrase in note.text.lower() for phrase in ("remplacé par", "replaced by", "obsolete"))
+    ]
+    assert len(traps) >= 3
+
+
+def test_a_fact_in_its_own_words_cites_the_part_and_uses_no_stock_phrase() -> None:
+    own = [note for note in catalogue.NOTES if note.fact is not None and note.text is not None]
+    assert len(own) >= 2
+    for note in own:
+        assert "{ref}" in note.text, note
+        assert ("{new}" in note.text) == (note.fact.fact_type == "replacement"), note
+        assert not any(phrase in note.text.lower() for phrase in STOCK_PHRASES), note
 
 
 def test_every_fact_is_complete_for_its_type() -> None:
@@ -244,7 +272,7 @@ def test_every_kind_of_note_has_wording_in_every_language() -> None:
 
 def test_a_group_of_notes_is_never_smaller_than_its_stock_of_wordings() -> None:
     """Wordings are dealt in turn, so this is what guarantees every one of them is used."""
-    groups = Counter((note.fact.fact_type, note.language) for note in catalogue.NOTES if note.fact)
+    groups = Counter((note.fact.fact_type, note.language) for note in catalogue.NOTES if note.fact and note.text is None)
     for group, templates in catalogue.NOTE_TEMPLATES.items():
         assert groups[group] >= len(templates), group
 

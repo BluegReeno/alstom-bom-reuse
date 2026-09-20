@@ -334,7 +334,10 @@ def _place_spellings(model: TrueModel, spec: DatasetSpec, seed: int) -> dict[int
 
 
 def _render_notes(model: TrueModel, seed: int) -> tuple[NoteRow, ...]:
-    """Wordings are shuffled by the seed, then dealt in turn inside each (fact type, language) group."""
+    """Wordings are shuffled by the seed, then dealt in turn inside each (fact type, language) group.
+
+    A fact that brings its own wording keeps it, whatever the seed.
+    """
     rng = _rng(seed, "notes")
     wordings: dict[tuple[str, str], list[str]] = {}
     for group in sorted(catalogue.NOTE_TEMPLATES):
@@ -350,10 +353,15 @@ def _render_notes(model: TrueModel, seed: int) -> tuple[NoteRow, ...]:
                 raise GenerationError(f"note {note_id} states no fact and has no text")
             rows.append(NoteRow(note_id, script.variant_id, script.date, script.text, script, None))
             continue
-        group = (script.fact.fact_type, script.language)
-        template = wordings[group][dealt[group] % len(wordings[group])]
-        dealt[group] += 1
         cited = script.fact.cited_as or script.fact.reference
+        if script.text is not None:  # a wording of its own: drawn from no group, so it deals nothing
+            if "{ref}" not in script.text:
+                raise GenerationError(f"note {note_id} states a fact in its own words without citing {{ref}}")
+            template = script.text
+        else:
+            group = (script.fact.fact_type, script.language)
+            template = wordings[group][dealt[group] % len(wordings[group])]
+            dealt[group] += 1
         rows.append(NoteRow(note_id, script.variant_id, script.date, _word(template, script.fact, cited), script, cited))
     return tuple(rows)
 
