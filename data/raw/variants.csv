@@ -1,0 +1,6 @@
+variant_id;name;design_date;region;seats;bike_spaces;traction
+A;Standard intermediate car;2019-03-14;Hauts-de-France;48;0;electric
+B;Bike / multi-purpose car;2021-06-02;Hauts-de-France;36;8;electric
+D;Bi-mode intermediate car;2022-09-20;Normandie;48;0;bi-mode
+E;Standard car, other region;2023-11-08;Grand Est;44;0;electric
+C;Bike car, new region;2025-02-17;Occitanie;32;6;electric

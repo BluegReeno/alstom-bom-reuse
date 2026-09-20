@@ -91,7 +91,7 @@ def test_no_raw_file_reveals_a_true_id_a_label_or_a_defect_tag(generated: tuple[
         text = path.read_text(encoding="utf-8")
         for word in forbidden:
             assert word not in text, f"{path.name} contains {word!r}"
-        assert "\r" not in text and not text.startswith("﻿")
+        assert "\r" not in text and not text.startswith("\ufeff")
 
 
 # --- isolation -----------------------------------------------------------------------------------
@@ -200,3 +200,22 @@ def test_the_exact_reference_search_has_something_to_find_and_something_to_get_w
     assert {label.label for label in kept} == {"reused", "reusable"}
     for label in kept:
         assert label.sub_assembly_ref in {ancestor.sub_assembly_ref for ancestor in label.ancestors}
+
+
+# --- the committed dataset -------------------------------------------------------------------------
+
+COMMITTED_RAW = ROOT / "data" / "raw"
+COMMITTED_TRUTH = ROOT / "data" / "ground_truth" / "ground_truth.json"
+
+
+def test_the_committed_dataset_is_what_the_generator_produces_today(generated: tuple[Path, Path]) -> None:
+    """A catalogue edit without a regeneration would leave every later score measured on stale data.
+
+    To fix: `uv run bomreuse generate --out data/raw --ground-truth data/ground_truth/ground_truth.json`.
+    """
+    assert files_of(COMMITTED_RAW, COMMITTED_TRUTH) == files_of(*generated)
+
+
+def test_inputs_and_ground_truth_live_apart_and_alone() -> None:
+    assert sorted(path.name for path in COMMITTED_RAW.iterdir()) == ["bom.csv", "notes.csv", "variants.csv"]
+    assert [path.name for path in COMMITTED_TRUTH.parent.iterdir()] == ["ground_truth.json"]
