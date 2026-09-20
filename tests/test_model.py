@@ -4,6 +4,7 @@ import dataclasses
 import json
 from datetime import date
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -158,6 +159,37 @@ def test_a_date_that_is_not_a_date_is_refused() -> None:
         dataset_from_dict(data)
 
 
+def _with(data: dict[str, Any], path: str, value: Any) -> dict[str, Any]:
+    """The artifact dict with one leaf replaced, `lines.0.quantity.value` style."""
+    table: Any = data
+    *steps, leaf = path.split(".")
+    for step in steps:
+        table = table[int(step)] if step.isdigit() else table[step]
+    table[leaf] = value
+    return data
+
+
+@pytest.mark.parametrize(
+    "path, value, message",
+    [
+        ("suppliers.0.raw_names", None, r"suppliers\[0\]\.raw_names must be an array of strings, got NoneType"),
+        ("suppliers.0.raw_names", "abc", r"suppliers\[0\]\.raw_names must be an array of strings, got str"),
+        ("components.0.raw_references", [5], r"components\[0\]\.raw_references\[0\] must be a string, got int"),
+        ("suppliers.0.id", 5, r"suppliers\[0\]\.id must be a string, got int"),
+        ("lines.0.row_number", "x", r"lines\[0\]\.row_number must be an integer, got str"),
+        ("lines.0.row_number", True, r"lines\[0\]\.row_number must be an integer, got bool"),
+        ("lines.0.quantity.value", "abc", r"lines\[0\]\.quantity\.value must be a number or null, got str"),
+        ("lines.0.quantity.value", True, r"lines\[0\]\.quantity\.value must be a number or null, got bool"),
+        ("lines.0.quantity.unit", 3, r"lines\[0\]\.quantity\.unit must be a string or null, got int"),
+        ("variants.0.seats.normalized", "48", r"variants\[0\]\.seats\.normalized must be an integer or null, got str"),
+    ],
+)
+def test_a_leaf_of_the_wrong_type_is_refused_and_named(path: str, value: Any, message: str) -> None:
+    """The docstring promises `ModelError`, so a wrong leaf may not be a `TypeError`, a bare `ValueError`, or accepted."""
+    with pytest.raises(ModelError, match=message):
+        dataset_from_dict(_with(dataset_to_dict(a_dataset()), path, value))
+
+
 @pytest.mark.parametrize("value", [float("inf"), float("nan")])
 def test_the_artifact_is_json_so_a_value_json_cannot_hold_is_refused_at_writing(value: float) -> None:
     """The backstop behind `normalize`'s range check: `Infinity` and `NaN` are Python's dialect, not JSON."""
@@ -172,6 +204,16 @@ def test_a_file_that_is_missing_or_not_json_is_a_model_error(tmp_path: Path) -> 
     (tmp_path / "broken.json").write_text("{", encoding="utf-8")
     with pytest.raises(ModelError, match="not valid JSON"):
         load_dataset(tmp_path / "broken.json")
+
+
+def test_a_path_that_is_not_readable_utf8_text_is_a_model_error(tmp_path: Path) -> None:
+    """A directory and a file in another encoding: two `load_dataset` callers would meet a traceback."""
+    with pytest.raises(ModelError, match="cannot be read"):
+        load_dataset(tmp_path)
+    latin1 = tmp_path / "latin1.json"
+    latin1.write_bytes('{"supplier": "Artois Polymères"}'.encode("latin-1"))
+    with pytest.raises(ModelError, match="cannot be read"):
+        load_dataset(latin1)
 
 
 # --- the shape of the types ------------------------------------------------------------------
