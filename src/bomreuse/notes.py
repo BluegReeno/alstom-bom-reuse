@@ -25,12 +25,21 @@ next to a stock phrase while asserting nothing — a proposal that was refused, 
 open — looks exactly like a note asserting it.
 """
 
+import hashlib
+import json
+import logging
 import re
 from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Final, Protocol
+from pathlib import Path
+from typing import Any, Final, Protocol
+from urllib.request import Request, urlopen
+
+from pydantic import BaseModel, ConfigDict, ValidationError
 
 from bomreuse.model import FactKind, Note, NoteFact
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True, slots=True)
@@ -207,3 +216,256 @@ def _sentence_around(text: str, position: int) -> str:
     start = max((match.end() for match in _SENTENCE_END.finditer(text, 0, position)), default=0)
     sentence = " ".join(text[start : end.start() if end else len(text)].split())
     return sentence if len(sentence) <= _SCOPE_LIMIT else sentence[: _SCOPE_LIMIT - 1].rstrip() + "…"
+
+
+# --- the model reader ----------------------------------------------------------------------------
+
+#: The one backend this build wires: the local model, which is the on-prem path (Decision 6, as
+#: amended by 29). The id is a constructor argument, so a second model is a flag rather than a
+#: rewrite — and this build scores neither.
+DEFAULT_MODEL: Final[str] = "gemma4:12b-mlx"
+
+#: The only outbound call this tool ever makes (docs/ARCHITECTURE.md, Boundaries).
+DEFAULT_ENDPOINT: Final[str] = "http://localhost:11434/api/generate"
+
+#: Per call, and generous: the first call of a session loads the model into memory.
+DEFAULT_TIMEOUT: Final[float] = 120.0
+
+#: A local accelerator, not a deliverable: gitignored, and only ever created by this reader.
+DEFAULT_CACHE_DIR: Final[Path] = Path(".cache") / "bomreuse-notes"
+
+#: What the note is asked for. Written to be read by a 12B model: the kinds are defined in one
+#: line each, and the two rules that matter — copy references exactly, assert nothing the note
+#: does not — are stated rather than implied. `_validated` enforces the first one; nothing can
+#: enforce the second, which is the honest limit of the layer.
+PROMPT: Final[str] = """You read one technical note about railway components, written in French or English, sometimes both in one sentence.
+
+Extract only the facts the note ASSERTS about a component:
+- replacement: a component is replaced by another one.
+- obsolescence: a component is obsolete, discontinued, or no longer to be ordered.
+- restriction: a component must not be used on some variant or configuration.
+
+Rules:
+- Copy every component reference exactly as the note writes it, character for character.
+- A question, a proposal or a refusal asserts nothing: return an empty list.
+- Do not infer, do not translate, do not repair a reference.
+
+Note:
+{text}
+"""
+
+
+class BackendError(RuntimeError):
+    """The model could not be reached, or answered with something that is not an answer."""
+
+
+class Backend(Protocol):
+    """Where a prompt is sent. `model` names it, and is half of the cache key."""
+
+    model: str
+
+    def generate(self, prompt: str) -> str: ...
+
+
+class OllamaBackend:
+    """One POST to localhost, `format` set to the schema, a timeout and one retry.
+
+    `urllib.request` from the standard library: a single POST to localhost does not justify a
+    client library (docs/ARCHITECTURE.md A6). The retry covers the one failure this call really
+    has — the model was not loaded yet and the first request timed out — and not a second one.
+    """
+
+    def __init__(self, model: str = DEFAULT_MODEL, endpoint: str = DEFAULT_ENDPOINT, timeout: float = DEFAULT_TIMEOUT) -> None:
+        self.model = model
+        self._endpoint = endpoint
+        self._timeout = timeout
+
+    def generate(self, prompt: str) -> str:
+        body = json.dumps(
+            {
+                "model": self.model,
+                "prompt": prompt,
+                "format": _RESPONSE_SCHEMA,
+                "stream": False,
+                # Extraction is not a creative task, and two runs of a demo should say the same thing.
+                "options": {"temperature": 0},
+            }
+        ).encode("utf-8")
+        request = Request(self._endpoint, data=body, headers={"Content-Type": "application/json"})
+        for attempt in (1, 2):
+            try:
+                with urlopen(request, timeout=self._timeout) as response:  # noqa: S310 — the URL is this module's own constant
+                    payload = json.loads(response.read().decode("utf-8"))
+                return str(payload["response"])
+            except (OSError, ValueError, KeyError) as exc:
+                if attempt == 2:
+                    raise BackendError(f"{self.model} at {self._endpoint} did not answer: {exc}") from exc
+                logger.warning("%s at %s failed (%s); retrying once", self.model, self._endpoint, exc)
+        raise AssertionError("unreachable")
+
+
+class ModelReader:
+    """One note per call, validated at the boundary, and cached on disk.
+
+    The output is the second of the two places data arrives from outside this tool, so it is the
+    second of the two places pydantic guards (DECISIONS.md 19). Everything the model returns is
+    suspect: the shape, by validation, and the references, by the one check a program can make on
+    free text — **a reference a fact carries must appear verbatim in the note**. A model that
+    tidies `Bgi-2031` into `BGI-2031`, or names a part the note never mentions, has invented the
+    evidence the finding would rest on.
+
+    Nothing is dropped in silence: every answer that fails, and every fact rejected inside a
+    valid answer, is logged and counted into `Reading.invalid_outputs`.
+    """
+
+    def __init__(self, backend: Backend, cache: Path | None = DEFAULT_CACHE_DIR) -> None:
+        self.name = f"llm:{backend.model}"
+        self._backend = backend
+        self._cache = cache
+
+    def read(self, note: Note) -> Reading:
+        prompt = PROMPT.format(text=note.text)
+        answer = self._cached(note, prompt)
+        if answer is None:
+            answer = self._backend.generate(prompt)
+            self._store(note, prompt, answer)
+        return _validated(note, answer)
+
+    # The cache is keyed by (model, prompt hash, note id), and a cache that cannot be read or
+    # written is not an error: it is an accelerator, and the model is the source of truth.
+
+    def _cached(self, note: Note, prompt: str) -> str | None:
+        path = self._entry(note, prompt)
+        if path is None:
+            return None
+        try:
+            return path.read_text(encoding="utf-8")
+        except OSError:
+            return None
+
+    def _store(self, note: Note, prompt: str, answer: str) -> None:
+        path = self._entry(note, prompt)
+        if path is None:
+            return
+        try:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(answer, encoding="utf-8")
+        except OSError as exc:
+            logger.warning("the note cache at %s cannot be written (%s); running without it", path.parent, exc)
+
+    def _entry(self, note: Note, prompt: str) -> Path | None:
+        if self._cache is None:
+            return None
+        digest = hashlib.sha256(f"{self._backend.model}\n{prompt}".encode()).hexdigest()
+        return self._cache / f"{_slug(self._backend.model)}-{_slug(note.note_id)}-{digest[:16]}.json"
+
+
+class _ModelFact(BaseModel):
+    """The shape one extracted fact must have. `extra="ignore"`: a field too many is not a reason to lose the fact."""
+
+    model_config = ConfigDict(extra="ignore")
+
+    kind: FactKind
+    component_ref: str
+    replacement_ref: str = ""
+    scope: str = ""
+
+
+class _ModelResponse(BaseModel):
+    """The envelope. Its items are validated one by one, so one bad fact does not cost the others.
+
+    `facts` is required: an answer that does not carry the key is an answer that ignored the
+    schema, and reading it as "this note says nothing" would let a model that never answers
+    correctly look like a model that found nothing.
+    """
+
+    model_config = ConfigDict(extra="ignore")
+
+    facts: list[Any]
+
+
+def _wire_schema() -> dict[str, Any]:
+    """What Ollama is asked to constrain its answer to, generated from the model that validates a fact.
+
+    One schema, so the two cannot drift. It is built here rather than taken from `_ModelResponse`
+    because that one accepts anything in the list on purpose, while the server must still be told
+    what a fact looks like. pydantic puts the enum it references in a `$defs` block, and a `$ref`
+    resolves against the root of the document: the block travels to the root with it.
+    """
+    fact = _ModelFact.model_json_schema()
+    return {
+        "type": "object",
+        "$defs": fact.pop("$defs", {}),
+        "properties": {"facts": {"type": "array", "items": fact}},
+        "required": ["facts"],
+    }
+
+
+_RESPONSE_SCHEMA: Final[dict[str, Any]] = _wire_schema()
+
+
+def _validated(note: Note, answer: str) -> Reading:
+    """The model's answer, turned into facts or counted as unusable."""
+    try:
+        response = _ModelResponse.model_validate_json(answer)
+    except ValidationError as exc:
+        logger.warning("note %s: the model's answer is not an extraction (%s)", note.note_id, _short(exc))
+        return Reading(facts=(), invalid_outputs=1)
+
+    facts: list[NoteFact] = []
+    invalid = 0
+    for item in response.facts:
+        fact, rejected = _fact_of(note, item)
+        invalid += rejected
+        if fact is not None:
+            facts.append(fact)
+    return Reading(facts=tuple(facts), invalid_outputs=invalid)
+
+
+def _fact_of(note: Note, item: Any) -> tuple[NoteFact | None, int]:
+    """One item of the answer, and how much of it had to be thrown away.
+
+    The two references are not worth the same. `component_ref` is what the fact is *about*: a
+    reference the note does not contain means the model invented the subject, and the fact goes.
+    `replacement_ref` is an extra the finding quotes — the observed failure is a model writing
+    `none` into it — so it is dropped alone rather than costing a restriction that was right.
+    Either way the count records it: nothing the model produced disappears unremarked.
+    """
+    try:
+        extracted = _ModelFact.model_validate(item)
+    except ValidationError as exc:
+        logger.warning("note %s: a fact the model returned is not one (%s)", note.note_id, _short(exc))
+        return None, 1
+    if not extracted.component_ref:
+        logger.warning("note %s: the model returned a fact about no component", note.note_id)
+        return None, 1
+    if extracted.component_ref not in note.text:
+        logger.warning("note %s: the model cites %r, which the note does not contain", note.note_id, extracted.component_ref)
+        return None, 1
+
+    replacement, rejected = extracted.replacement_ref, 0
+    if replacement and replacement not in note.text:
+        logger.warning("note %s: the replacement %r is not in the note; the fact is kept without it", note.note_id, replacement)
+        replacement, rejected = "", 1
+    return (
+        NoteFact(
+            note_id=note.note_id,
+            row_number=note.row_number,
+            kind=extracted.kind,
+            component_ref=extracted.component_ref,
+            replacement_ref=replacement,
+            scope=extracted.scope,
+        ),
+        rejected,
+    )
+
+
+def _slug(value: str) -> str:
+    """A file name from a model id or a note id, which may hold a colon or a slash."""
+    return "".join(character if character.isalnum() or character in "-_" else "_" for character in value)
+
+
+def _short(exc: ValidationError) -> str:
+    """The first error pydantic found: the log line is a signal, the artifact carries the count."""
+    errors = exc.errors()
+    return f"{errors[0]['loc']}: {errors[0]['msg']}" if errors else str(exc)
