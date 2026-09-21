@@ -28,7 +28,7 @@ def test_run_writes_the_artifacts_and_says_what_it_found(tmp_path: Path, capsys:
     assert sorted(path.name for path in out.iterdir()) == sorted(ARTIFACTS)
 
     printed = capsys.readouterr().out
-    for label in ("raw files", "BOM lines", "variants", "candidate groups", "canonical components", "auto", "review", "reject", "findings"):
+    for label in ("raw files", "BOM lines", "variants", "candidate groups", "canonical components", "auto", "review", "reject", "findings", "issues"):
         assert label in printed
     for artifact in ARTIFACTS:
         assert artifact in printed
@@ -97,3 +97,19 @@ def test_an_artifact_the_model_refuses_is_reported_rather_than_raised(tmp_path: 
     monkeypatch.setattr(cli, "load_dataset", refuse)
     assert main(["run", "--raw", str(COMMITTED_RAW), "--out", str(tmp_path / "out")]) == 1
     assert "error: normalized dataset at" in capsys.readouterr().err
+
+
+def test_unreadable_values_are_counted_on_the_summary_the_client_reads(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    """Every stage after `normalize` ignores them on the ground that `normalize` counted them.
+
+    That is only honest while the count is on the screen the reader is looking at: without it a
+    dirtier BOM reads as a tidier one, because an unreadable value removes conflicts and findings.
+    """
+    raw, out = tmp_path / "raw", tmp_path / "out"
+    shutil.copytree(COMMITTED_RAW, raw)
+    with (raw / "bom.csv").open("a", encoding="utf-8") as handle:
+        handle.write("L99998;A;SA-0101;carbody shell;BGI-2031;Bolt set;abc;pcs;Portalys;1,00\n")
+    assert main(["run", "--raw", str(raw), "--out", str(out)]) == 0
+    printed = capsys.readouterr().out
+    assert "issues            1" in printed
+    assert "bom.csv quantity: not a number  1" in printed

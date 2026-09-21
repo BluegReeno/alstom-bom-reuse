@@ -121,11 +121,7 @@ def _normalize(args: argparse.Namespace) -> int:
     print(f"components        {len(dataset.components)} (candidate groups, one per reference key)")
     print(f"sub-assemblies    {len(dataset.sub_assemblies)}")
     print(f"suppliers         {len(dataset.suppliers)}")
-    # Unreadable values are data, not a failure: the rows are kept, and the count is shown.
-    print(f"issues            {len(dataset.issues)}")
-    breakdown = Counter((issue.source_file, issue.field, issue.reason) for issue in dataset.issues)
-    for (source_file, field, reason), count in sorted(breakdown.items()):
-        print(f"  {source_file} {field}: {reason}  {count}")
+    _print_issues(dataset)
     print(f"normalized        {artifact}")
     return 0
 
@@ -188,6 +184,19 @@ def _print_run_summary(raw_dir: Path, dataset: NormalizedDataset, resolution: Re
     print(f"findings          {len(findings)}")
     for rule_id, count in sorted(Counter(finding.rule_id for finding in findings).items()):
         print(f"  {rule_id:<32}{count}")
+    _print_issues(dataset)
+
+
+def _print_issues(dataset: NormalizedDataset) -> None:
+    """Unreadable values are data, not a failure: the rows are kept, and the count is shown.
+
+    Every stage after `normalize` drops them on the stated ground that they are already counted
+    here, and that reasoning only holds while the count is on the screen the reader is looking at.
+    """
+    print(f"issues            {len(dataset.issues)}")
+    breakdown = Counter((issue.source_file, issue.field, issue.reason) for issue in dataset.issues)
+    for (source_file, field, reason), count in sorted(breakdown.items()):
+        print(f"  {source_file} {field}: {reason}  {count}")
 
 
 # --- the read-only guard ---------------------------------------------------------------------
