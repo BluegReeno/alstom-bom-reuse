@@ -29,7 +29,6 @@ from bomreuse.model import (
     Prediction,
     Resolution,
     ReuseClass,
-    SignatureDiff,
     SignatureItem,
     SubAssemblySignature,
     dump_backtest,
@@ -224,7 +223,7 @@ def _print_backtest(dataset: NormalizedDataset, signatures: tuple[SubAssemblySig
     it is *reusable* — what would have to change. Every ratio a reader could compute from it has
     its counts underneath; scoring the table against the ground truth is `evaluate`'s job (#5).
     """
-    if not result.predictions:
+    if not result.target_variant_id:
         print("backtest          no variant carries a readable design date: nothing to play as a new tender")
         return
 
@@ -249,7 +248,7 @@ def _difference(prediction: Prediction) -> str:
     """What the newest variant adds to, drops from and changes in the ancestor it is read against."""
     if prediction.diff is None:
         return ""
-    diff: SignatureDiff = prediction.diff
+    diff = prediction.diff
     return ", ".join(
         [f"+{item.component} {_amount(item)}" for item in diff.added]
         + [f"-{item.component} {_amount(item)}" for item in diff.removed]

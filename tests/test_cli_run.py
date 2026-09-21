@@ -22,6 +22,7 @@ from bomreuse.model import (
     RESOLUTION_FILE,
     RUN_ARTIFACTS,
     SIGNATURES_FILE,
+    Backtest,
     ModelError,
     load_backtest,
     load_dataset,
@@ -206,3 +207,19 @@ def test_a_reusable_sub_assembly_says_on_one_line_what_would_have_to_change(tmp_
         assert prediction.diff is not None
         for change in prediction.diff.quantity_changed:
             assert f"{change.component} {change.left.quantity:g} {change.left.unit} -> {change.right.quantity:g} {change.right.unit}" in line
+
+
+def test_a_dataset_with_no_readable_design_date_says_so_instead_of_guessing(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    """The backtest needs a chronology. Without one the run still succeeds and says what is missing."""
+    raw, out = tmp_path / "raw", tmp_path / "out"
+    shutil.copytree(COMMITTED_RAW, raw)
+    variants = (raw / "variants.csv").read_text(encoding="utf-8").splitlines()
+    header, rows = variants[0], [row.split(";") for row in variants[1:]]
+    for row in rows:
+        row[2] = "date unknown"
+    (raw / "variants.csv").write_text("\n".join([header, *(";".join(row) for row in rows)]) + "\n", encoding="utf-8")
+
+    assert main(["run", "--raw", str(raw), "--out", str(out)]) == 0
+    printed = capsys.readouterr().out
+    assert "no variant carries a readable design date" in printed
+    assert load_backtest(out / PREDICTIONS_FILE) == Backtest("", (), ())
