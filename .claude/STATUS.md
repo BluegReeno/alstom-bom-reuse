@@ -10,6 +10,7 @@ Code and README done (PR #25 the last). Now the deck, in a new session, then the
 - [ ] Email tonight, one measured figure only: 14/15 for the tool against 6/15 for the exact-reference search
 
 ## Done (current sprint)
+- [x] README: status line set to scouting prototype, What's next section added — 2026-09-21
 - [x] README: the entity model and the bike module followed through (two Mermaid diagrams), N013's shape added to Known limits; PR #25 merged, follow-up to #7 — 2026-09-21
 - [x] #7 — the static HTML report written by `bomreuse run`, README complete with Known limits; PR #23 merged — 2026-09-21
 - [x] PR #23's rebase deviations settled as-is: the report fixture runs the notes stage like the run it is compared against, README and PR-body figures recomputed (66 findings, 7 artifacts, 999 tests), the stdout flag stays as DECISIONS 34 settled it; logged as DECISIONS 36 — 2026-09-21

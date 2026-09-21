@@ -1,7 +1,7 @@
 # alstom-bom-reuse
 
-> Status: work in progress. Built for the Cognyx FDE case study (fictional pilot at Alstom
-> Valenciennes), scoped small on purpose. All data is synthetic.
+> Status: scouting prototype, complete for the case. Built for the Cognyx FDE case study
+> (fictional pilot at Alstom Valenciennes), scoped small on purpose. All data is synthetic.
 
 ## The problem
 
@@ -567,6 +567,24 @@ deliberate, and the ones that were cut are named with what cut them.
   - *Regression floors.* There are none (DECISIONS.md 33): `evaluate` prints its figures and
     **Results** quotes them. A floor that a scouting prototype's synthetic dataset would set is a
     number about the dataset, and holding a build to it is a pilot-scale practice.
+
+## What's next
+
+This prototype is never installed at the client: the pilot runs on the Cognyx platform, on the
+real PLM/ERP export. What it sets is what the pilot should measure, strongest proof first:
+
+1. **The backtest on a past tender.** The same play as **Results**, on the client's own
+   history: given only the variants that existed before the last tender, which of its
+   sub-assemblies were re-done although an equivalent existed?
+2. **Engineer validation.** The client's engineers review a sample of proposals; their
+   acceptance rate is the precision, measured by the client rather than by us.
+3. **A live tender, if one is open.** The time to answer "do we already have this?", today and
+   with the tool. A bonus, not a commitment.
+
+Between this build and production sit a connector to the real export, a deployment inside the
+client's network with the model served locally, human validation of the proposals with a
+feedback loop so corrections are not lost, and access control. The measurements cut from this
+build (**Known limits**) belong to the pilot.
 
 ## How this was built
 
