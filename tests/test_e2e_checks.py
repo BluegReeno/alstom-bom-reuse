@@ -10,10 +10,11 @@ from pathlib import Path
 
 import pytest
 
+from bomreuse.artifacts import FINDINGS_FILE, RESOLUTION_FILE, load_dataset, load_findings, load_resolution
 from bomreuse.checks import CONFLICT_RULES
 from bomreuse.cli import main
 from bomreuse.ground_truth import load_ground_truth
-from bomreuse.model import FINDINGS_FILE, RESOLUTION_FILE, Attribute, load_dataset, load_findings, load_resolution
+from bomreuse.model import Attribute
 
 #: Not the default seed: the committed dataset is checked elsewhere, and a second seed moves the dirt.
 TEST_SEED = 7

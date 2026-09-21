@@ -8,6 +8,7 @@ Build complete for the case: code, report and README done, final review applied.
 ## In Progress
 
 ## Done (current sprint)
+- [x] #26 — `model.py` split by a pure move: the types stay (565 lines), the JSON round-trip and the artifact names go to `artifacts.py` (615); artifacts, stdout and `evaluate` byte-identical to `main` — 2026-09-21
 - [x] Docs pass: `docs/ARCHITECTURE.md`, `CLAUDE.md`, `piv-validate` and three docstrings aligned with the refocus (DECISIONS 29) — 2026-09-21
 - [x] Final review before delivery: the HTML report flags the parts a note speaks against, by the rule stdout uses (`checks.flagged_parts`, DECISIONS 34); README excerpt and Known limits corrected; lint clean — 2026-09-21
 - [x] README: status line set to scouting prototype, What's next section added — 2026-09-21
@@ -31,4 +32,4 @@ Build complete for the case: code, report and README done, final review applied.
 
 ## Backlog
 - [ ] `data/dataset_spec.toml`: two comments still speak of a measured resolution shortfall (cut by DECISIONS 29); left untouched so the contract's history stays the one Decision 17 points at
-- [ ] Split `model.py` into types and the JSON round-trip; read each artifact once in `cli._run`
+- [ ] Read each artifact once in `cli._run`

@@ -20,28 +20,10 @@ from collections.abc import Callable, Mapping
 from enum import StrEnum
 from pathlib import Path
 
-from bomreuse.catalogue import CatalogueError
-from bomreuse.checks import CONFLICT_RULES, NOTE_RULES, check, check_notes, conflicts_by_component, flagged_parts, notes_by_component
-from bomreuse.evaluate import ANSWERS, Evaluation, EvaluationError, Score, evaluate
-from bomreuse.generate import DEFAULT_SEED, GenerationError, OutputPathError, generate
-from bomreuse.ingest import DEFAULT_RAW_DIR, IngestError, read_raw
-from bomreuse.link import link, linked_components
-from bomreuse.model import (
+from bomreuse.artifacts import (
     NORMALIZED_FILE,
     RUN_ARTIFACTS,
-    Attribute,
-    Backtest,
-    FactKind,
-    Finding,
-    GroupVerdict,
     ModelError,
-    NormalizedDataset,
-    NoteFacts,
-    Prediction,
-    Resolution,
-    ReuseClass,
-    SignatureItem,
-    SubAssemblySignature,
     dump_backtest,
     dump_dataset,
     dump_findings,
@@ -54,6 +36,26 @@ from bomreuse.model import (
     load_note_facts,
     load_resolution,
     load_signatures,
+)
+from bomreuse.catalogue import CatalogueError
+from bomreuse.checks import CONFLICT_RULES, NOTE_RULES, check, check_notes, conflicts_by_component, flagged_parts, notes_by_component
+from bomreuse.evaluate import ANSWERS, Evaluation, EvaluationError, Score, evaluate
+from bomreuse.generate import DEFAULT_SEED, GenerationError, OutputPathError, generate
+from bomreuse.ingest import DEFAULT_RAW_DIR, IngestError, read_raw
+from bomreuse.link import link, linked_components
+from bomreuse.model import (
+    Attribute,
+    Backtest,
+    FactKind,
+    Finding,
+    GroupVerdict,
+    NormalizedDataset,
+    NoteFacts,
+    Prediction,
+    Resolution,
+    ReuseClass,
+    SignatureItem,
+    SubAssemblySignature,
 )
 from bomreuse.normalize import normalize
 from bomreuse.notes import DEFAULT_MODEL, BackendError, KeywordReader, ModelReader, NoteReader, OllamaBackend, extract

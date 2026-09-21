@@ -20,7 +20,7 @@ carries that rule's confidence, and cites the rows it was read from. It is asser
 
 The runtime tests run `bomreuse run` — the whole pipeline — so a stage added later is covered
 without anyone remembering to add it here; the static one covers new modules by itself. The
-artifacts they read are `model.RUN_ARTIFACTS`, never a second list: an artifact a later issue
+artifacts they read are `artifacts.RUN_ARTIFACTS`, never a second list: an artifact a later issue
 adds must not be able to appear outside the determinism and read-only checks.
 """
 
@@ -35,8 +35,8 @@ from pathlib import Path
 
 import pytest
 
+from bomreuse.artifacts import FINDINGS_FILE, RUN_ARTIFACTS, load_findings
 from bomreuse.cli import main
-from bomreuse.model import FINDINGS_FILE, RUN_ARTIFACTS, load_findings
 from bomreuse.rules import CATALOGUE
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -149,7 +149,7 @@ def test_the_scanner_lets_documentation_and_unrelated_words_through(source: str)
 
 
 def test_the_new_pipeline_modules_are_among_those_scanned() -> None:
-    assert {"ingest.py", "normalize.py", "model.py", "resolve.py", "rules.py"} <= set(PIPELINE_MODULES)
+    assert {"ingest.py", "normalize.py", "model.py", "artifacts.py", "resolve.py", "rules.py"} <= set(PIPELINE_MODULES)
     assert not NOT_PIPELINE & set(PIPELINE_MODULES)
 
 

@@ -20,12 +20,12 @@ from pathlib import Path
 import pytest
 
 from bomreuse import baseline, rules
+from bomreuse.artifacts import REPORT_FILE
 from bomreuse.checks import CONFLICT_RULES, check, check_notes, conflicts_by_component, flagged_parts, notes_by_component
 from bomreuse.cli import main
 from bomreuse.ingest import read_raw
 from bomreuse.link import link
 from bomreuse.model import (
-    REPORT_FILE,
     Backtest,
     Finding,
     Prediction,
