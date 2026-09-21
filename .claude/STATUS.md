@@ -8,6 +8,7 @@ Build complete for the case: code, report and README done, final review applied.
 ## In Progress
 
 ## Done (current sprint)
+- [x] README trimmed from 649 to 528 lines: How to run said once, Known limits kept to what limits the tool, the N031 stdout excerpt corrected to what `run` prints; follow-up to #7 — 2026-09-21
 - [x] #26 — `model.py` split by a pure move: the types stay (565 lines), the JSON round-trip and the artifact names go to `artifacts.py` (615); artifacts, stdout and `evaluate` byte-identical to `main` — 2026-09-21
 - [x] Docs pass: `docs/ARCHITECTURE.md`, `CLAUDE.md`, `piv-validate` and three docstrings aligned with the refocus (DECISIONS 29) — 2026-09-21
 - [x] Final review before delivery: the HTML report flags the parts a note speaks against, by the rule stdout uses (`checks.flagged_parts`, DECISIONS 34); README excerpt and Known limits corrected; lint clean — 2026-09-21
