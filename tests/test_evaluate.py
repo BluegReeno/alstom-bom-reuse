@@ -191,6 +191,56 @@ def test_one_scorer_treats_the_three_predictors_alike() -> None:
     assert all(rows(result) == rows(results[0]) and result.correct == results[0].correct for result in results)
 
 
+def test_one_function_scores_a_tool_shaped_answer_and_a_fixture_from_each_baseline() -> None:
+    """Three fixtures of the three shapes, one `score`: what differs is the answer, not the treatment.
+
+    The tool names folded ids and can say `reusable`; a baseline names raw strings and can only
+    say `reused` or `specific`. Each is right about exactly one of the three items here, and each
+    is right for a different reason — which is what the three rows of the output are for.
+    """
+    truth = truth_of(
+        labelled("SA-O107", "reused", ("A", "SA-0107")),
+        labelled("OCC-SA-0315", "reusable", ("B", "SA-0215")),
+        labelled("OCC-SA-0314", "new"),
+    )
+    folded = {("C", "SA-O107"): "C:SA0107", ("C", "OCC-SA-0315"): "C:0CCSA0315", ("C", "OCC-SA-0314"): "C:0CCSA0314", ("A", "SA-0107"): "A:SA0107", ("B", "SA-0215"): "B:SA0215"}
+    raw_strings = {key: f"{key[0]}:{key[1]}" for key in folded}
+
+    tool = Predictor(
+        name="tool",
+        description="folded keys, and content compared",
+        predictions=(
+            Prediction(sub_assembly_id="C:SA0107", variant_id="C", reuse_class=ReuseClass.REUSED, ancestor_id="A:SA0107", diff=None),
+            Prediction(sub_assembly_id="C:0CCSA0315", variant_id="C", reuse_class=ReuseClass.REUSABLE, ancestor_id="B:SA0215", diff=None),
+            Prediction(sub_assembly_id="C:0CCSA0314", variant_id="C", reuse_class=ReuseClass.SPECIFIC, ancestor_id="", diff=None),
+        ),
+        identity=folded,
+    )
+    exact = Predictor(
+        name=baseline.EXACT_REFERENCE,
+        description="the raw reference, character for character",
+        predictions=tuple(predicted(reference, ReuseClass.SPECIFIC) for reference in ("SA-O107", "OCC-SA-0315", "OCC-SA-0314")),
+        identity=raw_strings,
+    )
+    namesakes = Predictor(
+        name=baseline.SAME_NAME,
+        description="the raw designation",
+        predictions=(
+            predicted("SA-O107", ReuseClass.REUSED, "A:SA-0107"),
+            predicted("OCC-SA-0315", ReuseClass.REUSED, "B:SA-0215"),
+            predicted("OCC-SA-0314", ReuseClass.REUSED, "B:SA-0215"),
+        ),
+        identity=raw_strings,
+    )
+
+    assert score(tool, truth).correct == Ratio(3, 3)
+    assert rows(score(tool, truth)) == {"reused": (Ratio(1, 1), Ratio(1, 1)), "reusable": (Ratio(1, 1), Ratio(1, 1)), "new": (Ratio(1, 1), Ratio(1, 1))}
+    # The typo'd and the re-designed sub-assembly are both declared absent: only `new` is right.
+    assert rows(score(exact, truth)) == {"reused": (Ratio(0, 0), Ratio(0, 1)), "reusable": (Ratio(0, 0), Ratio(0, 1)), "new": (Ratio(1, 3), Ratio(1, 1))}
+    # A namesake everywhere: the reuse is found, the change and the new one are claimed to exist.
+    assert rows(score(namesakes, truth)) == {"reused": (Ratio(1, 3), Ratio(1, 1)), "reusable": (Ratio(0, 0), Ratio(0, 1)), "new": (Ratio(0, 0), Ratio(0, 1))}
+
+
 def test_each_predictor_is_scored_through_its_own_identity() -> None:
     """The tool names `C:SA0107`, a baseline `C:SA-O107`; the same answer must score the same."""
     truth = truth_of(labelled("SA-O107", "reused", ("A", "SA-0107")))
