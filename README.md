@@ -212,25 +212,6 @@ none of those files.
 
 ## How to run
 
-Four commands, one entry point:
-
-| Command | Reads | Writes | When |
-| --- | --- | --- | --- |
-| `run` | `data/raw/` | `out/` — the report and the JSON artifacts | the one a client is shown |
-| `evaluate` | `data/raw/` and the ground truth | nothing: it prints the scores | to measure the value claim |
-| `normalize` | `data/raw/` | `out/normalized.json` | to look at the first stage alone |
-| `generate` | `data/dataset_spec.toml` | `data/raw/` and the ground truth | to regenerate the synthetic data |
-
-```bash
-uv run bomreuse run --raw data/raw --out out
-uv run bomreuse evaluate --ground-truth data/ground_truth/ground_truth.json
-uv run bomreuse normalize --raw data/raw --out out
-uv run bomreuse generate --out data/raw --ground-truth data/ground_truth/ground_truth.json
-```
-
-Each is described below, and `run` reads any folder holding the same three files: see
-**On your own files**.
-
 Python 3.12 and [`uv`](https://docs.astral.sh/uv/). From a fresh clone, end to end:
 
 ```bash
@@ -249,82 +230,65 @@ Then open `out/report.html` in a browser — one self-contained file, no server,
 green in under 10 s of the 30 s budget — and an `out/report.html` byte-identical to the one the
 working tree produces.
 
-Regenerate the synthetic dataset (the committed one uses the default seed, and a test checks
-that it is byte-identical to a fresh generation):
+Four commands, one entry point:
 
-```bash
-uv run bomreuse generate --out data/raw --ground-truth data/ground_truth/ground_truth.json
-```
+| Command | Reads | Writes | When |
+| --- | --- | --- | --- |
+| `run` | `data/raw/` | `out/` — the report and the JSON artifacts | the one a client is shown |
+| `evaluate` | `data/raw/` and the ground truth | nothing: it prints the scores | to measure the value claim |
+| `normalize` | `data/raw/` | `out/normalized.json` | to look at the first stage alone |
+| `generate` | `data/dataset_spec.toml` | `data/raw/` and the ground truth | to regenerate the synthetic data |
 
-Both paths are required arguments: the ground-truth location is never a constant in the code,
-and the pipeline only ever reads `data/raw/`. The seed (`--seed`) moves the dirt — spellings,
-units, decimal commas — never the story: every seed yields the same backtest answers.
-
-Read the raw files and write the normalized dataset:
+The two the block above does not show:
 
 ```bash
 uv run bomreuse normalize --raw data/raw --out out
+uv run bomreuse generate --out data/raw --ground-truth data/ground_truth/ground_truth.json
 ```
 
-This is the first stage of the pipeline. It reads the three CSV files exactly as they are —
-nothing is stripped or cast on read — and writes `out/normalized.json`, where every value keeps
-its raw characters next to what the tool made of them (line `L00052`: `42000` `mm` next to
-`42.0` `m`). A value it cannot read keeps its row, is stored as `null`, and is counted as an
-issue; a file that does not have the expected structure stops the run. `--out` may not be inside `--raw`: inputs are
-read-only. A component here is a *candidate group* — every reference sharing one key — not yet a
-resolved component.
+- Inputs are read-only: `--out` may not be inside `--raw`, for `run` and for `normalize`.
+- `normalize` reads the three CSV files exactly as they are and writes `out/normalized.json`,
+  where every value keeps its raw characters next to what the tool made of them (line `L00052`:
+  `42000` `mm` next to `42.0` `m`). A value it cannot read keeps its row, is stored as `null`
+  and is counted as an issue; a file without the expected structure stops the run.
+- `generate` takes both paths as required arguments: the ground-truth location is never a
+  constant in the code. The seed (`--seed`) moves the dirt — spellings, units, decimal commas —
+  never the story: every seed yields the same backtest answers. The committed dataset uses the
+  default seed, and a test checks it is byte-identical to a fresh generation.
+- `evaluate` is the only command that reads the ground truth, and that path has no default
+  (`docs/ARCHITECTURE.md` A5). It re-runs the pipeline rather than reading `out/`, and writes
+  nothing. What it prints is **Results**, below.
 
-Answer the question — the whole pipeline, offline:
+### What `run` does
 
-```bash
-uv run bomreuse run --raw data/raw --out out
-```
+The command a client would be shown. It normalizes the raw files, decides which references are
+the same component, reads the free-text notes, builds the signature of every sub-assembly and
+plays the newest variant as a new tender. It prints the answer as a table and writes
+`out/normalized.json`, `out/resolution.json`, `out/note_facts.json`, `out/findings.json`,
+`out/signatures.json`, `out/predictions.json` and the report, `out/report.html`. The design
+behind each stage is in `docs/ARCHITECTURE.md`; what follows is what each one prints on the
+committed dataset.
 
-This is the command a client would be shown. It normalizes the raw files, decides which
-references are the same component, reads the free-text notes, builds the signature of every
-sub-assembly and plays the newest variant as a new tender; it prints the answer as a table and
-writes `out/normalized.json`, `out/resolution.json`, `out/note_facts.json`, `out/findings.json`,
-`out/signatures.json`, `out/predictions.json` and the report, `out/report.html`. Same rule on the
-paths: `--out` may not be inside `--raw`. It needs no network: the notes are read by the keyword
-fallback unless `--notes llm` asks for the model.
-
-Two references become one component when the stated foldings give them the same key —
-uppercase, then `O`→`0`, `I`→`1`, `L`→`1`, then non-alphanumerics dropped. **There is no
+**References.** Two references become one component when the stated foldings give them the same
+key — uppercase, then `O`→`0`, `I`→`1`, `L`→`1`, then non-alphanumerics dropped. **There is no
 string-distance matching anywhere**: in a Bill of Materials two references differing by one
 character are often genuinely different parts, and a false *reused* is the worst error this
-tool can make. Each group the key forms is then rated on its own coherence:
+tool can make. Each group the key forms is rated *auto* (the rows agree), *review* (one
+component whose rows disagree on designation, unit, supplier or cost — still merged, and a
+finding) or *reject* (the designations name different products; the group is split back apart).
+The run reports 160 candidate groups resolving to 163 canonical components — 144 *auto*, 13
+*review*, 3 *reject* — and 66 findings: 31 from resolution, 13 from the inconsistency checks and
+22 from the notes. Every finding names the rule that produced it, the confidence that rule
+declares, and the rows of `bom.csv` — or of `notes.csv` — it was read from.
 
-- *auto* — the rows agree; the group is one component;
-- *review* — they share a key but disagree on designation, unit, supplier or cost. Still one
-  component, and a finding: a part whose supplier or cost moves between variants is the same
-  part, and the divergence is what makes a reuse unsafe;
-- *reject* — the designations name different products; the group is split back apart.
-
-On the committed dataset the command reports 160 candidate groups resolving to 163 canonical
-components — 144 *auto*, 13 *review*, 3 *reject* — and 66 findings: 31 from resolution, 13 from
-the inconsistency checks below and 22 from the notes. Every finding names the rule that produced
-it, the confidence that rule declares, and the rows of `bom.csv` — or of `notes.csv` — it was
-read from.
-
-### The backtest, on stdout
-
-The signature of a sub-assembly is the multiset of *(canonical component, normalized quantity,
-SI unit)* it contains, built on every merged group — `auto` and `review` alike, since a part
-whose supplier or cost moves between variants is still that part; only a `reject` splits one.
-The newest variant then plays the new tender: given **only the variants designed before it**,
-each of its sub-assemblies comes out
-
-- *reused* — an older signature is identical;
-- *reusable* — an older signature is within the threshold, and the exact diff is shown;
-- *specific* — neither.
-
-The threshold is two numbers in `data/dataset_spec.toml`, written before the data was generated
-and never tuned against a score; `run` reads them from `--spec`, which defaults to that
-committed file. A sub-assembly whose lines the pipeline could not all read carries the count of
-them on its row — an answer resting on part of a sub-assembly is not the claim an answer resting
-on all of it makes — and no sub-assembly of the committed dataset is in that case. On the
-committed dataset the command reports **8 reused, 5 reusable and 2 specific** of the newest
-variant's 15 sub-assemblies, each naming the older sub-assembly the answer rests on:
+**The backtest.** The signature of a sub-assembly is the multiset of *(canonical component,
+normalized quantity, SI unit)* it contains. Given **only the variants designed before it**, each
+sub-assembly of the newest variant comes out *reused* (an older signature is identical),
+*reusable* (an older signature is within the threshold, and the exact diff is shown) or
+*specific* (neither). The threshold is two numbers in `data/dataset_spec.toml`, written before
+the data was generated and never tuned against a score. The run reports **8 reused, 5 reusable
+and 2 specific** of the newest variant's 15 sub-assemblies, each naming the older sub-assembly
+the answer rests on:
 
 ```
 backtest          C (bike car, new region, designed 2025-02-17) against A, B, D, E
@@ -334,24 +298,16 @@ backtest          C (bike car, new region, designed 2025-02-17) against A, B, D,
   C:SA0101      carbody shell                   reused    A:SA0101
 ```
 
-Those counts are what the tool *finds*. How many of them are right, and how the two naive
-searches do on the same data, is `evaluate`'s answer, in **Results** below.
+Those counts are what the tool *finds*; how many are right is `evaluate`'s answer, in
+**Results**. A sub-assembly whose lines could not all be read says so on its row; none of the
+committed dataset is in that case.
 
-### The inconsistencies, on stdout
-
-The second half of the question. Each canonical component — the parts of a split group
-included — is checked for rows that disagree on its unit, its supplier or its unit cost, after
-normalization: `1000 mm` against `1 m`, or `12,50` against `12.50`, is agreement, and there is
-no tolerance on cost because the dataset spec declares none. Each disagreement is one finding
-saying which variants carry which value. The part stays merged and stays in the signatures: a
-part whose supplier moves is still that part, and the disagreement is what a human must settle.
-
-On the committed dataset the checks report **13 components whose rows disagree — 3 on unit, 5 on
-supplier, 5 on cost**, printed by type with the first examples, all of them in
-`out/findings.json`. They are the same 13 components resolution rated *review*: that finding
-says the merge held despite a disagreement, this one says which value moved where. A *reused*
-or *reusable* row of the backtest table whose parts carry one of them names those parts on its
-row — 9 of the 13 reuse answers on the committed dataset:
+**The inconsistencies.** Each canonical component is checked for rows that disagree on its unit,
+its supplier or its unit cost, after normalization: `1000 mm` against `1 m` is agreement. The
+part stays merged and stays in the signatures; the disagreement is what a human must settle.
+The run reports **13 components whose rows disagree — 3 on unit, 5 on supplier, 5 on cost** —
+the same 13 resolution rated *review*. A *reused* or *reusable* row whose parts carry one names
+those parts on its row — 9 of the 13 reuse answers:
 
 ```
   C:0CCSA0302   trailer bogie                   reused    A:SA0102      [check: B0G1EDAMPER (supplier)]
@@ -360,30 +316,17 @@ inconsistencies   13 components whose rows disagree
     'LIGHT-CABLE' (component 11GHTCAB1E) has 2 different unit values: 'm' in A, B, C, D; 'pcs' in E.
 ```
 
-### The notes, on stdout
-
-The other file the client sent is free text, in French and in English, sometimes both inside one
-sentence. The tool reads each note on its own and keeps only what the note *asserts* about a
-component: that it has been replaced, that it is obsolete, or that it must not be used on some
-configuration. The reference the note writes is kept raw and matched through the same folding
-rules as the BOM — one matcher, in one module — so a note about `Bgi-2031` reaches the component
-the export spells `BGI-2031`. A fact that reaches no component of the BOM stays in
-`out/note_facts.json`, counted, and produces no finding.
-
-Where a fact lands on a component the BOM still carries, that is a note contradicting the BOM,
-and it is a finding like the others — with the note's row as evidence, the variants the part is
-used on, and the reader that produced it. These findings carry the lowest confidence of the
-catalogue, 0.60, because free text is the weakest evidence the tool reads.
-
-By default this runs with **no network at all**, on an FR/EN keyword lexicon written from the
-note patterns of the brief — *remplacé par…*, *obsolete since…*, *ne pas utiliser sur…*, *do not
-use on 4-car* — and never from the dataset. On the committed dataset it reads **22 facts out of
-40 notes — 9 replacements, 7 obsolescences, 6 restrictions — all of them linked to a component**,
-and that is what a lexicon can do; what it cannot do is in **Known limits**.
-
-This is where a reuse becomes unsafe, and the backtest table says so on the row rather than in a
-block a reader could skip: **6 of the 13 reuse answers rest on a part a note speaks against**,
-and 10 of the 13 carry a flag once the value conflicts above are counted too.
+**The notes.** Each note is read on its own, and only what it *asserts* about a component is
+kept: that it has been replaced, that it is obsolete, or that it must not be used on some
+configuration. The reference the note writes is matched through the same folding rules as the
+BOM, so a note about `Bgi-2031` reaches the component the export spells `BGI-2031`. Where a fact
+lands on a component the BOM still carries, that is a note contradicting the BOM: a finding,
+with the note's row as evidence, at the lowest confidence of the catalogue, 0.60. By default
+this runs with **no network at all**, on an FR/EN keyword lexicon written from the note patterns
+of the brief and never from the dataset. It reads **22 facts out of 40 notes — 9 replacements,
+7 obsolescences, 6 restrictions — all of them linked to a component**; what a lexicon cannot do
+is in **Known limits**. **6 of the 13 reuse answers rest on a part a note speaks against**, and
+10 of the 13 carry a flag once the value conflicts above are counted too:
 
 ```
   C:SA0105      braking unit                    reused    A:SA0105      [check: BRKH0SEF1EX (supplier), BRKPARK1NGACT (obsolescence)]
@@ -392,60 +335,30 @@ notes             40 read by keyword
   unusable output 0
 note vs BOM       22 parts a note contradicts the BOM about
   obsolescence    7
-    note N031 declares 'BRK-PARKING-ACT' obsolete, and the BOM carries component BRKPARK1NGACT on A, B, C, D, E. Read by keyword.
+    note N005 declares 'WC-GRAB-BAR' obsolete, and the BOM carries component WCGRABBAR on A, B, D, E. Read by keyword.
 ```
 
-The braking unit is the row the demo is for: the tool says *reused*, and the same screen says one
-of its parts has been retired by a note. Reuse it as it stands and the tender inherits the
-problem.
+The braking unit is the row the demo is for: the tool says *reused*, and the same row says one
+of its parts has been retired by a note — N031, whose finding in `out/findings.json` reads *note
+N031 declares 'BRK-PARKING-ACT' obsolete, and the BOM carries component BRKPARK1NGACT on A, B, C,
+D, E*.
 
-**Reading them with a model instead.** `--notes llm` sends each note to one local model —
-`gemma4:12b-mlx` through Ollama on `localhost`, the on-prem path — and `--notes-model` names
-another. The answer is validated on arrival: the shape by schema, and every reference it cites
-must appear verbatim in the note, or it is rejected, logged and counted. Nothing else in the
-pipeline changes, and if nothing answers the run stops and prints the flag that would have
-worked. The model is opt-in, never required: a demo that needs a server running is a demo that
-does not run.
+`--notes llm` reads the notes with one local model instead — `gemma4:12b-mlx` through Ollama on
+`localhost`, the on-prem path; `--notes-model` names another. The answer is validated on
+arrival: the shape by schema, and every reference it cites must appear verbatim in the note, or
+it is rejected, logged and counted. If nothing answers, the run stops and prints the flag that
+would have worked. The model is opt-in, never required.
 
-### The report, in a browser
-
-`out/report.html` is the same run as one self-contained page, written by `bomreuse run` from the
-artifacts it has just written: `string.Template` and inline CSS, no asset, no script, no network.
-A test asserts each of those.
-
-The sponsor's summary is the first thing on it: the three ways of asking *does this sub-assembly
-already exist* — the content of the sub-assembly part by part, the reference character for
-character, the designation — side by side on the newest variant's 15 sub-assemblies, with the 8
+**The report.** `out/report.html` is the same run as one self-contained page: `string.Template`
+and inline CSS, no asset, no script, no network, each asserted by a test. The sponsor's summary
+comes first: the three ways of asking *does this sub-assembly already exist* — by content, by
+reference, by designation — side by side on the newest variant's 15 sub-assemblies, with the 8
 the reference search does not find named one by one. It carries **no time and no money figure**
-(`DECISIONS.md` 3) and no score: what each search *finds* is a fact about the files, and how many
-of those answers are right is `evaluate`'s question, which the page points at rather than
-answers.
-
-Under it, what a lead data engineer opens the file for: every sub-assembly of the new tender with
-its class, the older one the answer rests on, the exact difference behind every *reusable*, and —
-on the row, as on stdout, by the same rule (`checks.flagged_parts`) — the parts to check before the
-reuse is taken: those whose rows disagree, and those a note declares obsolete, replaced or
-restricted; every disagreement once, with the variants and the values it was read from and the resolution
-finding underneath saying the merge held in spite of it; then every finding grouped by the rule
-that produced it, with that rule's description, its confidence and the rows of `bom.csv` it cites.
-The rule sections are built from the catalogue, so a rule a later issue adds renders itself.
-
-The page counts inconsistencies from the checks and never from the total: the 13 components whose
-rows disagree each produce two findings — one saying which value moved where, one saying the merge
-held despite it — so **66 findings are not 66 data problems**, and the summary says 13.
-
-### Scoring the answer
-
-```bash
-uv run bomreuse evaluate --ground-truth data/ground_truth/ground_truth.json
-```
-
-The only command that reads `data/ground_truth/`, and the one path the tool will never default: the
-pipeline never sees that file, a static test over every other module enforces it, and a runtime one
-runs the pipeline with the real ground truth laid out beside the raw files to show it is not even
-opened. `evaluate` re-runs the pipeline rather than reading `out/`, so its figures can never be a
-stale artifact's, and it writes nothing. `--raw` and `--spec` default to the committed dataset and
-the committed contract. What it prints is **Results**, below.
+(`DECISIONS.md` 3) and no score. Under it, for the lead data engineer: every sub-assembly with
+its class, its source and its diff, the parts to check flagged on the row by the rule stdout
+uses (`checks.flagged_parts`), then every finding grouped by rule with the rows it cites. The
+13 components whose rows disagree each produce two findings — which value moved where, and that
+the merge held despite it — so the summary counts 13 inconsistencies, not 66.
 
 ### On your own files
 
@@ -455,31 +368,29 @@ the committed contract. What it prints is **Results**, below.
    with exactly the header lines of the files in `data/raw/`. Dates are ISO (`2025-02-17`),
    numbers take a decimal comma or a dot, and the units read are `pcs`, `units`, `unit`, `u`, `m`,
    `mm`, `kg` and `g`.
-2. `uv run bomreuse run --raw that-folder --out another-folder` — `--out` may not be inside `--raw`.
+2. `uv run bomreuse run --raw that-folder --out another-folder`.
 3. The variant with the latest `design_date` plays the new tender, against the ones designed
    before it. The reuse threshold is read from `--spec`, the committed `data/dataset_spec.toml`
    unless another file is named.
 
-A file without the expected structure stops the run with the file and the row named; a value that
-cannot be read keeps its row and is counted under `issues`. Checked by removing variant C from a
-copy of `data/raw/`: the run completes, and E, then the newest, is played against A, B and D.
+A file without the expected structure stops the run with the file and the row named. Checked by
+removing variant C from a copy of `data/raw/`: the run completes, and E, then the newest, is
+played against A, B and D.
 
 Two limits. `evaluate` does not apply: it needs a ground truth, and only the synthetic dataset
 has one. And a real PLM/ERP export has other columns: mapping it onto these three files is the
-connector named in **What's next** — the pilot's work, not a step of this prototype.
+connector named in **What's next**.
 
 ## Results
 
 The one claim this build makes, measured. `bomreuse evaluate` plays the newest variant as a new
 tender and scores the answer against the ground truth — which the pipeline never reads — beside
 the two naive searches a sceptic would try first. All three answer the same 15 sub-assemblies,
-under the same rule: an answer is right when the class is right **and** the older sub-assembly it
-names is one the ground truth lists, any one of them being a valid source to reuse from
-(DECISIONS.md 25). Rows carry the ground truth's words; `specific` is the prediction that answers
-its `new`, because the tool can only observe that it found no match, never assert that none
-exists (DECISIONS.md 30). Two counts say what the score rests on: the values `normalize` could not
-read, and the BOM lines missing from the signatures the classes were decided on. Both are zero
-here; on a dirtier export they would not be, and the ratios would have to be read against them.
+under the same rule, which the output states on its `a hit` line (DECISIONS.md 25); `specific`
+is the prediction that answers the ground truth's `new` (DECISIONS.md 30). Two counts say what
+the score rests on: the values `normalize` could not read, and the BOM lines missing from the
+signatures. Both are zero here; on a dirtier export the ratios would have to be read against
+them.
 
 ```bash
 uv run bomreuse evaluate --ground-truth data/ground_truth/ground_truth.json
@@ -541,89 +452,58 @@ No threshold was moved to produce these figures, and there is no regression floo
 
 ## Known limits
 
-What this build does not do, and why. Reasons rather than apologies: most of these are
-deliberate, and the ones that were cut are named with what cut them.
+What this build does not do, and why. Most of these are deliberate; the ones that were cut are
+named with what cut them.
 
 - **A reference the folding rules cannot reach stays a second component.** The rules fold case,
   `O`/`I`/`L` and non-alphanumerics, and nothing else (DECISIONS.md 27): a dropped or transposed
-  character — `SEAT-FIX-KIT-447` where every other variant writes `SEAT-FIX-KIT-4471`, `BGI-2013`
-  for `BGI-2031` — leaves two components where there is one part. That is why one *reused*
-  sub-assembly of the backtest comes out *reusable*, described in **Results**. Only string-distance
-  matching would undo them, and it would also merge references that differ by one character and
-  are genuinely different parts — the three `must_not_merge` pairs of `data/dataset_spec.toml` are
-  exactly that case, and a false *reused* is the worst error this tool can make
-  (`docs/ARCHITECTURE.md` A2). So the cost is accepted: the dataset plants both families on
-  purpose, and since resolution scoring was cut on 2026-09-21 (DECISIONS.md 29) the shortfall is
-  named here rather than counted.
+  character — `SEAT-FIX-KIT-447` for `SEAT-FIX-KIT-4471`, `BGI-2013` for `BGI-2031` — leaves two
+  components where there is one part. That is the one miss of **Results**. Only string-distance
+  matching would undo it, and it would also merge references that differ by one character and
+  are genuinely different parts (`docs/ARCHITECTURE.md` A2). The dataset plants both families on
+  purpose; the shortfall is named here rather than counted (DECISIONS.md 29).
 - **A lone separator is always the decimal mark.** `1,500` and `1.500` are both read as `1.5`,
-  never as fifteen hundred: the comma is the decimal mark of the export (DECISIONS.md 24), and
-  the dot is read the same way. `1.234,56` is refused as ambiguous rather than guessed, so the
-  tool is stricter with two separators than with one. No value of the committed dataset is
-  affected; an export that uses a thousands separator would be misread without an issue being
-  raised.
-- **Two different products behind one key are told apart by their designations only.** The
-  folding order of DECISIONS.md 27 makes three planted pairs of `data/dataset_spec.toml` share a
-  canonical key by construction — `SEAT-RAIL-I` with `SEAT-RAIL-1`, `DOOR-SEAL-O` with
-  `DOOR-SEAL-0`, `HVAC-GRILLE-1L` with `HVAC-GRILLE-11`. All three come out `reject` and are split
-  back into two components each (the `reject 3` of `run`'s summary), because their designations
-  name different products; a test asserts it. The rule reads nothing but those words, so a key
-  collision whose two products are described with the same words would be merged and nothing here
-  would catch it.
+  never as fifteen hundred (DECISIONS.md 24); `1.234,56` is refused as ambiguous rather than
+  guessed. No value of the committed dataset is affected; an export that uses a thousands
+  separator would be misread without an issue being raised.
+- **Two different products behind one key are told apart by their designations only.** Three
+  planted pairs share a canonical key by construction — `SEAT-RAIL-I` with `SEAT-RAIL-1`,
+  `DOOR-SEAL-O` with `DOOR-SEAL-0`, `HVAC-GRILLE-1L` with `HVAC-GRILLE-11`. All three come out
+  `reject` and are split back apart, and a test asserts it. A key collision whose two products
+  are described with the same words would be merged, and nothing here would catch it.
 - **The keyword fallback reads words, not sentences — and its accuracy is not measured.** It
   fires on a cue phrase near a reference-shaped token, so a note that *asks* whether a part is
   obsolete, or records a replacement that was **refused**, reads exactly like one asserting it;
   and a fact stated in words the lexicon does not hold — "the supplier is stopping production" —
-  is missed entirely. Both shapes are pinned by tests rather than patched: extending the lexicon
-  until it caught the committed notes would fit it to the forty notes it is supposed to be judged
-  on, and it would measure nothing. On the committed dataset it produces facts from 22 of the 40
-  notes; how many of those are right, and how many of the other 18 assert something it missed, is
-  **not measured in this build** — extraction scoring was cut with the refocus (`DECISIONS.md` 29).
-  This is the gap the LLM path exists to close, and closing it is what the pilot should measure.
+  is missed entirely. Both shapes are pinned by tests rather than patched: a lexicon extended
+  until it caught the committed notes would be fitted to the forty notes it is judged on. It
+  produces facts from 22 of the 40 notes; how many are right, and how many of the other 18
+  assert something it missed, is **not measured in this build** (`DECISIONS.md` 29). This is the
+  gap the LLM path exists to close, and closing it is what the pilot should measure.
 - **A note's scope is quoted, never interpreted.** *Ne pas utiliser sur les rames 4 caisses* names
   a configuration in prose; the tool reports the restriction against every variant the BOM carries
-  the part on, with the sentence as written, and leaves the reading to the human. Mapping free-text
-  scopes onto variants would be inference dressed as a check.
+  the part on, with the sentence as written, and leaves the reading to the human.
 - **A reference a note writes in lower case with a space is out of reach.** `bgi 2031` and
   `mars 2024` have the same shape in running text, and the tool would rather miss a reference
   than read a date as one. Hyphenated spellings (`Bgi-2031`) and upper-case ones are read — an
   upper-case one with a space only when digits follow it (`BGI 2031`): `BIKE STRAP`, in note
   N013, is two words to the keyword reader, and the replacement it records is missed.
-- **Nested sub-assemblies are out of scope, by design.** The BOM is read as two levels — variant,
-  sub-assembly, component ([A1]) — and a signature is flat: the sub-assembly is the unit of reuse
-  and the unit of comparison. A real PLM structure nests, and a sub-assembly containing another
-  one would be compared on its child's reference rather than on that child's contents. Lifting it
-  is a pilot question, not a prototype one.
-- **The generator's ground-truth-inside-raw guard compares by spelling, not by identity.**
-  `generate()` refuses a `--ground-truth` path inside `--out` with
-  `Path.resolve().is_relative_to(...)` — the string comparison `bomreuse normalize` used until it
-  was replaced by an identity check. On a case-insensitive filesystem (macOS, where this is
-  developed) `--out t/raw --ground-truth t/RAW/gt.json` gets past it, and so does a symlink or a
-  hard link already sitting at the destination. It guards a developer-facing command, and the data
-  layer was frozen on 2026-09-21 (DECISIONS.md 29): issue #14 is closed won't-do and the weakness
-  is named here instead. The pipeline's own read-only guard, `cli._writes_into`, does compare by
-  identity (device and inode), and its bypasses have tests.
-- **A cost too small for a float is read as zero.** In `normalize`, a positive `unit_cost_eur`
-  whose value underflows a float becomes `0.0` with no issue raised, where the string `"0"` is
-  refused. Reaching it takes a cost written with some four hundred leading zeros, so no value of
-  the committed dataset is affected and no realistic export carries one. The same underflow on
-  quantities is caught and counted (#13); the cost path was left alone when the refocus of
-  2026-09-21 froze the data layer (DECISIONS.md 29, issue #18, closed won't-do).
-- **What was cut from the build, and why.**
-  - *Scoring anything but the three reuse classes.* `evaluate` scores the backtest and stops
-    there. Resolution as a clustering problem, and precision and recall per defect type, were cut
-    on 2026-09-21 (DECISIONS.md 29): they measure the dataset generator as much as they measure
-    the tool, and the one value claim does not rest on them. The cost is the first bullet of this
-    list: how much resolution misses is described there rather than counted.
-  - *A second LLM backend, and any benchmark of one.* A cloud model against a local one on the same
-    task was planned, and cut with the refocus (DECISIONS.md 29). What the build wires
-    is one backend — `gemma4:12b-mlx`, the on-prem path, which runs on a 16 GB laptop — behind the
-    adapter interface, plus the FR/EN keyword fallback that is what makes the offline run possible.
-    The second model is a constructor argument, not a rewrite. No backend scoring, no latency
-    table, no `docs/measurements/`. If both are ever run by hand, their figures belong here,
-    labelled as a manual measurement.
-  - *Regression floors.* There are none (DECISIONS.md 33): `evaluate` prints its figures and
-    **Results** quotes them. A floor that a scouting prototype's synthetic dataset would set is a
-    number about the dataset, and holding a build to it is a pilot-scale practice.
+- **Nested sub-assemblies are out of scope, by design.** The BOM is read as two levels and a
+  signature is flat: a sub-assembly containing another one would be compared on its child's
+  reference rather than on that child's contents. A real PLM structure nests; lifting this is a
+  pilot question.
+- **Two known weaknesses of developer-facing code, left alone when the data layer was frozen**
+  (DECISIONS.md 29). `generate()` guards its ground-truth path by spelling, not by file
+  identity, so a case-insensitive filesystem or a link gets past it (issue #14, won't-do); the
+  pipeline's own read-only guard does compare by identity. And in `normalize`, a positive unit
+  cost too small for a float is read as `0.0` with no issue raised (issue #18, won't-do). No
+  value of the committed dataset is affected by either.
+- **What was cut on 2026-09-21, and why** (DECISIONS.md 29, 33). Scoring anything but the three
+  reuse classes — resolution as a clustering problem, precision and recall per defect type:
+  they measure the dataset generator as much as the tool. A second LLM backend and any benchmark
+  of one: the build wires `gemma4:12b-mlx` behind the adapter interface, and a second model is a
+  constructor argument. Regression floors: a floor set on a synthetic dataset is a number about
+  the dataset. All three are pilot-scale practices.
 
 ## What's next
 
