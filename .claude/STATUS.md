@@ -10,6 +10,7 @@ Last updated: 2026-09-21
 - (nothing — no run underway)
 
 ## Done (current sprint)
+- [x] DECISIONS 5 and 6 amended — one LLM backend (`gemma4:12b-mlx`), the cloud comparison cut by #29 — 2026-09-21
 - [x] #16 — signatures wired, backtest predictions, stdout summary; PR #20 merged — 2026-09-21
 - [x] DECISIONS 30 — `specific` against `new` is a one-way correctness relation in `evaluate` — 2026-09-21
 - [x] Refocus: data layer frozen, six issue-to-PR runs, `evaluate` scores the reuse classes only (`DECISIONS.md` 29) — 2026-09-21
@@ -19,7 +20,6 @@ Last updated: 2026-09-21
 - [x] `docs/ARCHITECTURE.md`, `docs/PRD.md`, `README.md` aligned with the refocus — 2026-09-21
 
 ## Backlog
-- [ ] #16 signatures wired, backtest predictions, stdout summary
 - [ ] #17 unit, supplier and cost conflicts
 - [ ] #5 evaluate: the backtest against the two naive baselines
 - [ ] #6 notes: keyword fallback, one LLM backend, linking
