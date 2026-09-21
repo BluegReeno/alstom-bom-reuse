@@ -13,11 +13,7 @@ from pathlib import Path
 import pytest
 
 from bomreuse import cli, notes
-from bomreuse.checks import check, check_notes
-from bomreuse.cli import main
-from bomreuse.ingest import read_raw
-from bomreuse.link import link
-from bomreuse.model import (
+from bomreuse.artifacts import (
     FINDINGS_FILE,
     NORMALIZED_FILE,
     NOTE_FACTS_FILE,
@@ -25,15 +21,21 @@ from bomreuse.model import (
     RESOLUTION_FILE,
     RUN_ARTIFACTS,
     SIGNATURES_FILE,
-    Backtest,
     ModelError,
-    ReuseClass,
     load_backtest,
     load_dataset,
     load_findings,
     load_note_facts,
     load_resolution,
     load_signatures,
+)
+from bomreuse.checks import check, check_notes
+from bomreuse.cli import main
+from bomreuse.ingest import read_raw
+from bomreuse.link import link
+from bomreuse.model import (
+    Backtest,
+    ReuseClass,
 )
 from bomreuse.normalize import normalize
 from bomreuse.notes import DEFAULT_CACHE_DIR, BackendError, KeywordReader, extract
@@ -43,7 +45,7 @@ from bomreuse.spec import load_spec
 
 ROOT = Path(__file__).resolve().parents[1]
 COMMITTED_RAW = ROOT / "data" / "raw"
-#: What a run writes, read from the one place it is declared (`model.RUN_ARTIFACTS`).
+#: What a run writes, read from the one place it is declared (`artifacts.RUN_ARTIFACTS`).
 ARTIFACTS = list(RUN_ARTIFACTS)
 
 
@@ -179,7 +181,7 @@ def test_an_artifact_the_model_refuses_is_reported_rather_than_raised(tmp_path: 
     """`run` hands each stage the previous stage's file, so the model's own error is its error path.
 
     A command shows a message and an exit code, never a traceback — including for the one error
-    type `model` promises on a file it is asked to read.
+    type `artifacts` promises on a file it is asked to read.
     """
 
     def refuse(path: Path) -> None:

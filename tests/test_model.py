@@ -8,42 +8,10 @@ from typing import Any
 
 import pytest
 
-from bomreuse import model
-from bomreuse.model import (
+from bomreuse import artifacts, model
+from bomreuse.artifacts import (
     RUN_ARTIFACTS,
-    Attribute,
-    Backtest,
-    BomLine,
-    CandidateGroup,
-    CanonicalComponent,
-    Component,
-    FactKind,
-    Finding,
-    GroupVerdict,
-    LinkedFact,
     ModelError,
-    NormalizationIssue,
-    NormalizedDataset,
-    Note,
-    NoteFact,
-    NoteFacts,
-    Prediction,
-    Quantity,
-    QuantityChange,
-    RawDate,
-    RawInt,
-    RawNumber,
-    RawText,
-    Resolution,
-    ReuseClass,
-    Signature,
-    SignatureDiff,
-    SignatureItem,
-    SourceRow,
-    SubAssembly,
-    SubAssemblySignature,
-    Supplier,
-    Variant,
     backtest_from_dict,
     dataset_from_dict,
     dataset_to_dict,
@@ -68,6 +36,40 @@ from bomreuse.model import (
     render_signatures,
     resolution_from_dict,
     signatures_from_dict,
+)
+from bomreuse.model import (
+    Attribute,
+    Backtest,
+    BomLine,
+    CandidateGroup,
+    CanonicalComponent,
+    Component,
+    FactKind,
+    Finding,
+    GroupVerdict,
+    LinkedFact,
+    NormalizationIssue,
+    NormalizedDataset,
+    Note,
+    NoteFact,
+    NoteFacts,
+    Prediction,
+    Quantity,
+    QuantityChange,
+    RawDate,
+    RawInt,
+    RawNumber,
+    RawText,
+    Resolution,
+    ReuseClass,
+    Signature,
+    SignatureDiff,
+    SignatureItem,
+    SourceRow,
+    SubAssembly,
+    SubAssemblySignature,
+    Supplier,
+    Variant,
 )
 
 
@@ -306,6 +308,13 @@ def test_a_component_and_a_supplier_never_name_a_variant(cls: type) -> None:
 def test_the_model_imports_nothing_from_the_package() -> None:
     source = Path(model.__file__).read_text(encoding="utf-8")
     assert "from bomreuse" not in source and "import bomreuse" not in source
+
+
+def test_the_artifacts_import_the_model_and_nothing_else_from_the_package() -> None:
+    """The round-trip sits one step above the leaf: a stage it imported would import it back."""
+    source = Path(artifacts.__file__).read_text(encoding="utf-8")
+    imported = {line.split()[1] for line in source.splitlines() if line.startswith(("from bomreuse", "import bomreuse"))}
+    assert imported == {"bomreuse.model"}
 
 
 # --- the resolution and findings artifacts -----------------------------------------------------
@@ -635,12 +644,12 @@ def test_the_note_facts_artifact_carries_the_schema_version_and_one_trailing_new
 def test_a_wrong_leaf_of_the_note_facts_is_refused_and_named(path: str, value: Any, message: str) -> None:
     data = _with(json.loads(render_note_facts(some_note_facts())), path, value)
     with pytest.raises(ModelError, match=message):
-        model.note_facts_from_dict(data)
+        artifacts.note_facts_from_dict(data)
 
 
 def test_the_note_facts_artifact_refuses_another_schema_version() -> None:
     with pytest.raises(ModelError, match="schema_version"):
-        model.note_facts_from_dict({**json.loads(render_note_facts(some_note_facts())), "schema_version": "0"})
+        artifacts.note_facts_from_dict({**json.loads(render_note_facts(some_note_facts())), "schema_version": "0"})
 
 
 def test_a_missing_note_facts_artifact_is_a_model_error(tmp_path: Path) -> None:

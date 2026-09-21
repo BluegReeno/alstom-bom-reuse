@@ -35,10 +35,12 @@ from string import Template
 from typing import Final
 
 from bomreuse import baseline
-from bomreuse.checks import CONFLICT_RULES, conflicts_by_component, flagged_parts, notes_by_component
-from bomreuse.model import (
+from bomreuse.artifacts import (
     REPORT_FILE,
     RUN_ARTIFACTS,
+)
+from bomreuse.checks import CONFLICT_RULES, conflicts_by_component, flagged_parts, notes_by_component
+from bomreuse.model import (
     Attribute,
     Backtest,
     FactKind,

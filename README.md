@@ -245,7 +245,7 @@ Then open `out/report.html` in a browser — one self-contained file, no server,
 
 `uv sync` installs the pinned dependencies of `uv.lock`, which needs a package index or a warm
 `uv` cache; **everything after it runs with no network at all**. Checked on a clean clone:
-`uv sync --frozen --offline`, then the whole pipeline offline, then `uv run pytest` — 1000 tests
+`uv sync --frozen --offline`, then the whole pipeline offline, then `uv run pytest` — 1004 tests
 green in under 10 s of the 30 s budget — and an `out/report.html` byte-identical to the one the
 working tree produces.
 

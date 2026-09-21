@@ -7,9 +7,9 @@ from pathlib import Path
 
 import pytest
 
+from bomreuse.artifacts import NORMALIZED_FILE, load_dataset
 from bomreuse.cli import main
 from bomreuse.ingest import read_raw
-from bomreuse.model import NORMALIZED_FILE, load_dataset
 from bomreuse.normalize import normalize
 
 ROOT = Path(__file__).resolve().parents[1]
