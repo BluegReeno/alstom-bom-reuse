@@ -36,7 +36,7 @@ only the keys — a stage told to expect `ModelError` must not meet a `TypeError
 import dataclasses
 import json
 import math
-from collections.abc import Callable
+from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass
 from datetime import date
 from enum import StrEnum
@@ -47,6 +47,14 @@ from typing import Any, Final
 NORMALIZED_FILE: Final[str] = "normalized.json"
 RESOLUTION_FILE: Final[str] = "resolution.json"
 FINDINGS_FILE: Final[str] = "findings.json"
+SIGNATURES_FILE: Final[str] = "signatures.json"
+PREDICTIONS_FILE: Final[str] = "predictions.json"
+
+#: Everything `bomreuse run` writes, in the order the pipeline produces it. Said once, here: the
+#: CLI writes this list and checks it against the raw directory, and the tests that watch
+#: determinism and the read-only inputs read it rather than a copy of it — so an artifact a later
+#: issue adds is covered by all of them without a hand edit anywhere.
+RUN_ARTIFACTS: Final[tuple[str, ...]] = (NORMALIZED_FILE, RESOLUTION_FILE, FINDINGS_FILE, SIGNATURES_FILE, PREDICTIONS_FILE)
 
 #: Written into every artifact and checked on load: a later issue that changes a type bumps it,
 #: so a stale file in `out/` is refused instead of half-read. One version for the whole set of
@@ -347,6 +355,166 @@ class Resolution:
         return tuple(component for group in self.groups for component in group.components)
 
 
+# --- signatures and the backtest ----------------------------------------------------------------
+
+
+@dataclass(frozen=True, slots=True, order=True)
+class SignatureItem:
+    """One line of a signature: a canonical component, its quantity, its SI unit."""
+
+    component: str
+    quantity: float
+    unit: str
+
+
+@dataclass(frozen=True, slots=True)
+class Signature:
+    """The signature of a sub-assembly.
+
+    Formally the multiset of `(canonical component, normalized quantity, SI unit)` it
+    contains. A canonical component carries its whole quantity on one line, so the multiset
+    is represented as items sorted by component, one per component — which is also what
+    makes the comparison in `signatures.py` a plain set difference.
+
+    Nested sub-assemblies are out of scope ([A1] in the PRD): a signature is flat.
+    """
+
+    items: tuple[SignatureItem, ...]
+
+    def __post_init__(self) -> None:
+        components = [item.component for item in self.items]
+        if len(set(components)) != len(components):
+            duplicates = sorted({c for c in components if components.count(c) > 1})
+            raise ValueError(f"a canonical component appears twice in one signature: {duplicates}")
+
+    def __len__(self) -> int:
+        return len(self.items)
+
+    @property
+    def by_component(self) -> dict[str, SignatureItem]:
+        return {item.component: item for item in self.items}
+
+    @classmethod
+    def of(cls, items: Iterable[SignatureItem]) -> "Signature":
+        return cls(items=tuple(sorted(items)))
+
+    @classmethod
+    def from_counts(
+        cls,
+        counts: Mapping[str, float],
+        units: Mapping[str, str] | None = None,
+        default_unit: str = "pcs",
+    ) -> "Signature":
+        """Build a signature from a component -> quantity mapping.
+
+        This is how the story cases of `data/dataset_spec.toml` become comparable, and how
+        `generate.py` states what it plants.
+        """
+        units = units or {}
+        return cls.of(
+            SignatureItem(component=component, quantity=float(quantity), unit=units.get(component, default_unit))
+            for component, quantity in counts.items()
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class QuantityChange:
+    """A component present on both sides, carrying a different quantity or unit."""
+
+    component: str
+    left: SignatureItem
+    right: SignatureItem
+
+
+@dataclass(frozen=True, slots=True)
+class SignatureDiff:
+    """The evidence attached to a reuse finding, produced by the comparison itself.
+
+    `added` and `removed` are read left-to-right: what the right-hand signature adds to, and
+    what it drops from, the left-hand one.
+    """
+
+    added: tuple[SignatureItem, ...]
+    removed: tuple[SignatureItem, ...]
+    quantity_changed: tuple[QuantityChange, ...]
+
+    @property
+    def n_parts_diff(self) -> int:
+        """Canonical components added or removed."""
+        return len(self.added) + len(self.removed)
+
+    @property
+    def n_qty_diff(self) -> int:
+        """Components present on both sides with a different quantity."""
+        return len(self.quantity_changed)
+
+    def is_empty(self) -> bool:
+        return self.n_parts_diff == 0 and self.n_qty_diff == 0
+
+
+@dataclass(frozen=True, slots=True)
+class SubAssemblySignature:
+    """One sub-assembly and the signature `signatures.build_signatures` read off its lines.
+
+    The designations travel with it because a reviewer opening `signatures.json` reads
+    `carbody shell`, not `C:SA0101`.
+    """
+
+    sub_assembly_id: str
+    variant_id: str
+    reference_key: str
+    designations: tuple[str, ...]
+    signature: Signature
+
+
+class ReuseClass(StrEnum):
+    """What the backtest says of one sub-assembly of the newest variant.
+
+    `signatures.Verdict` classifies a *pair* of signatures, and `identical` is a property of two.
+    These are the words the client's question is asked in (README, PRD R6): the sub-assembly is
+    already there, it is there with a known diff, or it is this variant's own.
+    """
+
+    REUSED = "reused"
+    REUSABLE = "reusable"
+    SPECIFIC = "specific"
+
+
+@dataclass(frozen=True, slots=True)
+class Prediction:
+    """The backtest's answer for one sub-assembly of the newest variant.
+
+    `ancestor_id` names one older sub-assembly the answer rests on, and is `""` under
+    `specific` — the empty-key convention `BomLine.parent_id` already uses. Several older
+    sub-assemblies usually reach the same verdict and one valid source is enough to reuse
+    from, so the set is not carried (Decision 25).
+
+    `diff` is `None` unless the class is `reusable`: a `reused` answer's diff is empty by
+    definition, and a `specific` one has nothing to diff against. The ground truth of #2 says
+    the same of its own labels.
+    """
+
+    sub_assembly_id: str
+    variant_id: str
+    reuse_class: ReuseClass
+    ancestor_id: str
+    diff: SignatureDiff | None
+
+
+@dataclass(frozen=True, slots=True)
+class Backtest:
+    """The newest variant's answers, and what they were computed against.
+
+    The variants it saw are part of the claim — a backtest that quietly compared the newest
+    variant with itself would print the same table ([A7]) — so they are written into the
+    artifact rather than left to be inferred from it.
+    """
+
+    target_variant_id: str
+    ancestor_variant_ids: tuple[str, ...]
+    predictions: tuple[Prediction, ...]
+
+
 # --- writing ---------------------------------------------------------------------------------
 
 
@@ -378,6 +546,22 @@ def render_findings(findings: tuple[Finding, ...]) -> str:
 
 def dump_findings(findings: tuple[Finding, ...], path: Path) -> None:
     _write(render_findings(findings), path)
+
+
+def render_signatures(signatures: tuple[SubAssemblySignature, ...]) -> str:
+    return _render({"signatures": _jsonable([dataclasses.asdict(signature) for signature in signatures])})
+
+
+def dump_signatures(signatures: tuple[SubAssemblySignature, ...], path: Path) -> None:
+    _write(render_signatures(signatures), path)
+
+
+def render_backtest(backtest: Backtest) -> str:
+    return _render({"backtest": _jsonable(dataclasses.asdict(backtest))})
+
+
+def dump_backtest(backtest: Backtest, path: Path) -> None:
+    _write(render_backtest(backtest), path)
 
 
 def _render(data: dict[str, Any]) -> str:
@@ -417,6 +601,14 @@ def load_resolution(path: Path) -> Resolution:
 
 def load_findings(path: Path) -> tuple[Finding, ...]:
     return findings_from_dict(_read_json(path, "findings"))
+
+
+def load_signatures(path: Path) -> tuple[SubAssemblySignature, ...]:
+    return signatures_from_dict(_read_json(path, "signatures"))
+
+
+def load_backtest(path: Path) -> Backtest:
+    return backtest_from_dict(_read_json(path, "backtest"))
 
 
 def _read_json(path: Path, what: str) -> Any:
@@ -485,6 +677,82 @@ def _source_row(d: Any, where: str) -> SourceRow:
         source_file=_str(d["source_file"], f"{where}.source_file"),
         row_number=_int(d["row_number"], f"{where}.row_number"),
         row_id=_str(d["row_id"], f"{where}.row_id"),
+    )
+
+
+def signatures_from_dict(data: Any) -> tuple[SubAssemblySignature, ...]:
+    _check_keys(data, {"signatures", "schema_version"}, "the signatures")
+    _check_schema_version(data, "bomreuse run")
+    return _each(data["signatures"], _sub_assembly_signature, "signatures")
+
+
+def backtest_from_dict(data: Any) -> Backtest:
+    _check_keys(data, {"backtest", "schema_version"}, "the backtest")
+    _check_schema_version(data, "bomreuse run")
+    table = data["backtest"]
+    _check_keys(table, {"target_variant_id", "ancestor_variant_ids", "predictions"}, "backtest")
+    return Backtest(
+        target_variant_id=_str(table["target_variant_id"], "backtest.target_variant_id"),
+        ancestor_variant_ids=_str_tuple(table["ancestor_variant_ids"], "backtest.ancestor_variant_ids"),
+        predictions=_each(table["predictions"], _prediction, "backtest.predictions"),
+    )
+
+
+def _sub_assembly_signature(d: Any, where: str) -> SubAssemblySignature:
+    _check_keys(d, {"sub_assembly_id", "variant_id", "reference_key", "designations", "signature"}, where)
+    return SubAssemblySignature(
+        sub_assembly_id=_str(d["sub_assembly_id"], f"{where}.sub_assembly_id"),
+        variant_id=_str(d["variant_id"], f"{where}.variant_id"),
+        reference_key=_str(d["reference_key"], f"{where}.reference_key"),
+        designations=_str_tuple(d["designations"], f"{where}.designations"),
+        signature=_signature(d["signature"], f"{where}.signature"),
+    )
+
+
+def _prediction(d: Any, where: str) -> Prediction:
+    _check_keys(d, {"sub_assembly_id", "variant_id", "reuse_class", "ancestor_id", "diff"}, where)
+    return Prediction(
+        sub_assembly_id=_str(d["sub_assembly_id"], f"{where}.sub_assembly_id"),
+        variant_id=_str(d["variant_id"], f"{where}.variant_id"),
+        reuse_class=_member(ReuseClass, d["reuse_class"], f"{where}.reuse_class"),
+        ancestor_id=_str(d["ancestor_id"], f"{where}.ancestor_id"),
+        diff=None if d["diff"] is None else _signature_diff(d["diff"], f"{where}.diff"),
+    )
+
+
+def _signature(d: Any, where: str) -> Signature:
+    _check_keys(d, {"items"}, where)
+    items = _each(d["items"], _signature_item, f"{where}.items")
+    try:
+        return Signature(items=items)
+    except ValueError as exc:  # a hand-edited artifact naming one component twice
+        raise ModelError(f"{where}: {exc}") from exc
+
+
+def _signature_item(d: Any, where: str) -> SignatureItem:
+    _check_keys(d, {"component", "quantity", "unit"}, where)
+    return SignatureItem(
+        component=_str(d["component"], f"{where}.component"),
+        quantity=_finite_float(d["quantity"], f"{where}.quantity"),
+        unit=_str(d["unit"], f"{where}.unit"),
+    )
+
+
+def _signature_diff(d: Any, where: str) -> SignatureDiff:
+    _check_keys(d, {"added", "removed", "quantity_changed"}, where)
+    return SignatureDiff(
+        added=_each(d["added"], _signature_item, f"{where}.added"),
+        removed=_each(d["removed"], _signature_item, f"{where}.removed"),
+        quantity_changed=_each(d["quantity_changed"], _quantity_change, f"{where}.quantity_changed"),
+    )
+
+
+def _quantity_change(d: Any, where: str) -> QuantityChange:
+    _check_keys(d, {"component", "left", "right"}, where)
+    return QuantityChange(
+        component=_str(d["component"], f"{where}.component"),
+        left=_signature_item(d["left"], f"{where}.left"),
+        right=_signature_item(d["right"], f"{where}.right"),
     )
 
 
