@@ -3,11 +3,13 @@
 Last updated: 2026-09-21
 
 ## Current Focus
-#5 merged (PR #22): tool 14/15, same name 9/15, exact reference 6/15. Next: #6 ‖ #7, each an `archon-deliver` run per `.claude/RUN-PROCEDURE.md`.
-#7 carries two notes from PR #21: count conflicts from `checks.*`, and the strict `[check]` lead. Both runs touch the README: merge #6 first, #7 rebases.
+#6 and #7 delivered as PRs #24 and #23 (both self-reported PASS), runs cancelled mid-review on quota. Next: pre-merge check of #24, merge, then #23 rebases on main — see In Progress.
 
 ## In Progress
-- (nothing — no run underway)
+- [ ] PR #24 (#6 notes, `claude/issue-6-notes` @ 0f54f2a, 8 commits) — open, body complete (validation PASS 977 tests, deviations listed, DECISIONS wording proposed). Run `c36c7de3…` cancelled 2026-09-21 during its review/fix phase; worktree clean. Not yet checked by the human session.
+- [ ] PR #23 (#7 report, `claude/issue-7-report` @ 1625a2a, 4 commits) — open, body complete (validation PASS 891 tests, deviations listed, notes "For the human"). Run `0c92d06f…` cancelled the same way. Branched before #6: must rebase on main after #24 merges (README conflict; its body says one README sentence must turn affirmative once notes exist). Check it carries #14's Known-limits line.
+- [ ] Pre-merge check, per PR, done by the session, not the run: re-run `bomreuse evaluate` and `bomreuse run` and match every figure in README + PR body; list each deviation with pro / con / recommendation; re-run `uv run pytest` and `piv-validate` on the branch. Do not `archon workflow resume` — the PRs exist, the remaining work is review.
+- [ ] After each merge: STATUS.md, DECISIONS.md with the human's approval, `archon complete <branch>`, push.
 
 ## Done (current sprint)
 - [x] #5 — `evaluate`: one scorer, three predictors (tool, exact reference, same name), counts beside every ratio; PR #22 merged — 2026-09-21
@@ -24,6 +26,4 @@ Last updated: 2026-09-21
 - [x] `docs/ARCHITECTURE.md`, `docs/PRD.md`, `README.md` aligned with the refocus — 2026-09-21
 
 ## Backlog
-- [ ] #6 notes: keyword fallback, one LLM backend, linking
-- [ ] #7 HTML report and a true README — owes #14's Known-limits line
 - [ ] Not code: the email and the 40-minute case narrative — reserve time for them
