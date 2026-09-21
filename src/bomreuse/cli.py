@@ -21,7 +21,7 @@ from pathlib import Path
 
 from bomreuse.catalogue import CatalogueError
 from bomreuse.checks import CONFLICT_RULES, check, conflicts_by_component
-from bomreuse.evaluate import Evaluation, EvaluationError, Score, evaluate
+from bomreuse.evaluate import ANSWERS, Evaluation, EvaluationError, Score, evaluate
 from bomreuse.generate import DEFAULT_SEED, GenerationError, OutputPathError, generate
 from bomreuse.ingest import DEFAULT_RAW_DIR, IngestError, read_raw
 from bomreuse.model import (
@@ -390,7 +390,7 @@ def _print_evaluation(evaluation: Evaluation, dataset: NormalizedDataset) -> Non
         f"  sub-assemblies  {evaluation.items} ({', '.join(f'{label} {count}' for label, count in evaluation.labelled.items())}), "
         f"scored on signatures missing {evaluation.lines_left_out} BOM lines"
     )
-    print("  rows            the ground truth's labels; the prediction that answers 'new' is 'specific'")
+    print(f"  rows            the ground truth's labels; the prediction that answers 'new' is '{ANSWERS['new']}'")
     print("  a hit           the class is right, and the older sub-assembly named is one the ground truth lists")
     _print_issues(dataset)
     for score in evaluation.scores:

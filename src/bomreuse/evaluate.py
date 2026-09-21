@@ -84,14 +84,9 @@ class Predictor:
 
 @dataclass(frozen=True, slots=True)
 class ClassScore:
-    """One row of the table: a ground-truth label, and how one predictor did on it.
-
-    `answer` is the prediction that answers `label`, carried on the row so the output can say —
-    once — which word of the tool's vocabulary the `new` row is scoring.
-    """
+    """One row of the table: a ground-truth label, and how one predictor did on it."""
 
     label: Label
-    answer: ReuseClass
     precision: Ratio
     recall: Ratio
 
@@ -200,7 +195,7 @@ def score(predictor: Predictor, truth: GroundTruth) -> Score:
         hits = sum(1 for item in truth.backtest if item.label == label and right[item.sub_assembly_ref])
         claimed = sum(1 for item in truth.backtest if _claims(answered[item.sub_assembly_ref], answer))
         there = sum(1 for item in truth.backtest if item.label == label)
-        classes.append(ClassScore(label=label, answer=answer, precision=Ratio(hits, claimed), recall=Ratio(hits, there)))
+        classes.append(ClassScore(label=label, precision=Ratio(hits, claimed), recall=Ratio(hits, there)))
 
     return Score(
         predictor=predictor.name,

@@ -16,7 +16,7 @@ import pytest
 
 from bomreuse import baseline
 from bomreuse.cli import main
-from bomreuse.evaluate import evaluate
+from bomreuse.evaluate import ANSWERS, evaluate
 from bomreuse.ingest import read_raw
 from bomreuse.normalize import normalize
 from bomreuse.resolve import resolve
@@ -81,9 +81,14 @@ def test_every_ratio_carries_its_counts_and_no_decimal_is_printed(capsys: pytest
 
 
 def test_the_output_says_which_prediction_answers_the_ground_truths_new(capsys: pytest.CaptureFixture[str]) -> None:
-    """The rows are the ground truth's words; the divergence is explained once, and only once."""
+    """The rows are the ground truth's words; the divergence is explained once, and only once.
+
+    The legend is the relation's own word, not a word spelled beside it: a class whose value moved
+    would otherwise leave `evaluate` naming an answer absent from the rest of the tool's output.
+    """
     out = ran(capsys, "--raw", str(COMMITTED_RAW))
-    assert "the prediction that answers 'new' is 'specific'" in out
+    assert f"the prediction that answers 'new' is '{ANSWERS['new']}'" in out
+    assert "the prediction that answers 'new' is 'specific'" in out, "the line the README quotes"
     assert out.count("'specific'") == 1
 
 
