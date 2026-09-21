@@ -227,7 +227,9 @@ next to the table.
 ### A7 — Note-to-component linking
 
 One rule, and it removes the duplication: **only `resolve.py` knows how to turn a string into a
-canonical component.** It exposes `match_reference(raw_token) -> Candidate | None`.
+canonical component.** It exposes `match_reference(resolution, raw_token) -> Candidate | None`:
+the module holds no state, so the resolution to look in is a parameter, and `link.py` reads
+`out/resolution.json` as its second input.
 
 The linking step is a module of its own, `link.py`, sitting between `notes.py` and `checks.py`:
 
@@ -284,8 +286,6 @@ These do not exist yet and the approach depends on them:
   through.
 - The ground-truth schema: the `true_component_id -> {raw reference strings}` mapping, the
   must-not-merge declarations, and the stable defect key A3 matches on.
-- The rule catalogue: `rule_id -> description -> confidence`, which R11 needs to make every
-  finding traceable.
 - The note-extraction prompt and its output model, plus the FR/EN keyword fallback lexicon.
 
 ## Spikes & experiments
