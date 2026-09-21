@@ -27,12 +27,25 @@ def test_the_catalogue_is_versioned() -> None:
     assert CATALOGUE_VERSION.strip()
 
 
-def test_the_resolution_rules_are_the_ones_this_issue_declares() -> None:
+def test_the_catalogue_holds_the_rules_declared_so_far() -> None:
     """Named one by one: a rule silently disappearing would make its findings untraceable."""
-    assert set(CATALOGUE) == {"resolution.duplicate_reference", "resolution.group_conflict", "resolution.group_split"}
+    assert set(CATALOGUE) == {
+        "resolution.duplicate_reference",
+        "resolution.group_conflict",
+        "resolution.group_split",
+        "checks.unit_conflict",
+        "checks.supplier_conflict",
+        "checks.cost_conflict",
+    }
 
 
 def test_the_confidence_ladder_holds() -> None:
     """The ladder of the module docstring: exact strings first, free-text judgement last."""
     assert CATALOGUE["resolution.duplicate_reference"].confidence > CATALOGUE["resolution.group_conflict"].confidence
     assert CATALOGUE["resolution.group_conflict"].confidence > CATALOGUE["resolution.group_split"].confidence
+
+
+@pytest.mark.parametrize("rule_id", ["checks.unit_conflict", "checks.supplier_conflict", "checks.cost_conflict"])
+def test_a_conflict_check_sits_on_the_rung_of_values_that_literally_differ(rule_id: str) -> None:
+    """Same rung as `group_conflict`: both read a shared key and values that are not equal."""
+    assert CATALOGUE[rule_id].confidence == CATALOGUE["resolution.group_conflict"].confidence

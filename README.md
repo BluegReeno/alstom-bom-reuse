@@ -123,9 +123,9 @@ tool can make. Each group the key forms is then rated on its own coherence:
 - *reject* — the designations name different products; the group is split back apart.
 
 On the committed dataset the command reports 160 candidate groups resolving to 163 canonical
-components — 144 *auto*, 13 *review*, 3 *reject* — and 31 findings. Every finding names the
-rule that produced it, the confidence that rule declares, and the rows of `bom.csv` it was read
-from.
+components — 144 *auto*, 13 *review*, 3 *reject* — and 44 findings, 31 from resolution and 13
+from the inconsistency checks below. Every finding names the rule that produced it, the
+confidence that rule declares, and the rows of `bom.csv` it was read from.
 
 ### The backtest, on stdout
 
@@ -158,8 +158,31 @@ backtest          C (bike car, new region, designed 2025-02-17) against A, B, D,
 Those counts are what the tool *finds*; how many of them are right, and how a naive
 exact-reference search does on the same data, is `evaluate`'s answer and is not written yet.
 
-The rest of the pipeline is to be written during the build: the unit, supplier and cost checks,
-`evaluate`, the notes, and the HTML report.
+### The inconsistencies, on stdout
+
+The second half of the question. Each canonical component — the parts of a split group
+included — is checked for rows that disagree on its unit, its supplier or its unit cost, after
+normalization: `1000 mm` against `1 m`, or `12,50` against `12.50`, is agreement, and there is
+no tolerance on cost because the dataset spec declares none. Each disagreement is one finding
+saying which variants carry which value. The part stays merged and stays in the signatures: a
+part whose supplier moves is still that part, and the disagreement is what a human must settle.
+
+On the committed dataset the checks report **13 components whose rows disagree — 3 on unit, 5 on
+supplier, 5 on cost**, printed by type with the first examples, all of them in
+`out/findings.json`. They are the same 13 components resolution rated *review*: that finding
+says the merge held despite a disagreement, this one says which value moved where. A *reused*
+or *reusable* row of the backtest table whose parts carry one of them names those parts on its
+row — 9 of the 13 reuse answers on the committed dataset:
+
+```
+  C:SA0104      hvac unit                       reused    A:SA0104      [check: HVACF11TER (supplier)]
+inconsistencies   13 components whose rows disagree
+  unit            3
+    'LIGHT-CABLE' (component 11GHTCAB1E) has 2 different unit values: 'm' in A, B, C, D; 'pcs' in E.
+```
+
+The rest of the pipeline is to be written during the build: `evaluate`, the notes, and the HTML
+report.
 
 ## Results
 

@@ -13,6 +13,7 @@ from pathlib import Path
 import pytest
 
 from bomreuse import cli
+from bomreuse.checks import check
 from bomreuse.cli import main
 from bomreuse.ingest import read_raw
 from bomreuse.model import (
@@ -63,7 +64,7 @@ def test_the_artifacts_read_back_into_the_objects_the_pipeline_built(tmp_path: P
     signatures = build_signatures(dataset, resolution)
     assert load_dataset(out / NORMALIZED_FILE) == dataset
     assert load_resolution(out / RESOLUTION_FILE) == resolution
-    assert load_findings(out / FINDINGS_FILE) == findings
+    assert load_findings(out / FINDINGS_FILE) == findings + check(dataset, resolution)
     assert load_signatures(out / SIGNATURES_FILE) == signatures
     assert load_backtest(out / PREDICTIONS_FILE) == backtest(signatures, dataset.variants, load_spec().thresholds)
 
@@ -273,3 +274,43 @@ def test_a_dataset_with_no_readable_design_date_says_so_instead_of_guessing(tmp_
     printed = capsys.readouterr().out
     assert "no variant carries a readable design date" in printed
     assert load_backtest(out / PREDICTIONS_FILE) == Backtest("", (), ())
+
+
+def test_the_summary_shows_the_inconsistencies_by_type_with_their_counts(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    """The second half of the client's question, on the same stdout as the first."""
+    out = tmp_path / "out"
+    assert main(["run", "--raw", str(COMMITTED_RAW), "--out", str(out)]) == 0
+    printed = capsys.readouterr().out
+    findings = load_findings(out / FINDINGS_FILE)
+
+    counts = {kind: sum(finding.rule_id == f"checks.{kind}_conflict" for finding in findings) for kind in ("unit", "supplier", "cost")}
+    assert all(counts.values()), counts
+    assert f"inconsistencies   {sum(counts.values())} components whose rows disagree" in printed
+    block = printed[printed.index("inconsistencies   ") :]
+    for kind, count in counts.items():
+        assert f"  {kind:<16}{count}" in block
+    first_unit_conflict = next(finding for finding in findings if finding.rule_id == "checks.unit_conflict")
+    assert first_unit_conflict.message in block
+
+
+def test_a_reuse_resting_on_a_part_in_conflict_is_flagged_on_its_row(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    """The row a design engineer must not trust at face value says so where they read it.
+
+    Every *reused* or *reusable* row whose parts carry a conflict names each such part; no other
+    row carries the flag, and a *specific* row never does — it proposes no reuse to warn against.
+    """
+    out = tmp_path / "out"
+    assert main(["run", "--raw", str(COMMITTED_RAW), "--out", str(out)]) == 0
+    printed = capsys.readouterr().out
+    in_conflict = {finding.subject for finding in load_findings(out / FINDINGS_FILE) if finding.rule_id.startswith("checks.")}
+    parts = {signature.sub_assembly_id: {item.component for item in signature.signature.items} for signature in load_signatures(out / SIGNATURES_FILE)}
+
+    flagged = 0
+    for prediction in load_backtest(out / PREDICTIONS_FILE).predictions:
+        line = next(line for line in printed.splitlines() if line.strip().startswith(f"{prediction.sub_assembly_id} "))
+        expected = sorted(parts[prediction.sub_assembly_id] & in_conflict) if prediction.reuse_class is not ReuseClass.SPECIFIC else []
+        assert ("[check: " in line) == bool(expected), line
+        for component in expected:
+            assert f"{component} (" in line
+        flagged += bool(expected)
+    assert flagged, "the committed dataset plants conflicts under reused sub-assemblies: the test would prove nothing"

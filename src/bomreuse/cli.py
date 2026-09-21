@@ -18,11 +18,13 @@ from collections.abc import Callable, Mapping
 from pathlib import Path
 
 from bomreuse.catalogue import CatalogueError
+from bomreuse.checks import CONFLICT_RULES, check, conflicts_by_component
 from bomreuse.generate import DEFAULT_SEED, GenerationError, OutputPathError, generate
 from bomreuse.ingest import IngestError, read_raw
 from bomreuse.model import (
     NORMALIZED_FILE,
     RUN_ARTIFACTS,
+    Attribute,
     Backtest,
     Finding,
     GroupVerdict,
@@ -40,6 +42,7 @@ from bomreuse.model import (
     dump_signatures,
     load_backtest,
     load_dataset,
+    load_findings,
     load_resolution,
     load_signatures,
 )
@@ -174,6 +177,9 @@ def _run(args: argparse.Namespace) -> int:
         read_back = load_dataset(normalized)
         resolution, findings = resolve(read_back)
         dump_resolution(resolution, resolution_file)
+        # The checks read the resolution back like the signatures do: they run on the canonical
+        # components it wrote, split parts included, and their findings join the same artifact.
+        findings += check(read_back, load_resolution(resolution_file))
         dump_findings(findings, findings_file)
         dump_signatures(build_signatures(read_back, load_resolution(resolution_file)), signatures_file)
         dump_backtest(backtest(load_signatures(signatures_file), read_back.variants, thresholds), predictions_file)
@@ -185,7 +191,9 @@ def _run(args: argparse.Namespace) -> int:
         return 1
 
     _print_run_summary(raw_dir, dataset, resolution, findings)
-    _print_backtest(dataset, load_signatures(signatures_file), load_backtest(predictions_file))
+    written_findings = load_findings(findings_file)
+    _print_backtest(dataset, load_signatures(signatures_file), load_backtest(predictions_file), conflicts_by_component(written_findings))
+    _print_inconsistencies(written_findings)
     for artifact in artifacts:
         print(f"written           {artifact}")
     return 0
@@ -220,13 +228,22 @@ def _print_issues(dataset: NormalizedDataset) -> None:
         print(f"  {source_file} {field}: {reason}  {count}")
 
 
-def _print_backtest(dataset: NormalizedDataset, signatures: tuple[SubAssemblySignature, ...], result: Backtest) -> None:
+def _print_backtest(
+    dataset: NormalizedDataset,
+    signatures: tuple[SubAssemblySignature, ...],
+    result: Backtest,
+    conflicts: Mapping[str, tuple[Attribute, ...]],
+) -> None:
     """The answer to the client's question, on stdout.
 
     The demo is this table, not the HTML report of #7 (Decision 29): a sub-assembly of the
     newest variant per line, its class, the older sub-assembly the answer rests on, and — when
     it is *reusable* — what would have to change. Every ratio a reader could compute from it has
     its counts underneath; scoring the table against the ground truth is `evaluate`'s job (#5).
+
+    A *reused* or *reusable* row whose parts carry a conflict says so on the row: that is the
+    one a design engineer must see before trusting the reuse, and a separate block further down
+    is one they could skip.
     """
     if not result.target_variant_id:
         print("backtest          no variant carries a readable design date: nothing to play as a new tender")
@@ -239,8 +256,10 @@ def _print_backtest(dataset: NormalizedDataset, signatures: tuple[SubAssemblySig
 
     designations = {signature.sub_assembly_id: " / ".join(signature.designations) for signature in signatures}
     left_out = {signature.sub_assembly_id: signature.lines_left_out for signature in signatures}
+    components = {signature.sub_assembly_id: [item.component for item in signature.signature.items] for signature in signatures}
     for prediction in result.predictions:
-        detail = " ".join(part for part in (_difference(prediction), _partial(prediction, left_out)) if part)
+        warning = _unsafe(prediction, components[prediction.sub_assembly_id], conflicts)
+        detail = " ".join(part for part in (_difference(prediction), _partial(prediction, left_out), warning) if part)
         print(
             f"  {prediction.sub_assembly_id:<14}{designations[prediction.sub_assembly_id]:<32}"
             f"{prediction.reuse_class:<10}{prediction.ancestor_id:<14}{detail}".rstrip()
@@ -262,6 +281,41 @@ def _difference(prediction: Prediction) -> str:
         # Both units are printed: a component whose unit alone moved is a quantity difference too.
         + [f"{change.component} {_amount(change.left)} -> {_amount(change.right)}" for change in diff.quantity_changed]
     )
+
+
+def _unsafe(prediction: Prediction, components: list[str], conflicts: Mapping[str, tuple[Attribute, ...]]) -> str:
+    """Which parts of a reuse carry a conflict, on the row that proposes the reuse.
+
+    The parts are those of the newest variant's sub-assembly: they are what the new tender would
+    take over. A *specific* row proposes no reuse, so there is nothing to warn it against.
+    """
+    if prediction.reuse_class is ReuseClass.SPECIFIC:
+        return ""
+    flagged = [f"{component} ({'/'.join(conflicts[component])})" for component in components if component in conflicts]
+    return f"[check: {', '.join(flagged)}]" if flagged else ""
+
+
+#: How many findings of each conflict type the summary shows; the rest are in the artifact.
+_EXAMPLES: int = 3
+
+
+def _print_inconsistencies(findings: tuple[Finding, ...]) -> None:
+    """The second half of the question: components whose rows disagree, by type, a few examples each.
+
+    Always the three lines, in the order the checks run: "cost 0" is an answer too. Every
+    finding is in `findings.json`; this block says how many and shows the first ones.
+    """
+    by_attribute: dict[Attribute, list[Finding]] = {attribute: [] for attribute in CONFLICT_RULES.values()}
+    for finding in findings:
+        if finding.rule_id in CONFLICT_RULES:
+            by_attribute[CONFLICT_RULES[finding.rule_id]].append(finding)
+    print(f"inconsistencies   {sum(len(found) for found in by_attribute.values())} components whose rows disagree")
+    for attribute, found in by_attribute.items():
+        print(f"  {attribute:<16}{len(found)}")
+        for finding in found[:_EXAMPLES]:
+            print(f"    {finding.message}")
+        if len(found) > _EXAMPLES:
+            print(f"    ... and {len(found) - _EXAMPLES} more in the findings artifact")
 
 
 def _partial(prediction: Prediction, left_out: Mapping[str, int]) -> str:
