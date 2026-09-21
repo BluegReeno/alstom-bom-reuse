@@ -13,13 +13,20 @@ loses confidence as it stops reading exact strings and starts reading free text.
 | a key two rows literally share | duplicate reference | 0.95 |
 | a key they share, plus values that literally differ | supplier, cost or unit conflict | 0.90 |
 | a key they share, plus a judgement on designations | the group is two products | 0.70 |
+| free text, and a reference matched out of it | a note contradicts the BOM | 0.60 |
+
+The bottom rung is where the notes layer lands, and it lands there whichever reader produced the
+fact: the confidence is a property of the rule, not a measurement of the reader, and the finding
+says which reader ran (#6). A note is free text, read by a keyword lexicon or by a model, and
+neither can be trusted the way two rows sharing a key can.
 
 The residual doubt at the top of the ladder is real and named: the folding rules of
 `normalize.reference_key` collapse `I`/`1`, `O`/`0` and `L`/`1`, so two references sharing a key
 can still be two products (DECISIONS.md 27). That is what the bottom of the ladder is for.
 
-The resolution rules came first; `checks` added the three conflict rules, and `link` will add its
-own. Each issue extends the catalogue and never redefines an entry already in it.
+The resolution rules came first, `checks` added the three conflict rules, and the notes layer
+added the three contradiction rules. Each issue extends the catalogue and never redefines an
+entry already in it.
 """
 
 from collections.abc import Mapping
@@ -82,7 +89,35 @@ COST_CONFLICT: Final[Rule] = Rule(
     confidence=0.90,
 )
 
-_RULES: Final[tuple[Rule, ...]] = (DUPLICATE_REFERENCE, GROUP_CONFLICT, GROUP_SPLIT, UNIT_CONFLICT, SUPPLIER_CONFLICT, COST_CONFLICT)
+NOTE_OBSOLESCENCE: Final[Rule] = Rule(
+    id="checks.note_obsolescence",
+    description="A note declares a component obsolete, and the BOM still carries it.",
+    confidence=0.60,
+)
+
+NOTE_REPLACEMENT: Final[Rule] = Rule(
+    id="checks.note_replacement",
+    description="A note says a component has been replaced, and the BOM still carries the one it replaces.",
+    confidence=0.60,
+)
+
+NOTE_RESTRICTION: Final[Rule] = Rule(
+    id="checks.note_restriction",
+    description="A note forbids a component on some configuration, and the BOM carries it.",
+    confidence=0.60,
+)
+
+_RULES: Final[tuple[Rule, ...]] = (
+    DUPLICATE_REFERENCE,
+    GROUP_CONFLICT,
+    GROUP_SPLIT,
+    UNIT_CONFLICT,
+    SUPPLIER_CONFLICT,
+    COST_CONFLICT,
+    NOTE_OBSOLESCENCE,
+    NOTE_REPLACEMENT,
+    NOTE_RESTRICTION,
+)
 
 #: The catalogue itself. A finding whose `rule_id` is not a key here is not traceable, and a test
 #: says so of every finding the pipeline emits.

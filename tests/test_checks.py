@@ -1,17 +1,32 @@
-"""Inconsistency checks: a canonical component whose rows disagree on its unit, supplier or cost.
+"""Inconsistency checks: rows of one component that disagree, and notes that contradict the BOM.
 
 Every case goes through the real path — raw CSV cells, `normalize`, `resolve`, then `check` — so
 the values compared are the ones `normalize` read, and the components the ones `resolve` made.
+The note half goes through `link` for the same reason: the fact is placed on a component by the
+one matcher allowed to place it, never by the test.
 """
 
 from pathlib import Path
 
 import pytest
 
-from bomreuse.checks import CONFLICT_RULES, check, conflicts_by_component
+from bomreuse.checks import CONFLICT_RULES, NOTE_RULES, check, check_notes, conflicts_by_component, notes_by_component
 from bomreuse.ingest import read_raw
-from bomreuse.model import Attribute, Finding, GroupVerdict, NormalizedDataset, RawBomRow, RawDataset, RawVariantRow, Resolution
+from bomreuse.link import link
+from bomreuse.model import (
+    Attribute,
+    FactKind,
+    Finding,
+    GroupVerdict,
+    NormalizedDataset,
+    NoteFact,
+    RawBomRow,
+    RawDataset,
+    RawVariantRow,
+    Resolution,
+)
 from bomreuse.normalize import normalize
+from bomreuse.notes import Extraction
 from bomreuse.resolve import resolve
 from bomreuse.rules import CATALOGUE
 from bomreuse.signatures import build_signatures
@@ -169,6 +184,86 @@ def test_conflicts_by_component_reads_only_the_checks_own_findings() -> None:
 def test_every_conflict_rule_is_in_the_catalogue() -> None:
     assert set(CONFLICT_RULES) <= set(CATALOGUE)
     assert set(CONFLICT_RULES.values()) == {Attribute.UNIT, Attribute.SUPPLIER, Attribute.COST}
+
+
+# --- notes against the BOM ------------------------------------------------------------------------
+
+
+def a_fact(kind: FactKind, reference: str, replacement: str = "", scope: str = "") -> NoteFact:
+    return NoteFact(note_id="N027", row_number=27, kind=kind, component_ref=reference, replacement_ref=replacement, scope=scope)
+
+
+def contradicted(facts: tuple[NoteFact, ...], *rows: Row, reader: str = "keyword") -> tuple[Finding, ...]:
+    """The real path: the fact is placed on a component by `link`, then confronted with the BOM."""
+    dataset = dataset_of(*rows)
+    resolution, _ = resolve(dataset)
+    extraction = Extraction(reader=reader, notes_read=1, invalid_outputs=0, facts=facts)
+    return check_notes(dataset, resolution, link(extraction, resolution))
+
+
+@pytest.mark.parametrize(
+    "fact, rule_id, said",
+    [
+        (a_fact(FactKind.OBSOLESCENCE, "SHELL-ROOF"), "checks.note_obsolescence", "declares 'SHELL-ROOF' obsolete"),
+        (a_fact(FactKind.REPLACEMENT, "SHELL-ROOF", replacement="SHELL-ROOF-2"), "checks.note_replacement", "has been replaced by 'SHELL-ROOF-2'"),
+        (a_fact(FactKind.RESTRICTION, "SHELL-ROOF", scope="Do not use on 4-car"), "checks.note_restriction", "restricts the use of 'SHELL-ROOF': 'Do not use on 4-car'"),
+    ],
+)
+def test_a_note_about_a_part_the_bom_carries_is_a_finding_that_quotes_the_note(fact: NoteFact, rule_id: str, said: str) -> None:
+    finding = contradicted((fact,), _ROOF, _in_b())[0]
+    assert finding.rule_id == rule_id
+    assert finding.subject == "SHE11R00F"
+    assert said in finding.message
+    assert "the BOM carries component SHE11R00F on A, B" in finding.message
+
+
+def test_a_finding_names_the_reader_that_produced_the_fact_behind_it() -> None:
+    finding = contradicted((a_fact(FactKind.OBSOLESCENCE, "SHELL-ROOF"),), _ROOF, reader="llm:gemma4:12b-mlx")[0]
+    assert finding.message.endswith("Read by llm:gemma4:12b-mlx.")
+
+
+def test_a_finding_cites_the_note_row_and_one_bom_row_per_variant() -> None:
+    finding = contradicted((a_fact(FactKind.OBSOLESCENCE, "SHELL-ROOF"),), _ROOF, _in_b(), _in_b(cost="1300,00"))[0]
+    assert [(row.source_file, row.row_number, row.row_id) for row in finding.source_rows] == [
+        ("notes.csv", 27, "N027"),
+        ("bom.csv", 1, "L00001"),
+        ("bom.csv", 2, "L00002"),
+    ]
+
+
+def test_a_fact_the_bom_does_not_carry_produces_no_finding() -> None:
+    """It stays counted in the note-facts artifact rather than becoming a claim about nothing."""
+    assert contradicted((a_fact(FactKind.OBSOLESCENCE, "NO-SUCH-PART"),), _ROOF) == ()
+
+
+def test_an_ambiguous_reference_is_reported_on_each_part_it_could_mean() -> None:
+    findings = contradicted(
+        (a_fact(FactKind.OBSOLESCENCE, "SEAT-RAIL-1"),),
+        ("A", "SEAT-RAIL-I", "Floor rail, stainless steel", "6", "pcs", "Atelier Lys Métal", "312.00"),
+        ("A", "SEAT-RAIL-1", "Mounting rail, aluminium, mark 1", "2", "pcs", "Atelier Lys Métal", "121,00"),
+    )
+    assert [finding.subject for finding in findings] == ["SEATRA111#1", "SEATRA111#2"]
+
+
+def test_a_replacement_whose_replacement_is_unknown_still_says_what_it_can() -> None:
+    finding = contradicted((a_fact(FactKind.REPLACEMENT, "SHELL-ROOF"),), _ROOF)[0]
+    assert "has been replaced, and" in finding.message
+
+
+def test_notes_by_component_reads_only_the_note_findings_and_keeps_each_kind_once() -> None:
+    dataset = dataset_of(_ROOF, _in_b(supplier="Sambre Freinage"))
+    resolution, _ = resolve(dataset)
+    facts = (a_fact(FactKind.OBSOLESCENCE, "SHELL-ROOF"), a_fact(FactKind.OBSOLESCENCE, "SHELL ROOF"), a_fact(FactKind.RESTRICTION, "SHELL-ROOF"))
+    findings = check(dataset, resolution) + check_notes(dataset, resolution, link(Extraction("keyword", 1, 0, facts), resolution))
+    assert conflicts_by_component(findings) == {"SHE11R00F": (Attribute.SUPPLIER,)}
+    assert notes_by_component(findings) == {"SHE11R00F": (FactKind.OBSOLESCENCE, FactKind.RESTRICTION)}
+
+
+def test_every_note_rule_is_in_the_catalogue_and_covers_every_kind_of_fact() -> None:
+    """A kind without a rule would be a fact extracted and never reported."""
+    assert set(NOTE_RULES) <= set(CATALOGUE)
+    assert set(NOTE_RULES.values()) == set(FactKind)
+    assert not set(NOTE_RULES) & set(CONFLICT_RULES)
 
 
 # --- on the committed dataset: a conflict is a finding, not a doubt about the part ----------------
