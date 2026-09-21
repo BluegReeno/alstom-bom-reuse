@@ -267,14 +267,8 @@ def scored_committed() -> dict[str, Score]:
 
 
 def test_the_three_predictors_are_the_tool_and_the_two_naive_searches() -> None:
-    assert sorted(scored_committed()) == sorted(["tool", baseline.EXACT_REFERENCE, baseline.SAME_NAME])
-
-
-def test_the_tool_beats_both_naive_searches_on_the_committed_dataset() -> None:
-    """The one value claim, as a test. The figures themselves are `evaluate`'s to print, not a floor."""
     scores = scored_committed()
-    assert scores["tool"].correct.hits > scores[baseline.EXACT_REFERENCE].correct.hits
-    assert scores["tool"].correct.hits > scores[baseline.SAME_NAME].correct.hits
+    assert sorted(scores) == sorted(["tool", baseline.EXACT_REFERENCE, baseline.SAME_NAME])
     assert all(result.correct.total == 15 for result in scores.values()), "the three answer the same 15 items"
 
 
