@@ -187,12 +187,12 @@ inconsistencies   13 components whose rows disagree
 uv run bomreuse evaluate --ground-truth data/ground_truth/ground_truth.json
 ```
 
-The only command that reads `data/ground_truth/`, and the only argument in the whole tool with no
-default: the pipeline never sees that file, a static test over every other module enforces it,
-and a runtime one runs the pipeline with the real ground truth laid out beside the raw files to
-show it is not even opened. `evaluate` re-runs the pipeline rather than reading `out/`, so its
-figures can never be a stale artifact's, and it writes nothing. `--raw` and `--spec` default to
-the committed dataset and the committed contract. What it prints is **Results**, below.
+The only command that reads `data/ground_truth/`, and the one path the tool will never default: the
+pipeline never sees that file, a static test over every other module enforces it, and a runtime one
+runs the pipeline with the real ground truth laid out beside the raw files to show it is not even
+opened. `evaluate` re-runs the pipeline rather than reading `out/`, so its figures can never be a
+stale artifact's, and it writes nothing. `--raw` and `--spec` default to the committed dataset and
+the committed contract. What it prints is **Results**, below.
 
 The rest of the pipeline is to be written during the build: the notes, and the HTML report.
 
