@@ -207,7 +207,7 @@ Then open `out/report.html` in a browser — one self-contained file, no server,
 
 `uv sync` installs the pinned dependencies of `uv.lock`, which needs a package index or a warm
 `uv` cache; **everything after it runs with no network at all**. Checked on a clean clone:
-`uv sync --frozen --offline`, then the whole pipeline offline, then `uv run pytest` — 999 tests
+`uv sync --frozen --offline`, then the whole pipeline offline, then `uv run pytest` — 1000 tests
 green in under 10 s of the 30 s budget — and an `out/report.html` byte-identical to the one the
 working tree produces.
 
@@ -316,7 +316,7 @@ or *reusable* row of the backtest table whose parts carry one of them names thos
 row — 9 of the 13 reuse answers on the committed dataset:
 
 ```
-  C:SA0104      hvac unit                       reused    A:SA0104      [check: HVACF11TER (supplier)]
+  C:0CCSA0302   trailer bogie                   reused    A:SA0102      [check: B0G1EDAMPER (supplier)]
 inconsistencies   13 components whose rows disagree
   unit            3
     'LIGHT-CABLE' (component 11GHTCAB1E) has 2 different unit values: 'm' in A, B, C, D; 'pcs' in E.
@@ -384,8 +384,10 @@ of those answers are right is `evaluate`'s question, which the page points at ra
 answers.
 
 Under it, what a lead data engineer opens the file for: every sub-assembly of the new tender with
-its class, the older one the answer rests on and the exact difference behind every *reusable*;
-every disagreement once, with the variants and the values it was read from and the resolution
+its class, the older one the answer rests on, the exact difference behind every *reusable*, and —
+on the row, as on stdout, by the same rule (`checks.flagged_parts`) — the parts to check before the
+reuse is taken: those whose rows disagree, and those a note declares obsolete, replaced or
+restricted; every disagreement once, with the variants and the values it was read from and the resolution
 finding underneath saying the merge held in spite of it; then every finding grouped by the rule
 that produced it, with that rule's description, its confidence and the rows of `bom.csv` it cites.
 The rule sections are built from the catalogue, so a rule a later issue adds renders itself.
@@ -485,25 +487,21 @@ deliberate, and the ones that were cut are named with what cut them.
 
 - **A reference the folding rules cannot reach stays a second component.** The rules fold case,
   `O`/`I`/`L` and non-alphanumerics, and nothing else (DECISIONS.md 27): a dropped or transposed
-  character — `SEAT-FIX-KIT-447` where every other variant writes `SEAT-FIX-KIT-4471` — leaves two
-  components where there is one part. That is why one *reused* sub-assembly of the backtest comes
-  out *reusable*, described in **Results**. How much resolution misses in total is not measured in
-  this build (DECISIONS.md 29); it is the accepted cost of having no string distance anywhere,
-  since a false *reused* is the worst error this tool can make.
+  character — `SEAT-FIX-KIT-447` where every other variant writes `SEAT-FIX-KIT-4471`, `BGI-2013`
+  for `BGI-2031` — leaves two components where there is one part. That is why one *reused*
+  sub-assembly of the backtest comes out *reusable*, described in **Results**. Only string-distance
+  matching would undo them, and it would also merge references that differ by one character and
+  are genuinely different parts — the three `must_not_merge` pairs of `data/dataset_spec.toml` are
+  exactly that case, and a false *reused* is the worst error this tool can make
+  (`docs/ARCHITECTURE.md` A2). So the cost is accepted: the dataset plants both families on
+  purpose, and since resolution scoring was cut on 2026-09-21 (DECISIONS.md 29) the shortfall is
+  named here rather than counted.
 - **A lone separator is always the decimal mark.** `1,500` and `1.500` are both read as `1.5`,
   never as fifteen hundred: the comma is the decimal mark of the export (DECISIONS.md 24), and
   the dot is read the same way. `1.234,56` is refused as ambiguous rather than guessed, so the
   tool is stricter with two separators than with one. No value of the committed dataset is
   affected; an export that uses a thousands separator would be misread without an issue being
   raised.
-- **A transposition or a missing character is out of reach of resolution.** `BGI-2013` for
-  `BGI-2031`, or `SEAT-FIX-KIT-447` for `SEAT-FIX-KIT-4471`, stay two components: no folding
-  rule undoes them, and only string-distance matching would. That would also merge references
-  that differ by one character and are genuinely different parts — the three `must_not_merge`
-  pairs of `data/dataset_spec.toml` are exactly that case, and a false *reused* is the worst
-  error this tool can make (`docs/ARCHITECTURE.md` A2). So the cost is accepted: the dataset
-  plants both families on purpose, and since resolution scoring was cut on 2026-09-21
-  (`DECISIONS.md` 29) the shortfall is named here rather than counted.
 - **Two different products behind one key are told apart by their designations only.** The
   folding order of DECISIONS.md 27 makes three planted pairs of `data/dataset_spec.toml` share a
   canonical key by construction — `SEAT-RAIL-I` with `SEAT-RAIL-1`, `DOOR-SEAL-O` with
@@ -555,8 +553,8 @@ deliberate, and the ones that were cut are named with what cut them.
   - *Scoring anything but the three reuse classes.* `evaluate` scores the backtest and stops
     there. Resolution as a clustering problem, and precision and recall per defect type, were cut
     on 2026-09-21 (DECISIONS.md 29): they measure the dataset generator as much as they measure
-    the tool, and the one value claim does not rest on them. The cost is the first two bullets of
-    this list: how much resolution misses is described there rather than counted.
+    the tool, and the one value claim does not rest on them. The cost is the first bullet of this
+    list: how much resolution misses is described there rather than counted.
   - *A second LLM backend, and any benchmark of one.* DECISIONS.md 5 and 6 planned a cloud model
     against a local one on the same task; DECISIONS.md 29 cut the comparison. What the build wires
     is one backend — `gemma4:12b-mlx`, the on-prem path, which runs on a 16 GB laptop — behind the
