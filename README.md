@@ -81,7 +81,7 @@ Then open `out/report.html` in a browser — one self-contained file, no server,
 `uv sync` installs the pinned dependencies of `uv.lock`, which needs a package index or a warm
 `uv` cache; **everything after it runs with no network at all**. Checked on a clean clone:
 `uv sync --frozen --offline`, then the whole pipeline offline, then `uv run pytest` — 891 tests
-green in 5.5 s of the 30 s budget — and an `out/report.html` byte-identical to the one the
+green in under 6 s of the 30 s budget — and an `out/report.html` byte-identical to the one the
 working tree produces.
 
 Regenerate the synthetic dataset (the committed one uses the default seed, and a test checks
