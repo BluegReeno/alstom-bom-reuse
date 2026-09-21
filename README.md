@@ -349,6 +349,31 @@ arrival: the shape by schema, and every reference it cites must appear verbatim 
 it is rejected, logged and counted. If nothing answers, the run stops and prints the flag that
 would have worked. The model is opt-in, never required.
 
+**A manual measurement of the notes layer, labelled as one** (`DECISIONS.md` 6). It was run by
+hand on 2026-09-21 from a script that is not part of the build: each reader went over the 40
+committed notes, and each fact was scored on its kind and its cited reference against the
+notes of `data/ground_truth/ground_truth.json`, which assert 28 facts in 28 notes and nothing in
+the other 12. Each figure comes from one run at temperature 0.
+
+| Reader | Right | Invented | Missed | Notes read exactly | Time |
+| --- | --- | --- | --- | --- | --- |
+| keyword (the default) | 19 | 3 | 9 | 28 / 40 | < 1 s |
+| `gemma4:12b-mlx`, local, first prompt | 25 | 15 | 3 | 25 / 40 | 135 s |
+| `gemma4:12b-mlx`, local, current prompt | 28 | 0 | 0 | 40 / 40 | 94 s |
+| `glm-5.3-flash:cloud`, first prompt | 0 | 0 | 28 | 12 / 40 | 110 s |
+| `glm-5.3-flash:cloud`, first prompt + answer shape | 28 | 1 | 0 | 39 / 40 | 137 s |
+| `glm-5.3-flash:cloud`, current prompt | 28 | 0 | 0 | 40 / 40 | 80 s |
+
+Read the last rows as a ceiling, not as a result. The current prompt was written **after**
+reading the first prompt's errors on these same forty notes: gemma's invented facts on notes
+asserting nothing, and the old and new parts swapped on *fit B instead of A*. The notes come from
+the hand-written catalogue, not from the seed, so there is no held-out set to score it on. Two
+findings do hold. The prompt matters more than the model: once the prompt was fixed, the
+on-prem 12B matched the cloud model on these notes. And an Ollama cloud model ignores the
+`format` schema, which is why the first prompt got no usable answer from it: the prompt now
+spells out the answer's shape itself. A `:cloud` model is relayed through the local Ollama,
+so the notes leave the network, which is exactly what the on-prem path exists to avoid.
+
 **The report.** `out/report.html` is the same run as one self-contained page: `string.Template`
 and inline CSS, no asset, no script, no network, each asserted by a test. The sponsor's summary
 comes first: the three ways of asking *does this sub-assembly already exist* — by content, by
@@ -470,15 +495,16 @@ named with what cut them.
   `DOOR-SEAL-O` with `DOOR-SEAL-0`, `HVAC-GRILLE-1L` with `HVAC-GRILLE-11`. All three come out
   `reject` and are split back apart, and a test asserts it. A key collision whose two products
   are described with the same words would be merged, and nothing here would catch it.
-- **The keyword fallback reads words, not sentences — and its accuracy is not measured.** It
+- **The keyword fallback reads words, not sentences — and its accuracy is measured only by hand.** It
   fires on a cue phrase near a reference-shaped token, so a note that *asks* whether a part is
   obsolete, or records a replacement that was **refused**, reads exactly like one asserting it;
   and a fact stated in words the lexicon does not hold — "the supplier is stopping production" —
   is missed entirely. Both shapes are pinned by tests rather than patched: a lexicon extended
   until it caught the committed notes would be fitted to the forty notes it is judged on. It
-  produces facts from 22 of the 40 notes; how many are right, and how many of the other 18
-  assert something it missed, is **not measured in this build** (`DECISIONS.md` 29). This is the
-  gap the LLM path exists to close, and closing it is what the pilot should measure.
+  produces 22 facts from the 40 notes. The build does not score them (`DECISIONS.md` 29); the
+  manual measurement above found 19 right, 3 invented and 9 missed. This is the gap the LLM path
+  exists to close, and closing it on notes that nobody read while writing the prompt is what the
+  pilot should measure.
 - **A note's scope is quoted, never interpreted.** *Ne pas utiliser sur les rames 4 caisses* names
   a configuration in prose; the tool reports the restriction against every variant the BOM carries
   the part on, with the sentence as written, and leaves the reading to the human.
