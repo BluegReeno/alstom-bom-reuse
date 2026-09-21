@@ -3,8 +3,8 @@
 Last updated: 2026-09-21
 
 ## Current Focus
-#5 merged (PR #22): tool 14/15, same name 9/15, exact reference 6/15. Next: #6 ‖ #7, per `.claude/RUN-PROCEDURE.md`.
-#7 carries two notes from PR #21: count conflicts from `checks.*`, and the strict `[check]` lead.
+#5 merged (PR #22): tool 14/15, same name 9/15, exact reference 6/15. Next: #6 ‖ #7, each an `archon-deliver` run per `.claude/RUN-PROCEDURE.md`.
+#7 carries two notes from PR #21: count conflicts from `checks.*`, and the strict `[check]` lead. Both runs touch the README: merge #6 first, #7 rebases.
 
 ## In Progress
 - (nothing — no run underway)
