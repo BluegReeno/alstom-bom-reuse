@@ -10,7 +10,9 @@ import pytest
 
 from bomreuse import model
 from bomreuse.model import (
+    RUN_ARTIFACTS,
     Attribute,
+    Backtest,
     BomLine,
     CandidateGroup,
     CanonicalComponent,
@@ -21,29 +23,44 @@ from bomreuse.model import (
     NormalizationIssue,
     NormalizedDataset,
     Note,
+    Prediction,
     Quantity,
+    QuantityChange,
     RawDate,
     RawInt,
     RawNumber,
     RawText,
     Resolution,
+    ReuseClass,
+    Signature,
+    SignatureDiff,
+    SignatureItem,
     SourceRow,
     SubAssembly,
+    SubAssemblySignature,
     Supplier,
     Variant,
+    backtest_from_dict,
     dataset_from_dict,
     dataset_to_dict,
+    dump_backtest,
     dump_dataset,
     dump_findings,
     dump_resolution,
+    dump_signatures,
     findings_from_dict,
+    load_backtest,
     load_dataset,
     load_findings,
     load_resolution,
+    load_signatures,
+    render_backtest,
     render_dataset,
     render_findings,
     render_resolution,
+    render_signatures,
     resolution_from_dict,
+    signatures_from_dict,
 )
 
 
@@ -412,3 +429,137 @@ def test_a_missing_or_unreadable_artifact_is_a_model_error(tmp_path: Path) -> No
         load_resolution(tmp_path / "nope.json")
     with pytest.raises(ModelError, match="findings not found"):
         load_findings(tmp_path / "nope.json")
+
+
+# --- the signature and backtest artifacts --------------------------------------------------------
+
+
+def some_signatures() -> tuple[SubAssemblySignature, ...]:
+    return (
+        SubAssemblySignature(
+            sub_assembly_id="A:SA0101",
+            variant_id="A",
+            reference_key="SA0101",
+            designations=("carbody shell",),
+            signature=Signature.from_counts({"SHE11R00F": 1.0, "SHE11SEA1": 1.5}, {"SHE11SEA1": "m"}),
+            lines_left_out=0,
+        ),
+        SubAssemblySignature(
+            sub_assembly_id="C:0CCSA0101",
+            variant_id="C",
+            reference_key="0CCSA0101",
+            designations=("carbody shell", "carbody shell, welded"),
+            signature=Signature.from_counts({"SHE11R00F": 1.0}),
+            lines_left_out=2,
+        ),
+    )
+
+
+def a_backtest() -> Backtest:
+    """Every shape a prediction can hold: reused, reusable with its diff, and specific."""
+    return Backtest(
+        target_variant_id="C",
+        ancestor_variant_ids=("A", "B"),
+        predictions=(
+            Prediction(sub_assembly_id="C:SA0101", variant_id="C", reuse_class=ReuseClass.REUSED, ancestor_id="A:SA0101", diff=None),
+            Prediction(
+                sub_assembly_id="C:0CCSA0315",
+                variant_id="C",
+                reuse_class=ReuseClass.REUSABLE,
+                ancestor_id="B:SA0215",
+                diff=SignatureDiff(
+                    added=(SignatureItem(component="B1KEH00K", quantity=2.0, unit="pcs"),),
+                    removed=(SignatureItem(component="B1KERA11", quantity=1.0, unit="pcs"),),
+                    quantity_changed=(
+                        QuantityChange(
+                            component="SEATF1X",
+                            left=SignatureItem(component="SEATF1X", quantity=18.0, unit="pcs"),
+                            right=SignatureItem(component="SEATF1X", quantity=16.0, unit="pcs"),
+                        ),
+                    ),
+                ),
+            ),
+            Prediction(sub_assembly_id="C:0CCSA0314", variant_id="C", reuse_class=ReuseClass.SPECIFIC, ancestor_id="", diff=None),
+        ),
+    )
+
+
+def test_signatures_written_and_read_back_are_the_same_signatures(tmp_path: Path) -> None:
+    path = tmp_path / "nested" / "signatures.json"
+    dump_signatures(some_signatures(), path)
+    restored = load_signatures(path)
+    assert restored == some_signatures()
+    assert isinstance(restored[0].signature.items, tuple)
+    assert (restored[0].lines_left_out, restored[1].lines_left_out) == (0, 2)
+
+
+def test_a_backtest_written_and_read_back_is_the_same_backtest(tmp_path: Path) -> None:
+    path = tmp_path / "nested" / "predictions.json"
+    dump_backtest(a_backtest(), path)
+    restored = load_backtest(path)
+    assert restored == a_backtest()
+    assert restored.predictions[0].reuse_class is ReuseClass.REUSED
+    assert restored.predictions[1].diff is not None and restored.predictions[1].diff.n_qty_diff == 1
+
+
+def test_the_reuse_artifacts_carry_the_schema_version_and_one_trailing_newline() -> None:
+    for text in (render_signatures(some_signatures()), render_backtest(a_backtest())):
+        assert json.loads(text)["schema_version"] == "1"
+        assert text.endswith("}\n") and not text.endswith("\n\n")
+
+
+def test_a_signature_naming_one_component_twice_is_refused_at_reading() -> None:
+    data = json.loads(render_signatures(some_signatures()))
+    items = data["signatures"][0]["signature"]["items"]
+    data["signatures"][0]["signature"]["items"] = [items[0], items[0]]
+    with pytest.raises(ModelError, match="appears twice"):
+        signatures_from_dict(data)
+
+
+@pytest.mark.parametrize(
+    "path, value, message",
+    [
+        ("signatures.0.signature.items.0.quantity", None, r"signatures\[0\]\.signature\.items\[0\]\.quantity must be a number, got null"),
+        ("signatures.0.signature.items.0.unit", 1, r"signatures\[0\]\.signature\.items\[0\]\.unit must be a string, got int"),
+        ("signatures.0.designations", "carbody shell", r"signatures\[0\]\.designations must be an array of strings, got str"),
+        ("signatures.0.lines_left_out", None, r"signatures\[0\]\.lines_left_out must be an integer, got NoneType"),
+    ],
+)
+def test_a_wrong_leaf_of_the_signatures_is_refused_and_named(path: str, value: Any, message: str) -> None:
+    data = _with(json.loads(render_signatures(some_signatures())), path, value)
+    with pytest.raises(ModelError, match=message):
+        signatures_from_dict(data)
+
+
+@pytest.mark.parametrize(
+    "path, value, message",
+    [
+        ("backtest.predictions.0.reuse_class", "new", r"backtest\.predictions\[0\]\.reuse_class is 'new', not one of \['reused', 'reusable', 'specific'\]"),
+        ("backtest.predictions.0.ancestor_id", None, r"backtest\.predictions\[0\]\.ancestor_id must be a string, got NoneType"),
+        ("backtest.predictions.1.diff.quantity_changed", {}, r"backtest\.predictions\[1\]\.diff\.quantity_changed must be an array, got dict"),
+        ("backtest.ancestor_variant_ids", "A", r"backtest\.ancestor_variant_ids must be an array of strings, got str"),
+    ],
+)
+def test_a_wrong_leaf_of_the_backtest_is_refused_and_named(path: str, value: Any, message: str) -> None:
+    data = _with(json.loads(render_backtest(a_backtest())), path, value)
+    with pytest.raises(ModelError, match=message):
+        backtest_from_dict(data)
+
+
+def test_the_reuse_artifacts_refuse_another_schema_version() -> None:
+    for text, read in ((render_signatures(some_signatures()), signatures_from_dict), (render_backtest(a_backtest()), backtest_from_dict)):
+        with pytest.raises(ModelError, match="schema_version"):
+            read({**json.loads(text), "schema_version": "0"})
+
+
+def test_a_missing_reuse_artifact_is_a_model_error(tmp_path: Path) -> None:
+    with pytest.raises(ModelError, match="signatures not found"):
+        load_signatures(tmp_path / "nope.json")
+    with pytest.raises(ModelError, match="backtest not found"):
+        load_backtest(tmp_path / "nope.json")
+
+
+def test_the_artifacts_a_run_writes_are_named_once() -> None:
+    """Five files, said in one place: every test site that lists them derives its list from here."""
+    assert RUN_ARTIFACTS == ("normalized.json", "resolution.json", "findings.json", "signatures.json", "predictions.json")
+    assert len(set(RUN_ARTIFACTS)) == len(RUN_ARTIFACTS)

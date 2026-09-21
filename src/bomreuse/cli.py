@@ -5,35 +5,47 @@ ground-truth path is never a constant, here or anywhere in `src/`: `generate` wr
 told, `evaluate` (#5) will read it where told, and the pipeline's entry function has no
 parameter that could carry it (docs/ARCHITECTURE.md A5). `normalize` follows the rule from the
 other side: it takes the raw directory and an output directory, neither with a default, and no
-option through which anything else could reach the pipeline, and `run` — the whole pipeline, and
-the one command a client would be shown — follows the same rule.
+option through which anything else could reach the pipeline. `run` — the whole pipeline, and the
+one command a client would be shown — takes those two, and the dataset spec it reads the reuse
+threshold from: a file the run classifies by, so the run says which one it used rather than
+finding one next to its own source.
 """
 
 import argparse
 import sys
 from collections import Counter
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from pathlib import Path
 
 from bomreuse.catalogue import CatalogueError
 from bomreuse.generate import DEFAULT_SEED, GenerationError, OutputPathError, generate
 from bomreuse.ingest import IngestError, read_raw
 from bomreuse.model import (
-    FINDINGS_FILE,
     NORMALIZED_FILE,
-    RESOLUTION_FILE,
+    RUN_ARTIFACTS,
+    Backtest,
     Finding,
     GroupVerdict,
     ModelError,
     NormalizedDataset,
+    Prediction,
     Resolution,
+    ReuseClass,
+    SignatureItem,
+    SubAssemblySignature,
+    dump_backtest,
     dump_dataset,
     dump_findings,
     dump_resolution,
+    dump_signatures,
+    load_backtest,
     load_dataset,
+    load_resolution,
+    load_signatures,
 )
 from bomreuse.normalize import normalize
 from bomreuse.resolve import resolve
+from bomreuse.signatures import backtest, build_signatures
 from bomreuse.spec import DEFAULT_SPEC_PATH, SpecError, load_spec
 
 Handler = Callable[[argparse.Namespace], int]
@@ -133,6 +145,7 @@ def _add_run(commands: "argparse._SubParsersAction[argparse.ArgumentParser]") ->
     parser = commands.add_parser("run", help="run the pipeline: normalize, resolve references, write the findings")
     parser.add_argument("--raw", type=Path, required=True, help="directory holding variants.csv, bom.csv and notes.csv; read, never written")
     parser.add_argument("--out", type=Path, required=True, help="directory the artifacts are written to; never inside --raw")
+    parser.add_argument("--spec", type=Path, default=DEFAULT_SPEC_PATH, help="the dataset spec the reuse threshold is read from (default: the committed contract)")
     parser.set_defaults(handler=_run)
 
 
@@ -145,19 +158,26 @@ def _run(args: argparse.Namespace) -> int:
     """
     raw_dir: Path = args.raw
     out_dir: Path = args.out
-    normalized, resolution_file, findings_file = (out_dir / name for name in (NORMALIZED_FILE, RESOLUTION_FILE, FINDINGS_FILE))
-    refusal = _refusal([normalized, resolution_file, findings_file], raw_dir)
+    artifacts = [out_dir / name for name in RUN_ARTIFACTS]
+    refusal = _refusal(artifacts, raw_dir)
     if refusal is not None:
         print(f"error: {refusal}", file=sys.stderr)
         return 2
 
+    normalized, resolution_file, findings_file, signatures_file, predictions_file = artifacts
     try:
+        # Read before anything is written: a spec the last stage cannot read must not leave four
+        # artifacts of a run that failed behind it.
+        thresholds = load_spec(args.spec).thresholds
         dataset = normalize(read_raw(raw_dir))
         dump_dataset(dataset, normalized)
-        resolution, findings = resolve(load_dataset(normalized))
+        read_back = load_dataset(normalized)
+        resolution, findings = resolve(read_back)
         dump_resolution(resolution, resolution_file)
         dump_findings(findings, findings_file)
-    except (IngestError, ModelError) as exc:
+        dump_signatures(build_signatures(read_back, load_resolution(resolution_file)), signatures_file)
+        dump_backtest(backtest(load_signatures(signatures_file), read_back.variants, thresholds), predictions_file)
+    except (IngestError, ModelError, SpecError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
     except OSError as exc:  # --out is a file, a read-only directory, a full disk
@@ -165,13 +185,14 @@ def _run(args: argparse.Namespace) -> int:
         return 1
 
     _print_run_summary(raw_dir, dataset, resolution, findings)
-    for artifact in (normalized, resolution_file, findings_file):
+    _print_backtest(dataset, load_signatures(signatures_file), load_backtest(predictions_file))
+    for artifact in artifacts:
         print(f"written           {artifact}")
     return 0
 
 
 def _print_run_summary(raw_dir: Path, dataset: NormalizedDataset, resolution: Resolution, findings: tuple[Finding, ...]) -> None:
-    """What a client sees. The reuse classes of the newest variant join it with the signatures."""
+    """What the run read and what it made of it, above the answer `_print_backtest` gives."""
     print(f"raw files         {raw_dir}")
     print(f"  BOM lines       {len(dataset.lines)}")
     print(f"  variants        {len(dataset.variants)} ({', '.join(variant.id for variant in dataset.variants)})")
@@ -197,6 +218,68 @@ def _print_issues(dataset: NormalizedDataset) -> None:
     breakdown = Counter((issue.source_file, issue.field, issue.reason) for issue in dataset.issues)
     for (source_file, field, reason), count in sorted(breakdown.items()):
         print(f"  {source_file} {field}: {reason}  {count}")
+
+
+def _print_backtest(dataset: NormalizedDataset, signatures: tuple[SubAssemblySignature, ...], result: Backtest) -> None:
+    """The answer to the client's question, on stdout.
+
+    The demo is this table, not the HTML report of #7 (Decision 29): a sub-assembly of the
+    newest variant per line, its class, the older sub-assembly the answer rests on, and — when
+    it is *reusable* — what would have to change. Every ratio a reader could compute from it has
+    its counts underneath; scoring the table against the ground truth is `evaluate`'s job (#5).
+    """
+    if not result.target_variant_id:
+        print("backtest          no variant carries a readable design date: nothing to play as a new tender")
+        return
+
+    target = next(variant for variant in dataset.variants if variant.id == result.target_variant_id)
+    designed = target.design_date.normalized
+    print(f"backtest          {target.id} ({target.name.normalized}, designed {designed}) against {', '.join(result.ancestor_variant_ids)}")
+    print(f"  {'sub-assembly':<14}{'designation':<32}{'class':<10}{'from':<14}difference")
+
+    designations = {signature.sub_assembly_id: " / ".join(signature.designations) for signature in signatures}
+    left_out = {signature.sub_assembly_id: signature.lines_left_out for signature in signatures}
+    for prediction in result.predictions:
+        detail = " ".join(part for part in (_difference(prediction), _partial(prediction, left_out)) if part)
+        print(
+            f"  {prediction.sub_assembly_id:<14}{designations[prediction.sub_assembly_id]:<32}"
+            f"{prediction.reuse_class:<10}{prediction.ancestor_id:<14}{detail}".rstrip()
+        )
+    # Always the three lines, in the order of the A1 table: "specific 0" is an answer too.
+    counted = Counter(prediction.reuse_class for prediction in result.predictions)
+    for reuse_class in ReuseClass:
+        print(f"  {reuse_class:<16}{counted[reuse_class]}")
+
+
+def _difference(prediction: Prediction) -> str:
+    """What the newest variant adds to, drops from and changes in the ancestor it is read against."""
+    if prediction.diff is None:
+        return ""
+    diff = prediction.diff
+    return ", ".join(
+        [f"+{item.component} {_amount(item)}" for item in diff.added]
+        + [f"-{item.component} {_amount(item)}" for item in diff.removed]
+        # Both units are printed: a component whose unit alone moved is a quantity difference too.
+        + [f"{change.component} {_amount(change.left)} -> {_amount(change.right)}" for change in diff.quantity_changed]
+    )
+
+
+def _partial(prediction: Prediction, left_out: Mapping[str, int]) -> str:
+    """What this answer could not see, on the row that makes it.
+
+    A line the pipeline could not read shortens a signature, and a shorter signature is a
+    smaller sub-assembly to the comparison: without this the reader cannot tell a *reused*
+    resting on the whole sub-assembly from one resting on the two lines of it that parsed. The
+    `issues` count above says how dirty the file is, not which answer is affected by it.
+    """
+    unread = left_out[prediction.sub_assembly_id] + left_out.get(prediction.ancestor_id, 0)
+    if not unread:
+        return ""
+    return f"[{unread} line{'s' if unread > 1 else ''} not read]"
+
+
+def _amount(item: SignatureItem) -> str:
+    return f"{item.quantity:g} {item.unit}"
 
 
 # --- the read-only guard ---------------------------------------------------------------------
