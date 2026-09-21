@@ -17,7 +17,7 @@ import pytest
 from bomreuse import signatures as signatures_module
 from bomreuse.ingest import read_raw
 from bomreuse.model import Backtest, Prediction, ReuseClass, SubAssemblySignature
-from bomreuse.normalize import normalize
+from bomreuse.normalize import normalize, reference_key
 from bomreuse.resolve import resolve
 from bomreuse.signatures import Comparison, Verdict, backtest, build_signatures, compare, newest_variant
 from bomreuse.spec import load_spec
@@ -138,6 +138,19 @@ def test_a_sub_assembly_nothing_could_be_read_of_is_specific_rather_than_reused(
     assert prediction.ancestor_id == "" and prediction.diff is None
 
 
+def test_the_diff_says_what_the_newest_variant_adds_to_the_ancestor_not_the_other_way_round() -> None:
+    """The direction *is* the deliverable: read the wrong way round, the table tells the client
+    to remove the part they have to add. The verdict is symmetric, so nothing but the evidence
+    would move if the two signatures were swapped at the call site.
+    """
+    hook = ("SHELL-BIKE-HOOK", "Bike hook")
+    prediction = predictions_by_id(ran(sub_assembly("A", "SA-0101", *SHELL) + sub_assembly("C", "OCC-SA-0101", *SHELL, hook)))["C:0CCSA0101"]
+    assert prediction.reuse_class is ReuseClass.REUSABLE
+    assert prediction.diff is not None
+    assert [item.component for item in prediction.diff.added] == [reference_key("SHELL-BIKE-HOOK")]
+    assert prediction.diff.removed == ()
+
+
 def test_every_sub_assembly_of_the_newest_variant_gets_exactly_one_answer(committed: Backtest) -> None:
     dataset = normalize(read_raw(COMMITTED_RAW))
     target = [sub_assembly.id for sub_assembly in dataset.sub_assemblies if sub_assembly.variant_id == committed.target_variant_id]
@@ -193,12 +206,14 @@ def test_the_backtest_classifies_through_the_verdict_function_of_issue_1(monkeyp
         return compare(left, right, thresholds)  # type: ignore[arg-type]
 
     monkeypatch.setattr(signatures_module, "compare", spy)
-    result = ran(sub_assembly("A", "SA-0101", *SHELL) + sub_assembly("C", "OCC-SA-0101", *SHELL))
+    # The two sides differ, so the assertion below fails if they are ever passed the other way round.
+    result = ran(sub_assembly("A", "SA-0101", *SHELL) + sub_assembly("C", "OCC-SA-0101", *SHELL, ("SHELL-BIKE-HOOK", "Bike hook")))
 
     assert len(calls) == 1, "one comparison per (ancestor, sub-assembly of the newest variant) pair"
     ancestor, target = calls[0]
-    assert ancestor == target, "the ancestor is compared on the left, the newest variant on the right"
-    assert predictions_by_id(result)["C:0CCSA0101"].reuse_class is ReuseClass.REUSED
+    assert set(target) - set(ancestor) == {reference_key("SHELL-BIKE-HOOK")}, "the ancestor is compared on the left, the newest variant on the right"
+    assert not set(ancestor) - set(target)
+    assert predictions_by_id(result)["C:0CCSA0101"].reuse_class is ReuseClass.REUSABLE
 
 
 def test_no_second_place_in_the_module_decides_a_verdict() -> None:
