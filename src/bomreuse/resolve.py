@@ -214,7 +214,7 @@ def _findings(group: CandidateGroup, rows: list[BomLine]) -> list[Finding]:
                     f"share a canonical key but designate {len(group.components)} different products: "
                     f"{_quoted(sorted({designation for part in group.components for designation in part.designations}))}. Kept apart."
                 ),
-                source_rows=_source_rows(_rows_of(component, rows)[0] for component in group.components),
+                source_rows=_source_rows(_rows_of(part, rows)[0] for part in group.components),
             )
         )
     return findings
