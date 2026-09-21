@@ -181,7 +181,10 @@ def _note_reader(args: argparse.Namespace) -> NoteReader:
 
 
 def _run(args: argparse.Namespace) -> int:
-    """The whole pipeline, offline, in the order docs/ARCHITECTURE.md draws it.
+    """The whole pipeline, offline: the stages docs/ARCHITECTURE.md draws.
+
+    The checks run before the signatures here, where the diagram draws them after: neither reads
+    the other, and the findings artifact is complete before the backtest is printed against it.
 
     Each stage reads the previous stage's artifact rather than the object still in memory, so
     running the stages one by one from the command line gives what this does — and a stale or

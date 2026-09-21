@@ -40,8 +40,8 @@ time uv run pytest
 If the suite creeps past 30 s, that is a FAIL even when every test is green — `CLAUDE.md` makes
 the budget part of the contract, not a nicety.
 
-**No test may call a live LLM or the network.** Live model runs belong to `evaluate`, never to
-`pytest`. If a test needed Ollama to pass, that is a FAIL regardless of the result.
+**No test may call a live LLM or the network.** Live model runs are manual (`bomreuse run --notes
+llm`), never part of `pytest`. If a test needed Ollama to pass, that is a FAIL regardless of the result.
 
 ---
 
@@ -57,12 +57,10 @@ The ground-truth path has no default and never will (docs/ARCHITECTURE.md A5); `
 - it must run, offline, on the default dataset;
 - it must print precision and recall on the **three reuse classes**, for the tool and for both
   naive baselines, with **counts next to every ratio**;
-- **the numbers must not have regressed** against the previous run. A regression is only
-  acceptable with a reason written in the commit message — quote that reason in the report, or
-  fail.
-
-There are **no regression floors** in this build (settled 2026-09-21): `evaluate` prints its
-figures and the README quotes them. Do not invent one.
+- **the figures it prints must be the ones the README's Results section quotes.** A figure that
+  moved is not a FAIL by itself — there are **no regression floors** in this build (settled
+  2026-09-21) and none is to be invented — but a README left quoting the old one is: report
+  both, and the commit that moved it.
 
 ---
 

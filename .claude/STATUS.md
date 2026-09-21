@@ -8,6 +8,7 @@ Build complete for the case: code, report and README done, final review applied.
 ## In Progress
 
 ## Done (current sprint)
+- [x] Docs pass: `docs/ARCHITECTURE.md`, `CLAUDE.md`, `piv-validate` and three docstrings aligned with the refocus (DECISIONS 29) — 2026-09-21
 - [x] Final review before delivery: the HTML report flags the parts a note speaks against, by the rule stdout uses (`checks.flagged_parts`, DECISIONS 34); README excerpt and Known limits corrected; lint clean — 2026-09-21
 - [x] README: status line set to scouting prototype, What's next section added — 2026-09-21
 - [x] README: the entity model and the bike module followed through (two Mermaid diagrams), N013's shape added to Known limits; PR #25 merged, follow-up to #7 — 2026-09-21
@@ -29,5 +30,5 @@ Build complete for the case: code, report and README done, final review applied.
 - [x] `docs/ARCHITECTURE.md`, `docs/PRD.md`, `README.md` aligned with the refocus — 2026-09-21
 
 ## Backlog
-- [ ] Docs pass: stale lines of `docs/ARCHITECTURE.md`, `normalize.py` and `piv-validate` left by the refocus (DECISIONS 29)
+- [ ] `data/dataset_spec.toml`: two comments still speak of a measured resolution shortfall (cut by DECISIONS 29); left untouched so the contract's history stays the one Decision 17 points at
 - [ ] Split `model.py` into types and the JSON round-trip; read each artifact once in `cli._run`

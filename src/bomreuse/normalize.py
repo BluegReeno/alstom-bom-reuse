@@ -4,7 +4,8 @@ Everything here is a rule, and a small one. There is no string distance anywhere
 module or in the pipeline (docs/ARCHITECTURE.md A2): two references are the same candidate
 when a handful of stated foldings give them the same key, and never because they "look close".
 What the rules cannot reach — a transposition, a missing character — stays out of reach, and
-`evaluate` measures the shortfall instead of this module hiding it.
+the README's Known limits names the shortfall instead of this module hiding it (DECISIONS.md 29
+cut its measurement).
 
 A value that cannot be read is not repaired and not dropped: the row is kept, the raw
 characters are kept, the normalized value is `None` and a `NormalizationIssue` records why —
@@ -55,8 +56,8 @@ _NOTES: Final[str] = "notes.csv"
 #: order decides the result: folding a lowercase `l` first would miss `brk-ctrl-valve` and
 #: `Hvac-grille-12`, a family the spec declares within reach. Uppercasing first makes the rule
 #: case-insensitive and one line long. The accepted cost: references differing only by `I`/`1`,
-#: `O`/`0` or `L`/`1` share a key, and telling them apart is resolution's `reject` (#4), read in
-#: resolution precision (DECISIONS.md 27).
+#: `O`/`0` or `L`/`1` share a key, and telling them apart is resolution's `reject` (#4), which a
+#: test asserts on the three planted pairs (DECISIONS.md 27).
 _FOLD: Final[dict[int, str]] = str.maketrans({"O": "0", "I": "1", "L": "1"})
 
 #: One number, written the way a French or an English export writes it: digits, and at most one
