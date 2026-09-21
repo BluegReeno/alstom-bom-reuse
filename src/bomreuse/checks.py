@@ -106,18 +106,31 @@ def conflicts_by_component(findings: Iterable[Finding]) -> dict[str, tuple[Attri
     return {component: tuple(attributes) for component, attributes in found.items()}
 
 
-def conflicting_parts(components: Iterable[str], conflicts: Mapping[str, tuple[Attribute, ...]]) -> tuple[tuple[str, tuple[Attribute, ...]], ...]:
-    """Which parts of a proposed reuse carry a disagreement, in the order the sub-assembly holds them.
+def flagged_parts(
+    components: Iterable[str],
+    conflicts: Mapping[str, tuple[Attribute, ...]],
+    notes: Mapping[str, tuple[FactKind, ...]],
+) -> tuple[tuple[str, tuple[Attribute | FactKind, ...]], ...]:
+    """Which parts of a proposed reuse must be checked before taking it, in the order the sub-assembly holds them.
+
+    The two sources are one flag because they answer one question — *can this be taken as is?*
+    (Decision 34) — and the words tell them apart: an `Attribute` is what the rows disagree on, a
+    `FactKind` is what a note says.
 
     The flag is component-wide: a part is flagged as soon as its rows disagree *anywhere* in the
-    dataset, whichever variants the two values sit in. Reading it strictly — flagging only a part
-    whose value differs between the new tender and the older sub-assembly it is read against —
-    would flag fewer and is a human decision, not one this module makes.
+    dataset, whichever variants the two values sit in, or as soon as a note speaks against it.
+    Reading it strictly — flagging only a part whose value differs between the new tender and the
+    older sub-assembly it is read against — would flag fewer and is a human decision, not one this
+    module makes.
 
     It lives here rather than in either of its two callers because the stdout summary and the
     HTML report must flag the same parts: one rule, two renderings.
     """
-    return tuple((component, conflicts[component]) for component in components if component in conflicts)
+    return tuple(
+        (component, (*conflicts.get(component, ()), *notes.get(component, ())))
+        for component in components
+        if component in conflicts or component in notes
+    )
 
 
 def _conflict(component_id: str, attribute: Attribute, rule: Rule, read: Callable[[BomLine], object], rows: list[BomLine]) -> Finding | None:

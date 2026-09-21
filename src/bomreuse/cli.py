@@ -21,7 +21,7 @@ from enum import StrEnum
 from pathlib import Path
 
 from bomreuse.catalogue import CatalogueError
-from bomreuse.checks import CONFLICT_RULES, NOTE_RULES, check, check_notes, conflicts_by_component, notes_by_component
+from bomreuse.checks import CONFLICT_RULES, NOTE_RULES, check, check_notes, conflicts_by_component, flagged_parts, notes_by_component
 from bomreuse.evaluate import ANSWERS, Evaluation, EvaluationError, Score, evaluate
 from bomreuse.generate import DEFAULT_SEED, GenerationError, OutputPathError, generate
 from bomreuse.ingest import DEFAULT_RAW_DIR, IngestError, read_raw
@@ -358,16 +358,12 @@ def _unsafe(
     take over. A *specific* row proposes no reuse, so there is nothing to warn it against.
 
     The two sources are shown on one flag because they answer the same question — *can this be
-    taken as is?* — and a reader who had to join two blocks to answer it would not. The words
-    tell them apart: an `Attribute` is what the rows disagree on, a `FactKind` is what a note says.
+    taken as is?* — and a reader who had to join two blocks to answer it would not. The rule is
+    `checks.flagged_parts`, the one the HTML report flags with.
     """
     if prediction.reuse_class is ReuseClass.SPECIFIC:
         return ""
-    flagged = [
-        f"{component} ({'/'.join((*conflicts.get(component, ()), *notes.get(component, ())))})"
-        for component in components
-        if component in conflicts or component in notes
-    ]
+    flagged = [f"{component} ({'/'.join(labels)})" for component, labels in flagged_parts(components, conflicts, notes)]
     return f"[check: {', '.join(flagged)}]" if flagged else ""
 
 
