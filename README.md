@@ -66,12 +66,23 @@ notes, in three `;`-separated UTF-8 files under `data/raw/` — `variants.csv`, 
 
 ## How to run
 
-Python 3.12 and [`uv`](https://docs.astral.sh/uv/). Everything runs offline.
+Python 3.12 and [`uv`](https://docs.astral.sh/uv/). From a fresh clone, end to end:
 
 ```bash
-uv sync
+git clone <this repository> && cd alstom-bom-reuse
+uv sync                                          # the only step that needs a package index
 uv run pytest
+uv run bomreuse run --raw data/raw --out out     # the pipeline, offline
+uv run bomreuse evaluate --ground-truth data/ground_truth/ground_truth.json
 ```
+
+Then open `out/report.html` in a browser — one self-contained file, no server, no network.
+
+`uv sync` installs the pinned dependencies of `uv.lock`, which needs a package index or a warm
+`uv` cache; **everything after it runs with no network at all**. Checked on a clean clone:
+`uv sync --frozen --offline`, then the whole pipeline offline, then `uv run pytest` — 891 tests
+green in 5.5 s of the 30 s budget — and an `out/report.html` byte-identical to the one the
+working tree produces.
 
 Regenerate the synthetic dataset (the committed one uses the default seed, and a test checks
 that it is byte-identical to a fresh generation):
@@ -108,9 +119,9 @@ This is the command a client would be shown. It normalizes the raw files, decide
 references are the same component, reads the free-text notes, builds the signature of every
 sub-assembly and plays the newest variant as a new tender; it prints the answer as a table and
 writes `out/normalized.json`, `out/resolution.json`, `out/note_facts.json`, `out/findings.json`,
-`out/signatures.json` and `out/predictions.json`. Same rule on the paths: `--out` may not be
-inside `--raw`. It needs no network: the notes are read by the keyword fallback unless
-`--notes llm` asks for the model.
+`out/signatures.json`, `out/predictions.json` and the report, `out/report.html`. Same rule on the
+paths: `--out` may not be inside `--raw`. It needs no network: the notes are read by the keyword
+fallback unless `--notes llm` asks for the model.
 
 Two references become one component when the stated foldings give them the same key —
 uppercase, then `O`→`0`, `I`→`1`, `L`→`1`, then non-alphanumerics dropped. **There is no
@@ -231,6 +242,31 @@ pipeline changes, and if nothing answers the run stops and prints the flag that 
 worked. The model is opt-in, never required: a demo that needs a server running is a demo that
 does not run.
 
+### The report, in a browser
+
+`out/report.html` is the same run as one self-contained page, written by `bomreuse run` from the
+artifacts it has just written: `string.Template` and inline CSS, no asset, no script, no network.
+A test asserts each of those.
+
+The sponsor's summary is the first thing on it: the three ways of asking *does this sub-assembly
+already exist* — the content of the sub-assembly part by part, the reference character for
+character, the designation — side by side on the newest variant's 15 sub-assemblies, with the 8
+the reference search does not find named one by one. It carries **no time and no money figure**
+(`DECISIONS.md` 3) and no score: what each search *finds* is a fact about the files, and how many
+of those answers are right is `evaluate`'s question, which the page points at rather than
+answers.
+
+Under it, what a lead data engineer opens the file for: every sub-assembly of the new tender with
+its class, the older one the answer rests on and the exact difference behind every *reusable*;
+every disagreement once, with the variants and the values it was read from and the resolution
+finding underneath saying the merge held in spite of it; then every finding grouped by the rule
+that produced it, with that rule's description, its confidence and the rows of `bom.csv` it cites.
+The rule sections are built from the catalogue, so a rule a later issue adds renders itself.
+
+The page counts inconsistencies from the checks and never from the total: the 13 components whose
+rows disagree each produce two findings — one saying which value moved where, one saying the merge
+held despite it — so **44 findings are not 44 data problems**, and the summary says 13.
+
 ### Scoring the answer
 
 ```bash
@@ -243,8 +279,6 @@ runs the pipeline with the real ground truth laid out beside the raw files to sh
 opened. `evaluate` re-runs the pipeline rather than reading `out/`, so its figures can never be a
 stale artifact's, and it writes nothing. `--raw` and `--spec` default to the committed dataset and
 the committed contract. What it prints is **Results**, below.
-
-The last piece, the HTML report, is to be written during the build.
 
 ## Results
 
@@ -319,7 +353,8 @@ No threshold was moved to produce these figures, and there is no regression floo
 
 ## Known limits
 
-To be completed when the build lands: what was dropped, and why. Known so far:
+What this build does not do, and why. Reasons rather than apologies: most of these are
+deliberate, and the ones that were cut are named with what cut them.
 
 - **A reference the folding rules cannot reach stays a second component.** The rules fold case,
   `O`/`I`/`L` and non-alphanumerics, and nothing else (DECISIONS.md 27): a dropped or transposed
@@ -343,10 +378,13 @@ To be completed when the build lands: what was dropped, and why. Known so far:
   plants both families on purpose, and since resolution scoring was cut on 2026-09-21
   (`DECISIONS.md` 29) the shortfall is named here rather than counted.
 - **Two different products behind one key are told apart by their designations only.** The
-  `reject` rule reads the words of the designation, so a key collision whose two products are
-  described with the same words would still be merged. No case of the committed dataset is
-  affected: the three planted pairs are described differently, which is what the pairs exist to
-  test.
+  folding order of DECISIONS.md 27 makes three planted pairs of `data/dataset_spec.toml` share a
+  canonical key by construction — `SEAT-RAIL-I` with `SEAT-RAIL-1`, `DOOR-SEAL-O` with
+  `DOOR-SEAL-0`, `HVAC-GRILLE-1L` with `HVAC-GRILLE-11`. All three come out `reject` and are split
+  back into two components each (the `reject 3` of `run`'s summary), because their designations
+  name different products; a test asserts it. The rule reads nothing but those words, so a key
+  collision whose two products are described with the same words would be merged and nothing here
+  would catch it.
 - **The keyword fallback reads words, not sentences — and its accuracy is not measured.** It
   fires on a cue phrase near a reference-shaped token, so a note that *asks* whether a part is
   obsolete, or records a replacement that was **refused**, reads exactly like one asserting it;
@@ -364,12 +402,42 @@ To be completed when the build lands: what was dropped, and why. Known so far:
 - **A reference a note writes in lower case with a space is out of reach.** `bgi 2031` and
   `mars 2024` have the same shape in running text, and the tool would rather miss a reference
   than read a date as one. Hyphenated spellings (`Bgi-2031`) and upper-case ones are read.
+- **Nested sub-assemblies are out of scope, by design.** The BOM is read as two levels — variant,
+  sub-assembly, component ([A1]) — and a signature is flat: the sub-assembly is the unit of reuse
+  and the unit of comparison. A real PLM structure nests, and a sub-assembly containing another
+  one would be compared on its child's reference rather than on that child's contents. Lifting it
+  is a pilot question, not a prototype one.
+- **The generator's ground-truth-inside-raw guard compares by spelling, not by identity.**
+  `generate()` refuses a `--ground-truth` path inside `--out` with
+  `Path.resolve().is_relative_to(...)` — the string comparison `bomreuse normalize` used until it
+  was replaced by an identity check. On a case-insensitive filesystem (macOS, where this is
+  developed) `--out t/raw --ground-truth t/RAW/gt.json` gets past it, and so does a symlink or a
+  hard link already sitting at the destination. It guards a developer-facing command, and the data
+  layer was frozen on 2026-09-21 (DECISIONS.md 29): issue #14 is closed won't-do and the weakness
+  is named here instead. The pipeline's own read-only guard, `cli._writes_into`, does compare by
+  identity (device and inode), and its bypasses have tests.
 - **A cost too small for a float is read as zero.** In `normalize`, a positive `unit_cost_eur`
   whose value underflows a float becomes `0.0` with no issue raised, where the string `"0"` is
   refused. Reaching it takes a cost written with some four hundred leading zeros, so no value of
   the committed dataset is affected and no realistic export carries one. The same underflow on
   quantities is caught and counted (#13); the cost path was left alone when the refocus of
   2026-09-21 froze the data layer (DECISIONS.md 29, issue #18, closed won't-do).
+- **What was cut from the build, and why.**
+  - *Scoring anything but the three reuse classes.* `evaluate` scores the backtest and stops
+    there. Resolution as a clustering problem, and precision and recall per defect type, were cut
+    on 2026-09-21 (DECISIONS.md 29): they measure the dataset generator as much as they measure
+    the tool, and the one value claim does not rest on them. The cost is the first two bullets of
+    this list: how much resolution misses is described there rather than counted.
+  - *A second LLM backend, and any benchmark of one.* DECISIONS.md 5 and 6 planned a cloud model
+    against a local one on the same task; DECISIONS.md 29 cut the comparison. What the build wires
+    is one backend — `gemma4:12b-mlx`, the on-prem path, which runs on a 16 GB laptop — behind the
+    adapter interface, plus the FR/EN keyword fallback that is what makes the offline run possible.
+    The second model is a constructor argument, not a rewrite. No backend scoring, no latency
+    table, no `docs/measurements/`. If both are ever run by hand, their figures belong here,
+    labelled as a manual measurement.
+  - *Regression floors.* There are none (DECISIONS.md 33): `evaluate` prints its figures and
+    **Results** quotes them. A floor that a scouting prototype's synthetic dataset would set is a
+    number about the dataset, and holding a build to it is a pilot-scale practice.
 
 ## How this was built
 
