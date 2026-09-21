@@ -99,7 +99,7 @@ flowchart LR
         B1["L00227 SA-0215<br/>BIKE-HOOK 8 units"]
         B2["L00229 SA-0215<br/>BIKE-STRAP 8 units"]
         B3["L00230 SA-0215<br/>BIKE-FIX-KIT 8 units"]
-        N13["Note N013, 2023<br/>BIKE STRAP est remplacé<br/>par BIKE-STRAP-V2"]
+        N13["Note N013, 2023, in French<br/>«BIKE STRAP est remplacé<br/>par BIKE-STRAP-V2»<br/>(BIKE STRAP is replaced<br/>by BIKE-STRAP-V2)"]
     end
     subgraph C["Variant C, bom.csv"]
         C1["L00643 OCC-SA-0315<br/>BIKE-HOOK 6 pcs"]
