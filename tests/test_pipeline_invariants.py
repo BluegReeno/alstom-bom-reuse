@@ -1,4 +1,4 @@
-"""The pipeline's honesty invariants: it never sees the ground truth, and it never touches its inputs.
+"""The pipeline's honesty invariants: it never sees the ground truth, never touches its inputs, and shows its work.
 
 CLAUDE.md rule 2 — "The ground truth is for scoring only. The pipeline never reads `ground_truth`
 files. Only the evaluation module does. A test enforces it." — and rule 3 — inputs are read-only.
@@ -14,7 +14,12 @@ Two angles on the isolation, because each one alone can be fooled (docs/ARCHITEC
 - **static**: no pipeline module so much as names it. It proves nobody wrote the peek — for the
   spellings a scanner can see (`'ground' + '_truth'` passes it; the runtime test is what catches that).
 
-Later issues extend the runtime test to `bomreuse run`; the static one covers new modules by itself.
+The third invariant is R11: every finding the pipeline writes names the rule that produced it,
+carries that rule's confidence, and cites the rows it was read from. It is asserted on the file
+`bomreuse run` writes, not on the objects behind it, because the file is what a reviewer opens.
+
+The runtime tests run `bomreuse run` — the whole pipeline — so a stage added later is covered
+without anyone remembering to add it here; the static one covers new modules by itself.
 """
 
 import ast
@@ -29,7 +34,8 @@ from pathlib import Path
 import pytest
 
 from bomreuse.cli import main
-from bomreuse.model import NORMALIZED_FILE
+from bomreuse.model import FINDINGS_FILE, NORMALIZED_FILE, RESOLUTION_FILE, load_findings
+from bomreuse.rules import CATALOGUE
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src" / "bomreuse"
@@ -141,7 +147,7 @@ def test_the_scanner_lets_documentation_and_unrelated_words_through(source: str)
 
 
 def test_the_new_pipeline_modules_are_among_those_scanned() -> None:
-    assert {"ingest.py", "normalize.py", "model.py"} <= set(PIPELINE_MODULES)
+    assert {"ingest.py", "normalize.py", "model.py", "resolve.py", "rules.py"} <= set(PIPELINE_MODULES)
     assert not NOT_PIPELINE & set(PIPELINE_MODULES)
 
 
@@ -242,15 +248,15 @@ def test_the_pipeline_runs_where_no_ground_truth_exists(tmp_path: Path, monkeypa
     """A copy of the raw files, alone in a temporary directory, with the working directory moved there.
 
     No relative path can reach the repository, and nothing under `tmp_path` is a ground truth: if
-    the pipeline needed one, it would fail here. Later issues extend this to `bomreuse run`.
+    the pipeline needed one, it would fail here.
     """
     raw, out = tmp_path / "raw", tmp_path / "out"
     shutil.copytree(COMMITTED_RAW, raw)
     monkeypatch.chdir(tmp_path)
     assert not [path for path in tmp_path.rglob("*") if _MENTION.search(path.name)]
 
-    assert main(["normalize", "--raw", "raw", "--out", "out"]) == 0
-    assert (out / NORMALIZED_FILE).is_file()
+    assert main(["run", "--raw", "raw", "--out", "out"]) == 0
+    assert sorted(path.name for path in out.iterdir()) == sorted([FINDINGS_FILE, NORMALIZED_FILE, RESOLUTION_FILE])
 
 
 #: Paths opened while the list is armed. An audit hook cannot be removed once added, so it is
@@ -286,24 +292,25 @@ def test_a_decoy_beside_the_raw_files_changes_nothing_and_is_never_opened(tmp_pa
         _OPENED.clear()
         _ARMED.append(True)
         try:
-            assert main(["normalize", "--raw", "data/raw", "--out", "out"]) == 0
+            assert main(["run", "--raw", "data/raw", "--out", "out"]) == 0
         finally:
             _ARMED.clear()
         assert [path for path in _OPENED if path.endswith("bom.csv")], "the hook sees what the run opens"
         assert [path for path in _OPENED if _MENTION.search(path)] == []
-        artifacts[name] = (tmp_path / name / "out" / NORMALIZED_FILE).read_bytes()
+        artifacts[name] = [(tmp_path / name / "out" / artifact).read_bytes() for artifact in (NORMALIZED_FILE, RESOLUTION_FILE, FINDINGS_FILE)]
 
     assert artifacts["with"] == artifacts["without"]
     assert snapshot(decoy) == before
 
 
-def test_a_run_leaves_its_inputs_exactly_as_they_were(tmp_path: Path) -> None:
+@pytest.mark.parametrize("command", ["normalize", "run"])
+def test_a_run_leaves_its_inputs_exactly_as_they_were(tmp_path: Path, command: str) -> None:
     raw, out = tmp_path / "raw", tmp_path / "out"
     shutil.copytree(COMMITTED_RAW, raw)
     before = snapshot(raw)
     assert sorted(before) == ["bom.csv", "notes.csv", "variants.csv"]
 
-    assert main(["normalize", "--raw", str(raw), "--out", str(out)]) == 0
+    assert main([command, "--raw", str(raw), "--out", str(out)]) == 0
 
     assert snapshot(raw) == before, "same files, same sizes, same sha256: nothing changed, nothing was added"
     assert sorted(path.name for path in raw.iterdir()) == ["bom.csv", "notes.csv", "variants.csv"]
@@ -313,8 +320,27 @@ def test_a_run_leaves_its_inputs_exactly_as_they_were(tmp_path: Path) -> None:
 def test_the_committed_inputs_are_those_the_run_was_checked_on(tmp_path: Path) -> None:
     """The same guarantee on the real directory, since that is the one people will point the tool at."""
     before = snapshot(COMMITTED_RAW)
-    assert main(["normalize", "--raw", str(COMMITTED_RAW), "--out", str(tmp_path / "out")]) == 0
+    assert main(["run", "--raw", str(COMMITTED_RAW), "--out", str(tmp_path / "out")]) == 0
     assert snapshot(COMMITTED_RAW) == before
+
+
+# --- traceable findings ------------------------------------------------------------------------------
+
+
+def test_every_finding_the_pipeline_writes_carries_its_rows_its_rule_and_a_confidence(tmp_path: Path) -> None:
+    """R11, read off the artifact a reviewer opens rather than off the objects that made it."""
+    out = tmp_path / "out"
+    assert main(["run", "--raw", str(COMMITTED_RAW), "--out", str(out)]) == 0
+    findings = load_findings(out / FINDINGS_FILE)
+    assert findings, "a pipeline that emits no finding cannot show that its findings are traceable"
+
+    for finding in findings:
+        assert finding.rule_id in CATALOGUE, f"{finding.rule_id} is not in the rule catalogue: the finding cannot be traced"
+        assert finding.confidence == CATALOGUE[finding.rule_id].confidence
+        assert finding.source_rows, finding
+        for row in finding.source_rows:
+            assert row.source_file in ("variants.csv", "bom.csv", "notes.csv")
+            assert row.row_number >= 1
 
 
 # --- determinism -----------------------------------------------------------------------------------
