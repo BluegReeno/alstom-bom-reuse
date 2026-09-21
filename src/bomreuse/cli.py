@@ -5,7 +5,8 @@ ground-truth path is never a constant, here or anywhere in `src/`: `generate` wr
 told, `evaluate` (#5) will read it where told, and the pipeline's entry function has no
 parameter that could carry it (docs/ARCHITECTURE.md A5). `normalize` follows the rule from the
 other side: it takes the raw directory and an output directory, neither with a default, and no
-option through which anything else could reach the pipeline.
+option through which anything else could reach the pipeline, and `run` — the whole pipeline, and
+the one command a client would be shown — follows the same rule.
 """
 
 import argparse
@@ -17,8 +18,22 @@ from pathlib import Path
 from bomreuse.catalogue import CatalogueError
 from bomreuse.generate import DEFAULT_SEED, GenerationError, OutputPathError, generate
 from bomreuse.ingest import IngestError, read_raw
-from bomreuse.model import NORMALIZED_FILE, dump_dataset
+from bomreuse.model import (
+    FINDINGS_FILE,
+    NORMALIZED_FILE,
+    RESOLUTION_FILE,
+    Finding,
+    GroupVerdict,
+    ModelError,
+    NormalizedDataset,
+    Resolution,
+    dump_dataset,
+    dump_findings,
+    dump_resolution,
+    load_dataset,
+)
 from bomreuse.normalize import normalize
+from bomreuse.resolve import resolve
 from bomreuse.spec import DEFAULT_SPEC_PATH, SpecError, load_spec
 
 Handler = Callable[[argparse.Namespace], int]
@@ -29,6 +44,7 @@ def main(argv: list[str] | None = None) -> int:
     commands = parser.add_subparsers(dest="command", required=True)
     _add_generate(commands)
     _add_normalize(commands)
+    _add_run(commands)
 
     args = parser.parse_args(argv)
     handler: Handler = args.handler
@@ -83,14 +99,9 @@ def _normalize(args: argparse.Namespace) -> int:
     raw_dir: Path = args.raw
     out_dir: Path = args.out
     artifact = out_dir / NORMALIZED_FILE
-    # Refused before anything is read or written: inputs are read-only (CLAUDE.md rule 3).
-    try:
-        refused = _writes_into(artifact, raw_dir)
-    except (OSError, RuntimeError) as exc:  # a symlink loop, a name too long: unknown is not safe
-        print(f"error: {artifact} cannot be checked against the raw directory ({raw_dir}): {exc}", file=sys.stderr)
-        return 2
-    if refused:
-        print(f"error: {artifact} would be written inside the raw directory ({raw_dir}), or over one of its files: inputs are read-only", file=sys.stderr)
+    refusal = _refusal([artifact], raw_dir)
+    if refusal is not None:
+        print(f"error: {refusal}", file=sys.stderr)
         return 2
     try:
         dataset = normalize(read_raw(raw_dir))
@@ -110,13 +121,100 @@ def _normalize(args: argparse.Namespace) -> int:
     print(f"components        {len(dataset.components)} (candidate groups, one per reference key)")
     print(f"sub-assemblies    {len(dataset.sub_assemblies)}")
     print(f"suppliers         {len(dataset.suppliers)}")
-    # Unreadable values are data, not a failure: the rows are kept, and the count is shown.
+    _print_issues(dataset)
+    print(f"normalized        {artifact}")
+    return 0
+
+
+# --- run -----------------------------------------------------------------------------------
+
+
+def _add_run(commands: "argparse._SubParsersAction[argparse.ArgumentParser]") -> None:
+    parser = commands.add_parser("run", help="run the pipeline: normalize, resolve references, write the findings")
+    parser.add_argument("--raw", type=Path, required=True, help="directory holding variants.csv, bom.csv and notes.csv; read, never written")
+    parser.add_argument("--out", type=Path, required=True, help="directory the artifacts are written to; never inside --raw")
+    parser.set_defaults(handler=_run)
+
+
+def _run(args: argparse.Namespace) -> int:
+    """The whole pipeline, offline, in the order docs/ARCHITECTURE.md draws it.
+
+    Each stage reads the previous stage's artifact rather than the object still in memory, so
+    running the stages one by one from the command line gives what this does — and a stale or
+    hand-edited `normalized.json` is refused here by `ModelError`, not met three frames later.
+    """
+    raw_dir: Path = args.raw
+    out_dir: Path = args.out
+    normalized, resolution_file, findings_file = (out_dir / name for name in (NORMALIZED_FILE, RESOLUTION_FILE, FINDINGS_FILE))
+    refusal = _refusal([normalized, resolution_file, findings_file], raw_dir)
+    if refusal is not None:
+        print(f"error: {refusal}", file=sys.stderr)
+        return 2
+
+    try:
+        dataset = normalize(read_raw(raw_dir))
+        dump_dataset(dataset, normalized)
+        resolution, findings = resolve(load_dataset(normalized))
+        dump_resolution(resolution, resolution_file)
+        dump_findings(findings, findings_file)
+    except (IngestError, ModelError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 1
+    except OSError as exc:  # --out is a file, a read-only directory, a full disk
+        print(f"error: {out_dir} cannot be written: {exc.strerror or exc}", file=sys.stderr)
+        return 1
+
+    _print_run_summary(raw_dir, dataset, resolution, findings)
+    for artifact in (normalized, resolution_file, findings_file):
+        print(f"written           {artifact}")
+    return 0
+
+
+def _print_run_summary(raw_dir: Path, dataset: NormalizedDataset, resolution: Resolution, findings: tuple[Finding, ...]) -> None:
+    """What a client sees. The reuse classes of the newest variant join it with the signatures."""
+    print(f"raw files         {raw_dir}")
+    print(f"  BOM lines       {len(dataset.lines)}")
+    print(f"  variants        {len(dataset.variants)} ({', '.join(variant.id for variant in dataset.variants)})")
+    print(f"references        {len(resolution.groups)} candidate groups -> {len(resolution.components)} canonical components")
+    # Always the three lines, in the order of the A2 table: "reject 0" is an answer, and a
+    # client reading two runs side by side should not have to notice a missing line.
+    verdicts = Counter(group.verdict for group in resolution.groups)
+    for verdict in GroupVerdict:
+        print(f"  {verdict:<16}{verdicts[verdict]}")
+    print(f"findings          {len(findings)}")
+    for rule_id, count in sorted(Counter(finding.rule_id for finding in findings).items()):
+        print(f"  {rule_id:<32}{count}")
+    _print_issues(dataset)
+
+
+def _print_issues(dataset: NormalizedDataset) -> None:
+    """Unreadable values are data, not a failure: the rows are kept, and the count is shown.
+
+    Every stage after `normalize` drops them on the stated ground that they are already counted
+    here, and that reasoning only holds while the count is on the screen the reader is looking at.
+    """
     print(f"issues            {len(dataset.issues)}")
     breakdown = Counter((issue.source_file, issue.field, issue.reason) for issue in dataset.issues)
     for (source_file, field, reason), count in sorted(breakdown.items()):
         print(f"  {source_file} {field}: {reason}  {count}")
-    print(f"normalized        {artifact}")
-    return 0
+
+
+# --- the read-only guard ---------------------------------------------------------------------
+
+
+def _refusal(artifacts: list[Path], raw_dir: Path) -> str | None:
+    """Why these artifacts may not be written, or `None`. Checked before anything is read or written.
+
+    Inputs are read-only (CLAUDE.md rule 3), and a check that cannot be made is a refusal too.
+    """
+    for artifact in artifacts:
+        try:
+            refused = _writes_into(artifact, raw_dir)
+        except (OSError, RuntimeError) as exc:  # a symlink loop, a name too long: unknown is not safe
+            return f"{artifact} cannot be checked against the raw directory ({raw_dir}): {exc}"
+        if refused:
+            return f"{artifact} would be written inside the raw directory ({raw_dir}), or over one of its files: inputs are read-only"
+    return None
 
 
 def _writes_into(target: Path, directory: Path) -> bool:

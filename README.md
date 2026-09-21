@@ -98,7 +98,34 @@ issue; a file that does not have the expected structure stops the run. `--out` m
 read-only. A component here is a *candidate group* — every reference sharing one key — not yet a
 resolved component.
 
-The rest of the pipeline (`run`, `evaluate`, `report`) is to be written during the build.
+Resolve the references and write the findings — the whole pipeline, offline:
+
+```bash
+uv run bomreuse run --raw data/raw --out out
+```
+
+This is the command a client would be shown. It normalizes the raw files, then decides which
+references are the same component, and writes `out/normalized.json`, `out/resolution.json` and
+`out/findings.json`. Same rule on the paths: `--out` may not be inside `--raw`.
+
+Two references become one component when the stated foldings give them the same key —
+uppercase, then `O`→`0`, `I`→`1`, `L`→`1`, then non-alphanumerics dropped. **There is no
+string-distance matching anywhere**: in a Bill of Materials two references differing by one
+character are often genuinely different parts, and a false *reused* is the worst error this
+tool can make. Each group the key forms is then rated on its own coherence:
+
+- *auto* — the rows agree; the group is one component;
+- *review* — they share a key but disagree on designation, unit, supplier or cost. Still one
+  component, and a finding: a part whose supplier or cost moves between variants is the same
+  part, and the divergence is what makes a reuse unsafe;
+- *reject* — the designations name different products; the group is split back apart.
+
+On the committed dataset the command reports 160 candidate groups resolving to 163 canonical
+components — 144 *auto*, 13 *review*, 3 *reject* — and 31 findings. Every finding names the
+rule that produced it, the confidence that rule declares, and the rows of `bom.csv` it was read
+from.
+
+The rest of the pipeline (`evaluate`, `report`) is to be written during the build.
 
 ## Results
 
@@ -114,6 +141,19 @@ To be completed when the build lands: what was dropped, and why. Known so far:
   tool is stricter with two separators than with one. No value of the committed dataset is
   affected; an export that uses a thousands separator would be misread without an issue being
   raised.
+- **A transposition or a missing character is out of reach of resolution.** `BGI-2013` for
+  `BGI-2031`, or `SEAT-FIX-KIT-447` for `SEAT-FIX-KIT-4471`, stay two components: no folding
+  rule undoes them, and only string-distance matching would. That would also merge references
+  that differ by one character and are genuinely different parts — the three `must_not_merge`
+  pairs of `data/dataset_spec.toml` are exactly that case, and a false *reused* is the worst
+  error this tool can make (`docs/ARCHITECTURE.md` A2). So the cost is accepted: the dataset
+  plants both families on purpose, and since resolution scoring was cut on 2026-09-21
+  (`DECISIONS.md` 29) the shortfall is named here rather than counted.
+- **Two different products behind one key are told apart by their designations only.** The
+  `reject` rule reads the words of the designation, so a key collision whose two products are
+  described with the same words would still be merged. No case of the committed dataset is
+  affected: the three planted pairs are described differently, which is what the pairs exist to
+  test.
 - **A cost too small for a float is read as zero.** In `normalize`, a positive `unit_cost_eur`
   whose value underflows a float becomes `0.0` with no issue raised, where the string `"0"` is
   refused. Reaching it takes a cost written with some four hundred leading zeros, so no value of

@@ -64,7 +64,9 @@ src/bomreuse/
   normalize.py    reference key (uppercase, then O/I/L folding), units to SI (m, kg, pcs), text,
                   decimal commas; unreadable values kept and counted (NormalizationIssue)
   model.py        raw rows; entities: Variant, SubAssembly, Component (candidate group), Supplier,
-                  BomLine (n-ary), Note; JSON round-trip of out/normalized.json
+                  BomLine (n-ary), Note; resolution and Finding; JSON round-trip of every artifact
+                  in out/; imports nothing from the package
+  rules.py        the rule catalogue: rule_id -> description -> confidence, versioned (A8)
   resolve.py      duplicate references -> canonical component (auto / review / reject)
   signatures.py   sub-assembly signatures: reused (identical) / reusable (near-identical + diff)
   checks.py       inconsistencies: unit, supplier, cost conflicts, note vs BOM contradictions
