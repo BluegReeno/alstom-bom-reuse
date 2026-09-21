@@ -235,6 +235,20 @@ def test_an_unreadable_half_makes_the_whole_amount_unreadable(raw_value: str, ra
     assert issues == expected_issues
 
 
+@pytest.mark.parametrize(
+    "raw_value, raw_unit",
+    [
+        pytest.param("0," + "0" * 400 + "1", "pcs", id="smaller than any float"),
+        pytest.param("0," + "0" * 322 + "1", "mm", id="a float until it is converted to metres"),
+    ],
+)
+def test_a_quantity_too_small_for_a_float_is_counted_rather_than_read_as_zero(raw_value: str, raw_unit: str) -> None:
+    """`not positive` is checked on the `Decimal`; the artifact holds the float, and `0.0` is not an amount."""
+    quantity, issues = normalize_quantity(raw_value, raw_unit)
+    assert quantity.value is None and quantity.unit is None
+    assert issues == [("quantity", raw_value, "out of range")]
+
+
 # --- rows into entities ------------------------------------------------------------------------
 
 COMMITTED_RAW = ROOT / "data" / "raw"
