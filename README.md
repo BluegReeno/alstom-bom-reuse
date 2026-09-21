@@ -191,12 +191,50 @@ As generated: 5 variants (A, B, D, E and C), 696 BOM lines (135 to 145 per varia
 notes, in three `;`-separated UTF-8 files under `data/raw/` — `variants.csv`, `bom.csv`,
 `notes.csv`. `data/dataset_spec.toml` is the contract they are generated from.
 
+## What's in the repository
+
+```
+data/raw/                 the input: variants.csv, bom.csv, notes.csv — read, never written
+data/ground_truth/        the answer key of the synthetic dataset, read by `evaluate` only
+data/dataset_spec.toml    the reuse threshold, and how the synthetic data was built
+src/bomreuse/             the code, one module per stage
+tests/                    all tests
+out/                      created by `run`, absent from a fresh clone: report.html and the JSON artifacts
+docs/                     the case brief, the PRD, the architecture
+
+CLAUDE.md, DECISIONS.md, CONTEXT.md, .claude/
+                          how this was built: the rules given to the AI agents, the human
+                          decisions, the pilot context, the per-issue run procedure
+```
+
+The last group is for a reviewer of the build, not for a user of the tool: running it needs
+none of those files.
+
 ## How to run
+
+Four commands, one entry point:
+
+| Command | Reads | Writes | When |
+| --- | --- | --- | --- |
+| `run` | `data/raw/` | `out/` — the report and the JSON artifacts | the one a client is shown |
+| `evaluate` | `data/raw/` and the ground truth | nothing: it prints the scores | to measure the value claim |
+| `normalize` | `data/raw/` | `out/normalized.json` | to look at the first stage alone |
+| `generate` | `data/dataset_spec.toml` | `data/raw/` and the ground truth | to regenerate the synthetic data |
+
+```bash
+uv run bomreuse run --raw data/raw --out out
+uv run bomreuse evaluate --ground-truth data/ground_truth/ground_truth.json
+uv run bomreuse normalize --raw data/raw --out out
+uv run bomreuse generate --out data/raw --ground-truth data/ground_truth/ground_truth.json
+```
+
+Each is described below, and `run` reads any folder holding the same three files: see
+**On your own files**.
 
 Python 3.12 and [`uv`](https://docs.astral.sh/uv/). From a fresh clone, end to end:
 
 ```bash
-git clone <this repository> && cd alstom-bom-reuse
+git clone https://github.com/BluegReeno/alstom-bom-reuse.git && cd alstom-bom-reuse
 uv sync                                          # the only step that needs a package index
 uv run pytest
 uv run bomreuse run --raw data/raw --out out     # the pipeline, offline
@@ -408,6 +446,27 @@ runs the pipeline with the real ground truth laid out beside the raw files to sh
 opened. `evaluate` re-runs the pipeline rather than reading `out/`, so its figures can never be a
 stale artifact's, and it writes nothing. `--raw` and `--spec` default to the committed dataset and
 the committed contract. What it prints is **Results**, below.
+
+### On your own files
+
+`run` is not tied to the committed dataset: it reads whatever folder `--raw` names.
+
+1. Put three `;`-separated UTF-8 files in a folder — `variants.csv`, `bom.csv`, `notes.csv` —
+   with exactly the header lines of the files in `data/raw/`. Dates are ISO (`2025-02-17`),
+   numbers take a decimal comma or a dot, and the units read are `pcs`, `units`, `unit`, `u`, `m`,
+   `mm`, `kg` and `g`.
+2. `uv run bomreuse run --raw that-folder --out another-folder` — `--out` may not be inside `--raw`.
+3. The variant with the latest `design_date` plays the new tender, against the ones designed
+   before it. The reuse threshold is read from `--spec`, the committed `data/dataset_spec.toml`
+   unless another file is named.
+
+A file without the expected structure stops the run with the file and the row named; a value that
+cannot be read keeps its row and is counted under `issues`. Checked by removing variant C from a
+copy of `data/raw/`: the run completes, and E, then the newest, is played against A, B and D.
+
+Two limits. `evaluate` does not apply: it needs a ground truth, and only the synthetic dataset
+has one. And a real PLM/ERP export has other columns: mapping it onto these three files is the
+connector named in **What's next** — the pilot's work, not a step of this prototype.
 
 ## Results
 
