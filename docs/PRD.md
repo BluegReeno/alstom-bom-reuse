@@ -67,17 +67,18 @@ client defines it. Web UI, graph DB, real PLM connector, mandatory LLM, generali
 4. `uv run pytest` green in under 30 s, offline.
 
 The reuse threshold is fixed in the dataset spec before the data is generated, and is never
-tuned against these scores (Dec. 17). Regression floors are a different thing: they are written
-into `DECISIONS.md` from the first real measurement, per CLAUDE.md.
+tuned against these scores (Dec. 17). There are no regression floors in this build: `evaluate`
+prints its figures and the README quotes them; floors are a pilot-scale practice (CLAUDE.md).
 
 ## 7. Constraints
 
 Scope is small on purpose. The build runs as six autonomous issue-to-PR runs, in the order
 CLAUDE.md names; the cut order is its reverse, and what is not reached goes into the README's
 Known limits with its reason. Python 3.12 + `uv`, few pinned dependencies. Offline
-by default; Ollama at `http://localhost:11434` with `glm-5.3-flash:cloud` and `gemma4:12b-mlx`
-(Dec. 6), one backend wired. Tests never call a live model or the network. Priority order, and
-it is the cut order: the client's question first (resolution, then signatures), then the
+by default; Ollama at `http://localhost:11434`, one backend wired — `gemma4:12b-mlx`, the on-prem
+path. `glm-5.3-flash:cloud` (Dec. 6) may be run by hand; its figures, if any, go in the README
+labelled as a manual measurement (Dec. 29). Tests never call a live model or the network.
+Priority order, and it is the cut order: the client's question first (resolution, then signatures), then the
 inconsistencies, then the value claim, then the notes, then the report.
 
 ## 8. Assumptions

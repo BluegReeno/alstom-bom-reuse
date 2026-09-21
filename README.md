@@ -125,7 +125,8 @@ components — 144 *auto*, 13 *review*, 3 *reject* — and 31 findings. Every fi
 rule that produced it, the confidence that rule declares, and the rows of `bom.csv` it was read
 from.
 
-The rest of the pipeline (`evaluate`, `report`) is to be written during the build.
+The rest of the pipeline is to be written during the build: the signatures and the backtest
+predictions, the unit, supplier and cost checks, `evaluate`, the notes, and the HTML report.
 
 ## Results
 

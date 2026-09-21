@@ -255,16 +255,9 @@ is: Python 3.12, pydantic, and Ollama only if the LLM layer is wanted.
 
 ## Missing pieces
 
-These do not exist yet and the approach depends on them:
-
-- `data/dataset_spec.toml` — the planted-case table, the typo families (in and out of reach of
-  the rules), the must-not-merge pairs, the minimum sub-assembly size, and the two threshold
-  parameters. Written before the generator.
-- `spec.py` — the single loader `generate.py` and `signatures.py` both read that contract
-  through.
-- The ground-truth schema: the `true_component_id -> {raw reference strings}` mapping, the
-  must-not-merge declarations, and the stable defect key A3 matches on.
-- The note-extraction prompt and its output model, plus the FR/EN keyword fallback lexicon.
+None left that the approach depends on. `data/dataset_spec.toml`, `spec.py`, the ground-truth
+schema and the rule catalogue exist; the note-extraction prompt, its output model and the FR/EN
+keyword fallback lexicon are built by issue #6.
 
 ## Spikes & experiments
 
