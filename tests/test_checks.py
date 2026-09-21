@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-from bomreuse.checks import CONFLICT_RULES, NOTE_RULES, check, check_notes, conflicts_by_component, notes_by_component
+from bomreuse.checks import CONFLICT_RULES, NOTE_RULES, check, check_notes, conflicting_parts, conflicts_by_component, notes_by_component
 from bomreuse.ingest import read_raw
 from bomreuse.link import link
 from bomreuse.model import (
@@ -179,6 +179,17 @@ def test_conflicts_by_component_reads_only_the_checks_own_findings() -> None:
     findings = resolution_findings + check(dataset, resolution)
     assert {finding.rule_id for finding in resolution_findings}, "the case must carry resolution findings to ignore"
     assert conflicts_by_component(findings) == {"SHE11R00F": (Attribute.SUPPLIER, Attribute.COST)}
+
+
+def test_the_parts_of_a_reuse_that_carry_a_conflict_are_named_in_the_order_the_sub_assembly_holds_them() -> None:
+    """One flag rule, two renderings: the stdout summary and the HTML report must flag the same parts."""
+    conflicts = {"SHE11R00F": (Attribute.SUPPLIER, Attribute.COST), "SHE11S1DE": (Attribute.UNIT,)}
+    assert conflicting_parts(("SHE11S1DE", "BGI2031", "SHE11R00F"), conflicts) == (
+        ("SHE11S1DE", (Attribute.UNIT,)),
+        ("SHE11R00F", (Attribute.SUPPLIER, Attribute.COST)),
+    )
+    assert conflicting_parts(("BGI2031",), conflicts) == ()
+    assert conflicting_parts((), conflicts) == ()
 
 
 def test_every_conflict_rule_is_in_the_catalogue() -> None:

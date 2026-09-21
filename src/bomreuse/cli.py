@@ -57,6 +57,7 @@ from bomreuse.model import (
 )
 from bomreuse.normalize import normalize
 from bomreuse.notes import DEFAULT_MODEL, BackendError, KeywordReader, ModelReader, NoteReader, OllamaBackend, extract
+from bomreuse.report import dump_report, render
 from bomreuse.resolve import resolve
 from bomreuse.signatures import backtest, build_signatures
 from bomreuse.spec import DEFAULT_SPEC_PATH, SpecError, load_spec
@@ -194,12 +195,13 @@ def _run(args: argparse.Namespace) -> int:
         print(f"error: {refusal}", file=sys.stderr)
         return 2
 
-    normalized, resolution_file, note_facts_file, findings_file, signatures_file, predictions_file = artifacts
+    normalized, resolution_file, note_facts_file, findings_file, signatures_file, predictions_file, report_file = artifacts
     try:
-        # Read before anything is written: a spec the last stage cannot read must not leave five
+        # Read before anything is written: a spec the last stage cannot read must not leave the
         # artifacts of a run that failed behind it.
         thresholds = load_spec(args.spec).thresholds
-        dataset = normalize(read_raw(raw_dir))
+        raw = read_raw(raw_dir)
+        dataset = normalize(raw)
         dump_dataset(dataset, normalized)
         read_back = load_dataset(normalized)
         resolution, findings = resolve(read_back)
@@ -214,6 +216,12 @@ def _run(args: argparse.Namespace) -> int:
         dump_findings(findings, findings_file)
         dump_signatures(build_signatures(read_back, resolved_back), signatures_file)
         dump_backtest(backtest(load_signatures(signatures_file), read_back.variants, thresholds), predictions_file)
+        # The report renders the artifacts, not the objects that made them, and adds the naive
+        # searches of `baseline` on the raw rows — the gap it shows the sponsor at the top.
+        dump_report(
+            render(raw, read_back, load_resolution(resolution_file), load_findings(findings_file), load_signatures(signatures_file), load_backtest(predictions_file)),
+            report_file,
+        )
     except (IngestError, ModelError, SpecError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1

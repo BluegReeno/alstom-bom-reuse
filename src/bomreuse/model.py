@@ -50,12 +50,15 @@ FINDINGS_FILE: Final[str] = "findings.json"
 NOTE_FACTS_FILE: Final[str] = "note_facts.json"
 SIGNATURES_FILE: Final[str] = "signatures.json"
 PREDICTIONS_FILE: Final[str] = "predictions.json"
+#: The one artifact that is not serialized from these types: the report `report.py` renders off
+#: them, for a reader who opens a browser rather than a JSON file ([A6]).
+REPORT_FILE: Final[str] = "report.html"
 
 #: Everything `bomreuse run` writes, in the order the pipeline produces it. Said once, here: the
 #: CLI writes this list and checks it against the raw directory, and the tests that watch
 #: determinism and the read-only inputs read it rather than a copy of it — so an artifact a later
 #: issue adds is covered by all of them without a hand edit anywhere.
-RUN_ARTIFACTS: Final[tuple[str, ...]] = (NORMALIZED_FILE, RESOLUTION_FILE, NOTE_FACTS_FILE, FINDINGS_FILE, SIGNATURES_FILE, PREDICTIONS_FILE)
+RUN_ARTIFACTS: Final[tuple[str, ...]] = (NORMALIZED_FILE, RESOLUTION_FILE, NOTE_FACTS_FILE, FINDINGS_FILE, SIGNATURES_FILE, PREDICTIONS_FILE, REPORT_FILE)
 
 #: Written into every artifact and checked on load: a later issue that changes a type bumps it,
 #: so a stale file in `out/` is refused instead of half-read. One version for the whole set of

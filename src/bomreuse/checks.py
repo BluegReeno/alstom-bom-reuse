@@ -30,7 +30,7 @@ rows sharing a key.
 """
 
 from collections import Counter, defaultdict
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Mapping
 from typing import Final
 
 from bomreuse.model import (
@@ -104,6 +104,20 @@ def conflicts_by_component(findings: Iterable[Finding]) -> dict[str, tuple[Attri
         if attribute is not None:
             found[finding.subject].append(attribute)
     return {component: tuple(attributes) for component, attributes in found.items()}
+
+
+def conflicting_parts(components: Iterable[str], conflicts: Mapping[str, tuple[Attribute, ...]]) -> tuple[tuple[str, tuple[Attribute, ...]], ...]:
+    """Which parts of a proposed reuse carry a disagreement, in the order the sub-assembly holds them.
+
+    The flag is component-wide: a part is flagged as soon as its rows disagree *anywhere* in the
+    dataset, whichever variants the two values sit in. Reading it strictly — flagging only a part
+    whose value differs between the new tender and the older sub-assembly it is read against —
+    would flag fewer and is a human decision, not one this module makes.
+
+    It lives here rather than in either of its two callers because the stdout summary and the
+    HTML report must flag the same parts: one rule, two renderings.
+    """
+    return tuple((component, conflicts[component]) for component in components if component in conflicts)
 
 
 def _conflict(component_id: str, attribute: Attribute, rule: Rule, read: Callable[[BomLine], object], rows: list[BomLine]) -> Finding | None:
