@@ -47,6 +47,7 @@ from typing import Any, Final
 NORMALIZED_FILE: Final[str] = "normalized.json"
 RESOLUTION_FILE: Final[str] = "resolution.json"
 FINDINGS_FILE: Final[str] = "findings.json"
+NOTE_FACTS_FILE: Final[str] = "note_facts.json"
 SIGNATURES_FILE: Final[str] = "signatures.json"
 PREDICTIONS_FILE: Final[str] = "predictions.json"
 
@@ -54,7 +55,7 @@ PREDICTIONS_FILE: Final[str] = "predictions.json"
 #: CLI writes this list and checks it against the raw directory, and the tests that watch
 #: determinism and the read-only inputs read it rather than a copy of it — so an artifact a later
 #: issue adds is covered by all of them without a hand edit anywhere.
-RUN_ARTIFACTS: Final[tuple[str, ...]] = (NORMALIZED_FILE, RESOLUTION_FILE, FINDINGS_FILE, SIGNATURES_FILE, PREDICTIONS_FILE)
+RUN_ARTIFACTS: Final[tuple[str, ...]] = (NORMALIZED_FILE, RESOLUTION_FILE, NOTE_FACTS_FILE, FINDINGS_FILE, SIGNATURES_FILE, PREDICTIONS_FILE)
 
 #: Written into every artifact and checked on load: a later issue that changes a type bumps it,
 #: so a stale file in `out/` is refused instead of half-read. One version for the whole set of

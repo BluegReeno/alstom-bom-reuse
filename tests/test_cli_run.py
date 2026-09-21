@@ -12,13 +12,15 @@ from pathlib import Path
 
 import pytest
 
-from bomreuse import cli
-from bomreuse.checks import check
+from bomreuse import cli, notes
+from bomreuse.checks import check, check_notes
 from bomreuse.cli import main
 from bomreuse.ingest import read_raw
+from bomreuse.link import link
 from bomreuse.model import (
     FINDINGS_FILE,
     NORMALIZED_FILE,
+    NOTE_FACTS_FILE,
     PREDICTIONS_FILE,
     RESOLUTION_FILE,
     RUN_ARTIFACTS,
@@ -29,10 +31,12 @@ from bomreuse.model import (
     load_backtest,
     load_dataset,
     load_findings,
+    load_note_facts,
     load_resolution,
     load_signatures,
 )
 from bomreuse.normalize import normalize
+from bomreuse.notes import DEFAULT_CACHE_DIR, BackendError, KeywordReader, extract
 from bomreuse.resolve import resolve
 from bomreuse.signatures import backtest, build_signatures
 from bomreuse.spec import load_spec
@@ -62,9 +66,11 @@ def test_the_artifacts_read_back_into_the_objects_the_pipeline_built(tmp_path: P
     dataset = normalize(read_raw(COMMITTED_RAW))
     resolution, findings = resolve(dataset)
     signatures = build_signatures(dataset, resolution)
+    note_facts = link(extract(dataset.notes, KeywordReader()), resolution)
     assert load_dataset(out / NORMALIZED_FILE) == dataset
     assert load_resolution(out / RESOLUTION_FILE) == resolution
-    assert load_findings(out / FINDINGS_FILE) == findings + check(dataset, resolution)
+    assert load_note_facts(out / NOTE_FACTS_FILE) == note_facts
+    assert load_findings(out / FINDINGS_FILE) == findings + check(dataset, resolution) + check_notes(dataset, resolution, note_facts)
     assert load_signatures(out / SIGNATURES_FILE) == signatures
     assert load_backtest(out / PREDICTIONS_FILE) == backtest(signatures, dataset.variants, load_spec().thresholds)
 
@@ -85,17 +91,18 @@ def test_neither_path_has_a_default(capsys: pytest.CaptureFixture[str], given: l
     assert missing in capsys.readouterr().err
 
 
-def test_there_is_no_option_but_the_two_directories_and_the_spec_the_run_classifies_by(capsys: pytest.CaptureFixture[str]) -> None:
+def test_there_is_no_option_but_the_paths_the_spec_and_how_the_notes_are_read(capsys: pytest.CaptureFixture[str]) -> None:
     """docs/ARCHITECTURE.md A5: nothing the ground truth could travel through reaches the pipeline.
 
     The spec is the contract the reuse threshold is read from, the same file `generate` takes;
     a run that classifies by it says which one it used instead of finding one next to its own
-    source (`spec.DEFAULT_SPEC_PATH`).
+    source (`spec.DEFAULT_SPEC_PATH`). The two note options choose a reader and name its model;
+    neither is a path, and no option here takes one but `--raw`, `--out` and `--spec`.
     """
     with pytest.raises(SystemExit):
         main(["run", "--help"])
     options = {word.rstrip(",") for word in capsys.readouterr().out.split() if word.startswith("--")}
-    assert options == {"--help", "--raw", "--out", "--spec"}
+    assert options == {"--help", "--raw", "--out", "--spec", "--notes", "--notes-model"}
 
 
 def test_the_threshold_the_run_classifies_by_is_the_one_in_the_spec_it_is_given(tmp_path: Path) -> None:
@@ -314,3 +321,123 @@ def test_a_reuse_resting_on_a_part_in_conflict_is_flagged_on_its_row(tmp_path: P
             assert f"{component} (" in line
         flagged += bool(expected)
     assert flagged, "the committed dataset plants conflicts under reused sub-assemblies: the test would prove nothing"
+
+
+# --- the notes, on the same stdout -----------------------------------------------------------------
+
+
+def test_the_summary_says_which_reader_read_the_notes_and_what_it_found(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    out = tmp_path / "out"
+    assert main(["run", "--raw", str(COMMITTED_RAW), "--out", str(out)]) == 0
+    printed = capsys.readouterr().out
+    note_facts = load_note_facts(out / NOTE_FACTS_FILE)
+
+    assert note_facts.facts, "the committed notes carry facts the fallback reads: the test would prove nothing"
+    assert f"notes             {note_facts.notes_read} read by keyword" in printed
+    assert f"  facts           {len(note_facts.facts)} (" in printed
+    assert f"  unusable output {note_facts.invalid_outputs}" in printed
+
+
+def test_the_summary_shows_what_the_notes_contradict_by_kind_with_their_counts(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    out = tmp_path / "out"
+    assert main(["run", "--raw", str(COMMITTED_RAW), "--out", str(out)]) == 0
+    printed = capsys.readouterr().out
+    findings = load_findings(out / FINDINGS_FILE)
+
+    counts = {kind: sum(finding.rule_id == f"checks.note_{kind}" for finding in findings) for kind in ("obsolescence", "replacement", "restriction")}
+    assert all(counts.values()), counts
+    assert f"note vs BOM       {sum(counts.values())} parts a note contradicts the BOM about" in printed
+    block = printed[printed.index("note vs BOM       ") :]
+    for kind, count in counts.items():
+        assert f"  {kind:<16}{count}" in block
+
+
+def test_a_reuse_resting_on_a_part_a_note_speaks_against_is_flagged_on_its_row(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    """The demo's sharpest row: a sub-assembly the tool calls reusable, holding a part a note retired."""
+    out = tmp_path / "out"
+    assert main(["run", "--raw", str(COMMITTED_RAW), "--out", str(out)]) == 0
+    printed = capsys.readouterr().out
+    obsolete = {finding.subject for finding in load_findings(out / FINDINGS_FILE) if finding.rule_id == "checks.note_obsolescence"}
+    parts = {signature.sub_assembly_id: {item.component for item in signature.signature.items} for signature in load_signatures(out / SIGNATURES_FILE)}
+
+    flagged = [
+        prediction
+        for prediction in load_backtest(out / PREDICTIONS_FILE).predictions
+        if prediction.reuse_class is not ReuseClass.SPECIFIC and parts[prediction.sub_assembly_id] & obsolete
+    ]
+    assert flagged, "the committed notes retire a part under a reused sub-assembly: the test would prove nothing"
+    for prediction in flagged:
+        line = next(line for line in printed.splitlines() if line.strip().startswith(f"{prediction.sub_assembly_id} "))
+        for component in sorted(parts[prediction.sub_assembly_id] & obsolete):
+            assert f"{component} (" in line and "obsolescence" in line
+
+
+# --- offline by default ------------------------------------------------------------------------------
+
+
+def test_the_default_run_makes_no_call_at_all(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """CLAUDE.md rule 5, from the inside: with the fallback there is nothing to be unreachable."""
+
+    def refuse(*args: object, **kwargs: object) -> None:
+        raise AssertionError("the default run reached for the network")
+
+    monkeypatch.setattr(notes, "urlopen", refuse)
+    assert main(["run", "--raw", str(COMMITTED_RAW), "--out", str(tmp_path / "out")]) == 0
+
+
+def test_the_default_run_writes_nothing_outside_the_output_directory(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """The response cache belongs to the model reader; a run that never calls a model creates none."""
+    raw = tmp_path / "raw"
+    shutil.copytree(COMMITTED_RAW, raw)
+    monkeypatch.chdir(tmp_path)
+    assert main(["run", "--raw", "raw", "--out", "out"]) == 0
+    assert sorted(path.name for path in tmp_path.iterdir()) == ["out", "raw"]
+
+
+# --- and the model, when it is asked for ----------------------------------------------------------------
+
+
+class _FakeBackend:
+    """Stands in for `OllamaBackend`, so the wiring is tested without a model or a socket."""
+
+    def __init__(self, model: str, answer: str | BackendError = '{"facts": []}') -> None:
+        self.model = model
+        self._answer = answer
+        self.calls = 0
+
+    def generate(self, prompt: str) -> str:
+        self.calls += 1
+        if isinstance(self._answer, BackendError):
+            raise self._answer
+        return self._answer
+
+
+def test_the_model_reader_is_used_when_it_is_asked_for_and_named_in_the_artifact(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    built: list[_FakeBackend] = []
+
+    def backend(model: str) -> _FakeBackend:
+        built.append(_FakeBackend(model))
+        return built[-1]
+
+    monkeypatch.setattr(cli, "OllamaBackend", backend)
+    monkeypatch.chdir(tmp_path)  # the response cache is written beside the working directory
+    out = tmp_path / "out"
+    assert main(["run", "--raw", str(COMMITTED_RAW), "--out", str(out), "--notes", "llm", "--notes-model", "some-model"]) == 0
+
+    assert [fake.model for fake in built] == ["some-model"]
+    note_facts = load_note_facts(out / NOTE_FACTS_FILE)
+    assert (note_facts.reader, note_facts.facts) == ("llm:some-model", ())
+    assert built[0].calls == note_facts.notes_read, "one call per note"
+    assert "read by llm:some-model" in capsys.readouterr().out
+    assert list((tmp_path / DEFAULT_CACHE_DIR).glob("some-model-*.json")), "the answers are cached, outside the artifacts"
+
+
+def test_a_model_that_does_not_answer_stops_the_run_and_says_what_to_run_instead(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Asking for a model that is not there is an error; the offline path is one flag away, and said."""
+    monkeypatch.setattr(cli, "OllamaBackend", lambda model: _FakeBackend(model, BackendError("nothing answered")))
+    assert main(["run", "--raw", str(COMMITTED_RAW), "--out", str(tmp_path / "out"), "--notes", "llm"]) == 1
+    assert "--notes keyword" in capsys.readouterr().err

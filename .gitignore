@@ -12,3 +12,6 @@ __pycache__/
 
 # Pipeline and report output
 out/
+
+# The response cache of the note reader: a local accelerator, never a deliverable.
+.cache/

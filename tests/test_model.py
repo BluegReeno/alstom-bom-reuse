@@ -649,6 +649,6 @@ def test_a_missing_note_facts_artifact_is_a_model_error(tmp_path: Path) -> None:
 
 
 def test_the_artifacts_a_run_writes_are_named_once() -> None:
-    """Five files, said in one place: every test site that lists them derives its list from here."""
-    assert RUN_ARTIFACTS == ("normalized.json", "resolution.json", "findings.json", "signatures.json", "predictions.json")
+    """Six files, said in one place: every test site that lists them derives its list from here."""
+    assert RUN_ARTIFACTS == ("normalized.json", "resolution.json", "note_facts.json", "findings.json", "signatures.json", "predictions.json")
     assert len(set(RUN_ARTIFACTS)) == len(RUN_ARTIFACTS)
