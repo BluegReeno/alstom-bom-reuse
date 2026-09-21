@@ -32,7 +32,7 @@ honest on free text.
 from collections import defaultdict
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
-from typing import Final
+from typing import Final, TypeGuard
 
 from bomreuse.model import (
     Attribute,
@@ -165,13 +165,16 @@ def _split(key: str, rows: list[BomLine]) -> tuple[CanonicalComponent, ...]:
     A row whose designation `normalize` could not read becomes its own part: it carries no
     evidence of which product it belongs to, and attaching it to one of them would be a guess.
     """
-    by_designation: dict[str, list[BomLine]] = defaultdict(list)
+    by_part: dict[tuple[str, int], list[BomLine]] = defaultdict(list)
     for row in rows:
-        by_designation[row.designation.normalized].append(row)
-    return tuple(
-        _component(f"{key}#{number}", key, by_designation[designation])
-        for number, designation in enumerate(sorted(by_designation), start=1)
-    )
+        by_part[_part_of(row)].append(row)
+    return tuple(_component(f"{key}#{number}", key, by_part[part]) for number, part in enumerate(sorted(by_part), start=1))
+
+
+def _part_of(row: BomLine) -> tuple[str, int]:
+    """Which part a row belongs to: its designation, or the row alone when it has none to read."""
+    designation = row.designation.normalized
+    return (designation, 0) if _readable(designation) else ("", row.row_number)
 
 
 def _component(component_id: str, key: str, rows: list[BomLine]) -> CanonicalComponent:
@@ -206,13 +209,14 @@ def _findings(group: CandidateGroup, rows: list[BomLine]) -> list[Finding]:
             )
         )
     elif group.verdict is GroupVerdict.REJECT:
+        designations = sorted({designation for part in group.components for designation in part.designations})
         findings.append(
             GROUP_SPLIT.finding(
                 subject=group.reference_key,
                 message=(
                     f"References {_quoted(sorted({reference for part in group.components for reference in part.raw_references}))} "
-                    f"share a canonical key but designate {len(group.components)} different products: "
-                    f"{_quoted(sorted({designation for part in group.components for designation in part.designations}))}. Kept apart."
+                    f"share a canonical key but designate {len(designations)} different products: "
+                    f"{_quoted(designations)}. Kept apart."
                 ),
                 source_rows=_source_rows(_rows_of(part, rows)[0] for part in group.components),
             )
@@ -231,7 +235,9 @@ def _first_row_per(rows: list[BomLine], read: Callable[[BomLine], object]) -> tu
     """The earliest row showing each distinct value: the evidence, without the forty rows behind it."""
     earliest: dict[object, BomLine] = {}
     for row in rows:
-        earliest.setdefault(read(row), row)
+        value = read(row)
+        if _readable(value):
+            earliest.setdefault(value, row)
     return _source_rows(earliest.values())
 
 
@@ -247,15 +253,21 @@ def _source_rows(rows: Iterable[BomLine]) -> tuple[SourceRow, ...]:
 # --- small helpers ------------------------------------------------------------------------------
 
 
-def _distinct[T](values: Iterable[T | None]) -> list[T]:
-    """The distinct readable values, in the order the rows show them.
+def _readable[T](value: T | None) -> TypeGuard[T]:
+    """Whether `normalize` could read this value.
 
     `None` and `""` mean *unreadable*, not a value: `normalize` has already counted them, and
-    counting an unreadable supplier as a second supplier would invent a conflict.
+    counting an unreadable supplier as a second supplier would invent a conflict. Every read of
+    a `*.normalized` field in this module goes through here.
     """
+    return value is not None and value != ""
+
+
+def _distinct[T](values: Iterable[T | None]) -> list[T]:
+    """The distinct readable values, in the order the rows show them."""
     seen: list[T] = []
     for value in values:
-        if value is not None and value != "" and value not in seen:
+        if _readable(value) and value not in seen:
             seen.append(value)
     return seen
 

@@ -185,6 +185,54 @@ def test_a_value_normalize_could_not_read_is_not_a_disagreement() -> None:
     assert findings == ()
 
 
+def test_a_row_with_no_designation_becomes_its_own_part_rather_than_joining_the_other_unreadable_rows() -> None:
+    """Grouping them together would assert they are one component on no designation evidence at all."""
+    dataset = dataset_of(
+        ("SEAT-RAIL-I", "Floor rail, stainless steel", "6", "pcs", "Atelier Lys Métal", "312,00"),
+        ("SEAT-RAIL-1", "Mounting rail, aluminium, mark 1", "2", "pcs", "Atelier Lys Métal", "121,00"),
+        ("SEAT-RAIL-I", "", "6", "pcs", "Atelier Lys Métal", "312,00"),
+        ("SEAT-RAIL-l", "", "2", "pcs", "Atelier Lys Métal", "121,00"),
+    )
+    assert [(issue.field, issue.reason) for issue in dataset.issues] == [("designation", "empty"), ("designation", "empty")]
+    resolution, findings = resolve(dataset)
+
+    group = resolution.groups[0]
+    assert group.verdict is GroupVerdict.REJECT
+    assert [component.rows for component in group.components] == [(3,), (4,), (1,), (2,)]
+    assert [component.designations for component in group.components] == [(), (), ("floor rail, stainless steel",), ("mounting rail, aluminium, mark 1",)]
+    assert [finding.rule_id for finding in findings] == ["resolution.group_split"], "no part is two spellings of one component"
+
+
+def test_the_split_message_counts_the_products_it_names() -> None:
+    """A part with no readable designation is neither counted nor listed, so the finding cannot contradict itself."""
+    _, findings = resolve(
+        dataset_of(
+            ("SEAT-RAIL-I", "Floor rail, stainless steel", "6", "pcs", "Atelier Lys Métal", "312,00"),
+            ("SEAT-RAIL-1", "Mounting rail, aluminium, mark 1", "2", "pcs", "Atelier Lys Métal", "121,00"),
+            ("SEAT-RAIL-l", "", "2", "pcs", "Atelier Lys Métal", "121,00"),
+        )
+    )
+    split = one_finding("resolution.group_split", findings)
+    assert "designate 2 different products" in split.message
+    assert split.message.count("'floor rail, stainless steel'") == 1 and split.message.count("'mounting rail, aluminium, mark 1'") == 1
+
+
+def test_an_unreadable_value_is_not_cited_as_a_second_value_of_a_conflict() -> None:
+    """`_diverging` refuses to see it, so citing its row would send a reviewer to an empty cell."""
+    dataset = dataset_of(
+        ("SEAT-RAIL", "Seat rail", "1", "pcs", "Atelier Lys Métal", "121,00"),
+        ("SEAT-RAIL", "Seat rail", "1", "pcs", "Artois Polymères", "121,00"),
+        ("SEAT-RAIL", "Seat rail", "1", "pcs", "", "121,00"),
+    )
+    assert [(issue.field, issue.reason) for issue in dataset.issues] == [("supplier", "empty")]
+    resolution, findings = resolve(dataset)
+
+    assert resolution.groups[0].verdict is GroupVerdict.REVIEW
+    assert resolution.groups[0].diverging == (Attribute.SUPPLIER,)
+    conflict = one_finding("resolution.group_conflict", findings)
+    assert {row.row_number for row in conflict.source_rows} == {1, 2}, "the empty cell is already a NormalizationIssue, not a second supplier"
+
+
 # --- the duplicate-reference finding -------------------------------------------------------------
 
 
