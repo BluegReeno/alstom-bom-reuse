@@ -114,6 +114,12 @@ To be completed when the build lands: what was dropped, and why. Known so far:
   tool is stricter with two separators than with one. No value of the committed dataset is
   affected; an export that uses a thousands separator would be misread without an issue being
   raised.
+- **A cost too small for a float is read as zero.** In `normalize`, a positive `unit_cost_eur`
+  whose value underflows a float becomes `0.0` with no issue raised, where the string `"0"` is
+  refused. Reaching it takes a cost written with some four hundred leading zeros, so no value of
+  the committed dataset is affected and no realistic export carries one. The same underflow on
+  quantities is caught and counted (#13); the cost path was left alone when the refocus of
+  2026-09-21 froze the data layer (DECISIONS.md 29, issue #18, closed won't-do).
 
 ## How this was built
 

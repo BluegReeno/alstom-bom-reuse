@@ -27,7 +27,6 @@ Next: issue #5, first slice — the scorer and the two naive baselines, before #
 - [ ] #6 Note extraction: LLM adapter, keyword fallback and linking — `piv-direct`, after S2
 - [ ] #7 HTML report, findings artifact and a true README — `piv-direct`
 - [ ] #14 `generate`: the ground-truth-inside-raw guard compares by identity, like `cli._writes_into`
-- [ ] #18 `normalize`: a cost too small for a float is read as zero, not counted — PR #15 review R6, before #4 reads costs
 
 ## Note
 Project review, 2026-09-20: #4 now builds signatures on every merged group (`auto` and `review`),
@@ -54,6 +53,6 @@ whatever is wrong with it, and a number it returns is finite (#13). Details:
 `.claude/reports/model-leaf-types-report.md`.
 
 Order of execution: #1 -> #2 -> #3 -> #13 -> #5 first slice (scorer + two baselines) -> #4 -> #5
-second slice, then #6 and #7 in parallel. #14 and #18 are off the critical path. Spike S2 (does the
+second slice, then #6 and #7 in parallel. #14 is off the critical path. Spike S2 (does the
 local model return usable JSON) is throwaway, off the critical path, and can run at any time.
 The cut order is the reverse: #7 first, then #6; #5 is never cut.
