@@ -97,8 +97,8 @@ product.
 
 ## How we work (the AI trace is a deliverable)
 
-**Refocus of 2026-09-21. The rules below replace the previous PIV plan; the human's line in
-`DECISIONS.md` is still to be written.**
+**Refocus of 2026-09-21, recorded as `DECISIONS.md` 29. The rules below replace the previous
+PIV plan.**
 
 Four hours of a ~4 h exercise produced the synthetic dataset and its measurement apparatus —
 two thirds of the source — while the half of the tool that answers the client's question did

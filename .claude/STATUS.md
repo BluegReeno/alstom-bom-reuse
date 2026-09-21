@@ -47,8 +47,8 @@ blocked**, so an autonomous run needs no question answered. Procedure:
 - Plan documents and implementation reports are dropped: the issue is the plan, the PR
   description is the report. The review step stays, inside the run.
 
-**Owed to `DECISIONS.md`:** one human line for this refocus (number 29). The agent does not
-write it.
+Recorded as `DECISIONS.md` 29, written on the human's explicit authorization — the one case
+the repo's rule allows.
 
 ## Not code, and not started
 
