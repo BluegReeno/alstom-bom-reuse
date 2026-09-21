@@ -99,7 +99,7 @@ flowchart LR
         B1["L00227 SA-0215<br/>BIKE-HOOK 8 units"]
         B2["L00229 SA-0215<br/>BIKE-STRAP 8 units"]
         B3["L00230 SA-0215<br/>BIKE-FIX-KIT 8 units"]
-        N13["Note N013, 2023, in French<br/>«BIKE STRAP est remplacé<br/>par BIKE-STRAP-V2»<br/>(BIKE STRAP is replaced<br/>by BIKE-STRAP-V2)"]
+        N13["Note N013, 2023<br/>BIKE STRAP is replaced<br/>by BIKE-STRAP-V2"]
     end
     subgraph C["Variant C, bom.csv"]
         C1["L00643 OCC-SA-0315<br/>BIKE-HOOK 6 pcs"]
@@ -159,13 +159,13 @@ flowchart LR
   the verdict is *reusable*, with its diff.
 - **The two naive searches fail in opposite directions.** The exact reference finds nothing and
   answers *new*; the designation finds a *reused* that is not one — the error that costs money.
-- **The dashed box is what the offline run cannot compute.** N013 writes the replaced part as
-  `BIKE STRAP` — a space where a hyphen makes a reference, and no digit to save it — so the
-  keyword reader finds the cue (*est remplacé par*) and no reference before it, and extracts
-  nothing (`notes.py`; the shape is listed in **Known limits**). Its row in `bomreuse run`'s
-  backtest table therefore prints with no flag. Reading this note is what the `--notes llm`
-  backend is for, and the ground truth plants this reuse as unsafe — the case the demo talks
-  about.
+- **The dashed box is what the offline run cannot compute.** N013 is written in French, and writes
+  the replaced part as `BIKE STRAP` — a space where a hyphen makes a reference, and no digit to
+  save it — so the keyword reader finds the French cue (*est remplacé par*, "is replaced by") and
+  no reference before it, and extracts nothing (`notes.py`; the shape is listed in **Known
+  limits**). Its row in `bomreuse run`'s backtest table therefore prints with no flag. Reading
+  this note is what the `--notes llm` backend is for, and the ground truth plants this reuse as
+  unsafe — the case the demo talks about.
 
 ## What the synthetic data contains, and why
 
