@@ -261,8 +261,9 @@ def scored_committed() -> dict[str, Score]:
     raw = read_raw(COMMITTED_RAW)
     dataset = normalize(raw)
     resolution, _ = resolve(dataset)
-    result = backtest(build_signatures(dataset, resolution), dataset.variants, load_spec().thresholds)
-    return {result.predictor: result for result in evaluate(raw, dataset, result, COMMITTED_GROUND_TRUTH).scores}
+    signatures = build_signatures(dataset, resolution)
+    result = backtest(signatures, dataset.variants, load_spec().thresholds)
+    return {result.predictor: result for result in evaluate(raw, dataset, signatures, result, COMMITTED_GROUND_TRUTH).scores}
 
 
 def test_the_three_predictors_are_the_tool_and_the_two_naive_searches() -> None:
@@ -303,23 +304,25 @@ def test_a_ground_truth_of_another_dataset_is_refused_rather_than_scored(tmp_pat
     raw = read_raw(COMMITTED_RAW)
     dataset = normalize(raw)
     resolution, _ = resolve(dataset)
-    result = backtest(build_signatures(dataset, resolution), dataset.variants, load_spec().thresholds)
+    signatures = build_signatures(dataset, resolution)
+    result = backtest(signatures, dataset.variants, load_spec().thresholds)
     elsewhere = tmp_path / "ground_truth.json"
     dump_ground_truth(truth_of(newest_variant="E"), elsewhere)
 
     with pytest.raises(EvaluationError, match="do not describe the same dataset"):
-        evaluate(raw, dataset, result, elsewhere)
+        evaluate(raw, dataset, signatures, result, elsewhere)
 
 
 def test_an_unreadable_ground_truth_is_an_evaluation_error(tmp_path: Path) -> None:
     raw = read_raw(COMMITTED_RAW)
     dataset = normalize(raw)
     resolution, _ = resolve(dataset)
-    result = backtest(build_signatures(dataset, resolution), dataset.variants, load_spec().thresholds)
+    signatures = build_signatures(dataset, resolution)
+    result = backtest(signatures, dataset.variants, load_spec().thresholds)
     with pytest.raises(EvaluationError, match="cannot be read"):
-        evaluate(raw, dataset, result, tmp_path / "nowhere.json")
+        evaluate(raw, dataset, signatures, result, tmp_path / "nowhere.json")
 
     broken = tmp_path / "broken.json"
     broken.write_text('{"schema_version": "1"}', encoding="utf-8")
     with pytest.raises(EvaluationError, match="not a ground truth"):
-        evaluate(raw, dataset, result, broken)
+        evaluate(raw, dataset, signatures, result, broken)

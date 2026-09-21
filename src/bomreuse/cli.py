@@ -364,27 +364,35 @@ def _evaluate(args: argparse.Namespace) -> int:
         dataset = normalize(raw)
         resolution, _ = resolve(dataset)
         signatures = build_signatures(dataset, resolution)
-        evaluation = evaluate(raw, dataset, backtest(signatures, dataset.variants, thresholds), args.ground_truth)
+        evaluation = evaluate(raw, dataset, signatures, backtest(signatures, dataset.variants, thresholds), args.ground_truth)
     except (IngestError, SpecError, EvaluationError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
 
-    _print_evaluation(evaluation)
+    _print_evaluation(evaluation, dataset)
     return 0
 
 
-def _print_evaluation(evaluation: Evaluation) -> None:
+def _print_evaluation(evaluation: Evaluation, dataset: NormalizedDataset) -> None:
     """The score, in the ground truth's words, with the counts every ratio was read off.
 
     The rows carry the ground truth's labels because it is the ground truth that is being scored
     against; the one line about `specific` is where the two vocabularies are reconciled for the
     reader, as they are reconciled for the code in `evaluate.ANSWERS` (Decision 30).
+
+    What the run could not read is on this screen too, and for a harder reason than on `run`'s:
+    these ratios are the build's one value claim, and a measurement taken through a hole must not
+    be printed as one taken on whole data.
     """
     print(f"ground truth      {evaluation.ground_truth_path}")
     print(f"backtest          {evaluation.target_variant_id} played as the new tender against {', '.join(evaluation.ancestor_variant_ids)}")
-    print(f"  sub-assemblies  {evaluation.items} ({', '.join(f'{label} {count}' for label, count in evaluation.labelled.items())})")
+    print(
+        f"  sub-assemblies  {evaluation.items} ({', '.join(f'{label} {count}' for label, count in evaluation.labelled.items())}), "
+        f"scored on signatures missing {evaluation.lines_left_out} BOM lines"
+    )
     print("  rows            the ground truth's labels; the prediction that answers 'new' is 'specific'")
     print("  a hit           the class is right, and the older sub-assembly named is one the ground truth lists")
+    _print_issues(dataset)
     for score in evaluation.scores:
         _print_score(score)
 

@@ -2,12 +2,14 @@
 
 The command runs the pipeline itself and scores it, so its figures can never be those of a stale
 artifact in `out/`. What is checked here is the contract of the output: the three reuse classes
-for the tool and for both naive searches, the counts beside every ratio, no decimal anywhere, and
-the one line that reconciles the two vocabularies. The figures themselves are not asserted —
-there are no regression floors in this build; `evaluate` prints them and the README quotes them.
+for the tool and for both naive searches, the counts beside every ratio, no decimal anywhere, the
+one line that reconciles the two vocabularies, and what the run could not read. The figures
+themselves are not asserted — there are no regression floors in this build; `evaluate` prints them
+and the README quotes them.
 """
 
 import re
+import shutil
 from pathlib import Path
 
 import pytest
@@ -33,6 +35,30 @@ _DECIMAL = re.compile(r"\b\d+\.\d+\b")
 def ran(capsys: pytest.CaptureFixture[str], *extra: str) -> str:
     assert main(["evaluate", "--ground-truth", str(COMMITTED_GROUND_TRUTH), *extra]) == 0
     return capsys.readouterr().out
+
+
+def raw_with_blank_quantities(tmp_path: Path, every: int = 9) -> tuple[Path, int]:
+    """A copy of the committed dataset with the quantity cell blanked on every nth BOM line.
+
+    One column an ERP exported blank. `normalize` keeps the row and records the value as
+    unreadable, and the signatures of the sub-assemblies those lines belong to come out short.
+    """
+    dirty = tmp_path / "raw"
+    dirty.mkdir()
+    for name in ("variants.csv", "notes.csv"):
+        shutil.copy(COMMITTED_RAW / name, dirty / name)
+    header, *rows = (COMMITTED_RAW / "bom.csv").read_text(encoding="utf-8").splitlines()
+    quantity = header.split(";").index("quantity")
+    blanked = 0
+    written = []
+    for index, row in enumerate(rows):
+        cells = row.split(";")
+        if index % every == 0:
+            cells[quantity] = ""
+            blanked += 1
+        written.append(";".join(cells))
+    (dirty / "bom.csv").write_text("\n".join([header, *written]) + "\n", encoding="utf-8")
+    return dirty, blanked
 
 
 def test_evaluate_scores_the_tool_and_both_naive_searches(capsys: pytest.CaptureFixture[str]) -> None:
@@ -66,14 +92,40 @@ def test_the_printed_figures_are_the_ones_the_scorer_computed(capsys: pytest.Cap
     raw = read_raw(COMMITTED_RAW)
     dataset = normalize(raw)
     resolution, _ = resolve(dataset)
-    result = backtest(build_signatures(dataset, resolution), dataset.variants, load_spec().thresholds)
-    evaluation = evaluate(raw, dataset, result, COMMITTED_GROUND_TRUTH)
+    signatures = build_signatures(dataset, resolution)
+    result = backtest(signatures, dataset.variants, load_spec().thresholds)
+    evaluation = evaluate(raw, dataset, signatures, result, COMMITTED_GROUND_TRUTH)
 
     assert f"{evaluation.items} (" in out
     for score in evaluation.scores:
         assert f"  {'correct':<16}{score.correct}" in out
         for row in score.classes:
             assert f"  {row.label:<16}precision {str(row.precision):<10}recall {row.recall}" in out
+
+
+def test_a_clean_run_says_it_read_everything_rather_than_saying_nothing(capsys: pytest.CaptureFixture[str]) -> None:
+    """Both counts are always on the screen: a line printed only when it is bad reads as clean when absent."""
+    out = ran(capsys, "--raw", str(COMMITTED_RAW))
+    assert "issues            0" in out
+    assert "scored on signatures missing 0 BOM lines" in out
+
+
+def test_a_score_taken_through_a_hole_says_so_on_the_screen_it_is_read_off(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    """Unreadable data is data and is still scored — but the ratios must not read as clean ones.
+
+    The counts are the pipeline's own, recomputed here: `normalize`'s unreadable values, and the
+    BOM lines the signatures under these classes could not read.
+    """
+    dirty, blanked = raw_with_blank_quantities(tmp_path)
+    out = ran(capsys, "--raw", str(dirty))
+
+    dataset = normalize(read_raw(dirty))
+    resolution, _ = resolve(dataset)
+    unread = sum(signature.lines_left_out for signature in build_signatures(dataset, resolution))
+    assert len(dataset.issues) == blanked
+    assert unread > 0, "the blanked column must truncate signatures, or this asserts nothing"
+    assert f"issues            {blanked}" in out
+    assert f"scored on signatures missing {unread} BOM lines" in out
 
 
 def test_evaluate_says_which_variant_it_played_and_against_which_ones(capsys: pytest.CaptureFixture[str]) -> None:

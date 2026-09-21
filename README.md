@@ -205,7 +205,9 @@ under the same rule: an answer is right when the class is right **and** the olde
 names is one the ground truth lists, any one of them being a valid source to reuse from
 (DECISIONS.md 25). Rows carry the ground truth's words; `specific` is the prediction that answers
 its `new`, because the tool can only observe that it found no match, never assert that none
-exists (DECISIONS.md 30).
+exists (DECISIONS.md 30). Two counts say what the score rests on: the values `normalize` could not
+read, and the BOM lines missing from the signatures the classes were decided on. Both are zero
+here; on a dirtier export they would not be, and the ratios would have to be read against them.
 
 ```bash
 uv run bomreuse evaluate --ground-truth data/ground_truth/ground_truth.json
@@ -214,9 +216,10 @@ uv run bomreuse evaluate --ground-truth data/ground_truth/ground_truth.json
 ```
 ground truth      data/ground_truth/ground_truth.json
 backtest          C played as the new tender against A, B, D, E
-  sub-assemblies  15 (reused 9, reusable 4, new 2)
+  sub-assemblies  15 (reused 9, reusable 4, new 2), scored on signatures missing 0 BOM lines
   rows            the ground truth's labels; the prediction that answers 'new' is 'specific'
   a hit           the class is right, and the older sub-assembly named is one the ground truth lists
+issues            0
 
 tool              signatures over the canonical components, against the variants designed earlier
   reused          precision 8/8       recall 8/9

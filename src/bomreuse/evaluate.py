@@ -29,7 +29,7 @@ from typing import Final
 
 from bomreuse import baseline
 from bomreuse.ground_truth import BacktestLabel, GroundTruth, Label, load_ground_truth
-from bomreuse.model import Backtest, NormalizedDataset, Prediction, RawDataset, ReuseClass
+from bomreuse.model import Backtest, NormalizedDataset, Prediction, RawDataset, ReuseClass, SubAssemblySignature
 
 #: The predictor whose value the two baselines are there to measure.
 TOOL: Final[str] = "tool"
@@ -112,12 +112,17 @@ class Evaluation:
 
     The variants are carried because the score is only worth what the chronology is worth: a
     backtest that had compared the newest variant with itself would print healthy ratios ([A7]).
+
+    `lines_left_out` is carried for the same reason: a class decided on the two lines of a
+    sub-assembly that parsed is not the class its whole content would have earned, so a ratio
+    read off truncated signatures must not look like one read off complete ones.
     """
 
     ground_truth_path: Path
     target_variant_id: str
     ancestor_variant_ids: tuple[str, ...]
     labelled: Mapping[Label, int]
+    lines_left_out: int
     scores: tuple[Score, ...]
 
     @property
@@ -125,8 +130,18 @@ class Evaluation:
         return sum(self.labelled.values())
 
 
-def evaluate(raw: RawDataset, dataset: NormalizedDataset, result: Backtest, ground_truth_path: Path) -> Evaluation:
-    """Score the tool and the two naive searches against the ground truth the caller names."""
+def evaluate(
+    raw: RawDataset,
+    dataset: NormalizedDataset,
+    signatures: tuple[SubAssemblySignature, ...],
+    result: Backtest,
+    ground_truth_path: Path,
+) -> Evaluation:
+    """Score the tool and the two naive searches against the ground truth the caller names.
+
+    The signatures are read for one number only — the BOM lines they could not read — because
+    the score is worth what the evidence under it is worth.
+    """
     truth = _load(ground_truth_path)
     if truth.newest_variant != result.target_variant_id:
         raise EvaluationError(
@@ -161,6 +176,7 @@ def evaluate(raw: RawDataset, dataset: NormalizedDataset, result: Backtest, grou
         target_variant_id=result.target_variant_id,
         ancestor_variant_ids=older,
         labelled={label: sum(1 for item in truth.backtest if item.label == label) for label in ANSWERS},
+        lines_left_out=sum(signature.lines_left_out for signature in signatures),
         scores=tuple(score(predictor, truth) for predictor in predictors),
     )
 
