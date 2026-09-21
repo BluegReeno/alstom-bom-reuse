@@ -1,7 +1,9 @@
-"""The project's single set of types: raw rows, entities, and the artifact they round-trip through.
+"""The project's single set of types: raw rows, entities, and the artifacts they round-trip through.
 
-Every stage passes these frozen dataclasses, and `out/normalized.json` is serialized from them
-and read back into them — no schema library mirrors them (docs/ARCHITECTURE.md A4, A8).
+Every stage passes these frozen dataclasses, and the JSON files in `out/` are serialized from
+them and read back into them — no schema library mirrors them (docs/ARCHITECTURE.md A4, A8).
+The types live here and the rules live in the stages: `Component` is `normalize`'s output and
+`CandidateGroup` is `resolve`'s, and both are read back by whoever is handed the file.
 
 Two ideas shape the module:
 
@@ -15,7 +17,13 @@ Two ideas shape the module:
 
 A `Component` here is a **candidate group** — everything sharing one reference key. Whether the
 group is one product (`auto`), one product with diverging attributes (`review`) or two products
-(`reject`) is decided by resolution (#4), which is why the designations seen are kept on it.
+(`reject`) is decided by `resolve`, which is why the designations seen are kept on it; its answer
+comes back as a `CandidateGroup` holding one `CanonicalComponent`, or several after a split.
+
+A `Finding` is what the tool proposes to a human (Decision 8): it names the rule that produced
+it, the confidence that rule declares, and the file rows it was read from (R11). It is built by
+`rules.Rule.finding`, not here: this module imports nothing from the package and stays the leaf
+every other one can depend on.
 
 The raw rows live here rather than in `ingest.py` because the naive baselines of #5 consume them
 and have no reason to import a reader.
@@ -31,14 +39,18 @@ import math
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import date
+from enum import StrEnum
 from pathlib import Path
 from typing import Any, Final
 
-#: The name of the artifact inside the output directory the CLI is given.
+#: The names of the artifacts inside the output directory the CLI is given.
 NORMALIZED_FILE: Final[str] = "normalized.json"
+RESOLUTION_FILE: Final[str] = "resolution.json"
+FINDINGS_FILE: Final[str] = "findings.json"
 
-#: Written into the artifact and checked on load: a later issue that changes a type bumps it, so
-#: a stale `out/normalized.json` is refused instead of half-read.
+#: Written into every artifact and checked on load: a later issue that changes a type bumps it,
+#: so a stale file in `out/` is refused instead of half-read. One version for the whole set of
+#: types, since one stage reads what the previous one wrote.
 SCHEMA_VERSION: Final[str] = "1"
 
 
@@ -238,6 +250,103 @@ class NormalizedDataset:
     issues: tuple[NormalizationIssue, ...]
 
 
+# --- findings ---------------------------------------------------------------------------------
+
+
+@dataclass(frozen=True, slots=True, order=True)
+class SourceRow:
+    """One row of one input file, named the way `NormalizationIssue` names it."""
+
+    source_file: str
+    row_number: int
+    row_id: str
+
+
+@dataclass(frozen=True, slots=True)
+class Finding:
+    """A proposal for a human, with everything needed to check it (R11).
+
+    `source_rows` holds the rows a reader must open to judge the finding — one per distinct
+    value the rule read, not every row of the group: a reference used on forty lines would
+    otherwise bury its own evidence.
+    """
+
+    rule_id: str
+    confidence: float
+    subject: str
+    message: str
+    source_rows: tuple[SourceRow, ...]
+
+
+# --- resolution -------------------------------------------------------------------------------
+
+
+class GroupVerdict(StrEnum):
+    """What `resolve` says of the group a reference key formed (docs/ARCHITECTURE.md A2).
+
+    It rates the coherence of that group, not the confidence of a match: rules-only resolution
+    leaves no fuzzy match to rate (DECISIONS.md 20).
+    """
+
+    AUTO = "auto"
+    REVIEW = "review"
+    REJECT = "reject"
+
+
+class Attribute(StrEnum):
+    """What rows sharing a key can disagree about."""
+
+    DESIGNATION = "designation"
+    UNIT = "unit"
+    SUPPLIER = "supplier"
+    COST = "cost"
+
+
+@dataclass(frozen=True, slots=True)
+class CanonicalComponent:
+    """One product, and the rows of `bom.csv` that name it.
+
+    `id` is the reference key, and `f"{key}#{n}"` for each part of a group a `reject` split —
+    a canonical id is not a reference, and nothing reads it back as one.
+
+    `rows` holds row numbers rather than `line_id` values: a row number is unique by
+    construction, where the `line_id` column is data and a dirty export may leave it empty.
+    It is also the coordinate a `Finding` cites, so the two artifacts point at the same place.
+    """
+
+    id: str
+    reference_key: str
+    raw_references: tuple[str, ...]
+    designations: tuple[str, ...]
+    rows: tuple[int, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class CandidateGroup:
+    """Everything one reference key gathered, and what became of it.
+
+    `components` holds one entry under `auto` and `review`, and one per product under `reject`
+    (Decision 26: only a `reject` splits a group, and `review` feeds the signatures like `auto`).
+    """
+
+    reference_key: str
+    verdict: GroupVerdict
+    diverging: tuple[Attribute, ...]
+    components: tuple[CanonicalComponent, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class Resolution:
+    """The resolution artifact: every candidate group, with its verdict and its components."""
+
+    groups: tuple[CandidateGroup, ...]
+
+    @property
+    def components(self) -> tuple[CanonicalComponent, ...]:
+        """Every canonical component, groups flattened: what the signatures of #16 will read."""
+        return tuple(component for group in self.groups for component in group.components)
+
+
 # --- writing ---------------------------------------------------------------------------------
 
 
@@ -248,15 +357,39 @@ def dataset_to_dict(dataset: NormalizedDataset) -> dict[str, Any]:
 
 
 def render_dataset(dataset: NormalizedDataset) -> str:
-    """The exact text of the artifact. Keys are sorted here; tuple order is `normalize`'s job."""
-    # allow_nan=False: `Infinity` and `NaN` are not JSON. `normalize` lets neither through; this is the backstop.
-    return json.dumps(dataset_to_dict(dataset), indent=2, sort_keys=True, ensure_ascii=False, allow_nan=False) + "\n"
+    return _render(_jsonable(dataclasses.asdict(dataset)))
 
 
 def dump_dataset(dataset: NormalizedDataset, path: Path) -> None:
+    _write(render_dataset(dataset), path)
+
+
+def render_resolution(resolution: Resolution) -> str:
+    return _render({"groups": _jsonable([dataclasses.asdict(group) for group in resolution.groups])})
+
+
+def dump_resolution(resolution: Resolution, path: Path) -> None:
+    _write(render_resolution(resolution), path)
+
+
+def render_findings(findings: tuple[Finding, ...]) -> str:
+    return _render({"findings": _jsonable([dataclasses.asdict(finding) for finding in findings])})
+
+
+def dump_findings(findings: tuple[Finding, ...], path: Path) -> None:
+    _write(render_findings(findings), path)
+
+
+def _render(data: dict[str, Any]) -> str:
+    """The exact text of an artifact. Keys are sorted here; tuple order is the stage's job."""
+    # allow_nan=False: `Infinity` and `NaN` are not JSON. No stage lets either through; this is the backstop.
+    return json.dumps({**data, "schema_version": SCHEMA_VERSION}, indent=2, sort_keys=True, ensure_ascii=False, allow_nan=False) + "\n"
+
+
+def _write(text: str, path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8", newline="\n") as handle:
-        handle.write(render_dataset(dataset))
+        handle.write(text)
 
 
 def _jsonable(value: Any) -> Any:
@@ -275,28 +408,91 @@ def _jsonable(value: Any) -> Any:
 
 
 def load_dataset(path: Path) -> NormalizedDataset:
+    return dataset_from_dict(_read_json(path, "normalized dataset"))
+
+
+def load_resolution(path: Path) -> Resolution:
+    return resolution_from_dict(_read_json(path, "resolution"))
+
+
+def load_findings(path: Path) -> tuple[Finding, ...]:
+    return findings_from_dict(_read_json(path, "findings"))
+
+
+def _read_json(path: Path, what: str) -> Any:
     try:
-        data = json.loads(path.read_text(encoding="utf-8"))
+        return json.loads(path.read_text(encoding="utf-8"))
     except FileNotFoundError as exc:
-        raise ModelError(f"normalized dataset not found at {path}") from exc
+        raise ModelError(f"{what} not found at {path}") from exc
     except (OSError, UnicodeDecodeError) as exc:
         # A directory, an unreadable file, a file written in another encoding: the caller asked
-        # for a dataset and gets the one error type this module promises.
-        raise ModelError(f"normalized dataset at {path} cannot be read: {exc}") from exc
+        # for an artifact and gets the one error type this module promises.
+        raise ModelError(f"{what} at {path} cannot be read: {exc}") from exc
     except (ValueError, RecursionError) as exc:
         # `JSONDecodeError` is a `ValueError`, and so is the integer-digit limit `json.loads` hits
-        # on a huge number literal; deep nesting gives a `RecursionError`. None of the three is a
-        # dataset, and the caller was promised one error type.
-        raise ModelError(f"normalized dataset at {path} is not valid JSON: {exc}") from exc
-    return dataset_from_dict(data)
+        # on a huge number literal; deep nesting gives a `RecursionError`. None of the three is an
+        # artifact, and the caller was promised one error type.
+        raise ModelError(f"{what} at {path} is not valid JSON: {exc}") from exc
+
+
+def resolution_from_dict(data: Any) -> Resolution:
+    _check_keys(data, {"groups", "schema_version"}, "the resolution")
+    _check_schema_version(data, "bomreuse run")
+    return Resolution(groups=_each(data["groups"], _group, "groups"))
+
+
+def findings_from_dict(data: Any) -> tuple[Finding, ...]:
+    _check_keys(data, {"findings", "schema_version"}, "the findings")
+    _check_schema_version(data, "bomreuse run")
+    return _each(data["findings"], _finding, "findings")
+
+
+def _group(d: Any, where: str) -> CandidateGroup:
+    _check_keys(d, {"reference_key", "verdict", "diverging", "components"}, where)
+    return CandidateGroup(
+        reference_key=_str(d["reference_key"], f"{where}.reference_key"),
+        verdict=_member(GroupVerdict, d["verdict"], f"{where}.verdict"),
+        diverging=tuple(_member(Attribute, value, f"{where}.diverging[{i}]") for i, value in enumerate(_list(d["diverging"], f"{where}.diverging"))),
+        components=_each(d["components"], _canonical_component, f"{where}.components"),
+    )
+
+
+def _canonical_component(d: Any, where: str) -> CanonicalComponent:
+    _check_keys(d, {"id", "reference_key", "raw_references", "designations", "rows"}, where)
+    return CanonicalComponent(
+        id=_str(d["id"], f"{where}.id"),
+        reference_key=_str(d["reference_key"], f"{where}.reference_key"),
+        raw_references=_str_tuple(d["raw_references"], f"{where}.raw_references"),
+        designations=_str_tuple(d["designations"], f"{where}.designations"),
+        rows=tuple(_int(value, f"{where}.rows[{index}]") for index, value in enumerate(_list(d["rows"], f"{where}.rows"))),
+    )
+
+
+def _finding(d: Any, where: str) -> Finding:
+    _check_keys(d, {"rule_id", "confidence", "subject", "message", "source_rows"}, where)
+    return Finding(
+        rule_id=_str(d["rule_id"], f"{where}.rule_id"),
+        confidence=_finite_float(d["confidence"], f"{where}.confidence"),
+        subject=_str(d["subject"], f"{where}.subject"),
+        message=_str(d["message"], f"{where}.message"),
+        source_rows=_each(d["source_rows"], _source_row, f"{where}.source_rows"),
+    )
+
+
+def _source_row(d: Any, where: str) -> SourceRow:
+    _check_keys(d, {"source_file", "row_number", "row_id"}, where)
+    return SourceRow(
+        source_file=_str(d["source_file"], f"{where}.source_file"),
+        row_number=_int(d["row_number"], f"{where}.row_number"),
+        row_id=_str(d["row_id"], f"{where}.row_id"),
+    )
 
 
 def dataset_from_dict(data: Any) -> NormalizedDataset:
     """Rebuild the very objects `dataset_to_dict` was given — tuples included — or raise `ModelError`."""
     sections = {"variants", "suppliers", "components", "sub_assemblies", "lines", "notes", "issues"}
     _check_keys(data, sections | {"schema_version"}, "the dataset")
-    if data["schema_version"] != SCHEMA_VERSION:
-        raise ModelError(f"schema_version is {data['schema_version']!r}, this code reads {SCHEMA_VERSION!r}: run `bomreuse normalize` again")
+    _check_schema_version(data, "bomreuse normalize")
     return NormalizedDataset(
         variants=_each(data["variants"], _variant, "variants"),
         suppliers=_each(data["suppliers"], _supplier, "suppliers"),
@@ -496,10 +692,37 @@ def _opt_float(value: Any, where: str) -> float | None:
     return number
 
 
+def _finite_float(value: Any, where: str) -> float:
+    number = _opt_float(value, where)
+    if number is None:
+        raise ModelError(f"{where} must be a number, got null")
+    return number
+
+
+def _member[E: StrEnum](enum: type[E], value: Any, where: str) -> E:
+    if not isinstance(value, str):
+        raise ModelError(f"{where} must be a string, got {type(value).__name__}")
+    try:
+        return enum(value)
+    except ValueError as exc:
+        raise ModelError(f"{where} is {value!r}, not one of {[member.value for member in enum]}") from exc
+
+
+def _list(values: Any, where: str) -> list[Any]:
+    if not isinstance(values, list):
+        raise ModelError(f"{where} must be an array, got {type(values).__name__}")
+    return values
+
+
 def _str_tuple(values: Any, where: str) -> tuple[str, ...]:
     if not isinstance(values, list):
         raise ModelError(f"{where} must be an array of strings, got {type(values).__name__}")
     return tuple(_str(value, f"{where}[{index}]") for index, value in enumerate(values))
+
+
+def _check_schema_version(data: dict[str, Any], command: str) -> None:
+    if data["schema_version"] != SCHEMA_VERSION:
+        raise ModelError(f"schema_version is {data['schema_version']!r}, this code reads {SCHEMA_VERSION!r}: run `{command}` again")
 
 
 def _check_keys(table: Any, expected: set[str], where: str) -> None:

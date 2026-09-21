@@ -10,8 +10,13 @@ import pytest
 
 from bomreuse import model
 from bomreuse.model import (
+    Attribute,
     BomLine,
+    CandidateGroup,
+    CanonicalComponent,
     Component,
+    Finding,
+    GroupVerdict,
     ModelError,
     NormalizationIssue,
     NormalizedDataset,
@@ -21,14 +26,24 @@ from bomreuse.model import (
     RawInt,
     RawNumber,
     RawText,
+    Resolution,
+    SourceRow,
     SubAssembly,
     Supplier,
     Variant,
     dataset_from_dict,
     dataset_to_dict,
     dump_dataset,
+    dump_findings,
+    dump_resolution,
+    findings_from_dict,
     load_dataset,
+    load_findings,
+    load_resolution,
     render_dataset,
+    render_findings,
+    render_resolution,
+    resolution_from_dict,
 )
 
 
@@ -267,3 +282,133 @@ def test_a_component_and_a_supplier_never_name_a_variant(cls: type) -> None:
 def test_the_model_imports_nothing_from_the_package() -> None:
     source = Path(model.__file__).read_text(encoding="utf-8")
     assert "from bomreuse" not in source and "import bomreuse" not in source
+
+
+# --- the resolution and findings artifacts -----------------------------------------------------
+
+
+def a_resolution() -> Resolution:
+    """One group kept whole and one split in two: every shape the artifact can hold."""
+    return Resolution(
+        groups=(
+            CandidateGroup(
+                reference_key="BG12031",
+                verdict=GroupVerdict.REVIEW,
+                diverging=(Attribute.COST, Attribute.SUPPLIER),
+                components=(
+                    CanonicalComponent(
+                        id="BG12031",
+                        reference_key="BG12031",
+                        raw_references=(" Bgi-2031", "BGI-2O31"),
+                        designations=("bolt set m8, zinc-nickel",),
+                        rows=(1, 2),
+                    ),
+                ),
+            ),
+            CandidateGroup(
+                reference_key="SEATRA111",
+                verdict=GroupVerdict.REJECT,
+                diverging=(Attribute.DESIGNATION,),
+                components=(
+                    CanonicalComponent(
+                        id="SEATRA111#1",
+                        reference_key="SEATRA111",
+                        raw_references=("SEAT-RAIL-I",),
+                        designations=("floor rail, stainless steel",),
+                        rows=(90,),
+                    ),
+                    CanonicalComponent(
+                        id="SEATRA111#2",
+                        reference_key="SEATRA111",
+                        raw_references=("SEAT-RAIL-1",),
+                        designations=("mounting rail, aluminium, mark 1",),
+                        rows=(134,),
+                    ),
+                ),
+            ),
+        )
+    )
+
+
+def some_findings() -> tuple[Finding, ...]:
+    return (
+        Finding(
+            rule_id="resolution.duplicate_reference",
+            confidence=0.95,
+            subject="BG12031",
+            message="2 spellings of one reference: ' Bgi-2031', 'BGI-2O31'",
+            source_rows=(SourceRow(source_file="bom.csv", row_number=1, row_id="L00001"),),
+        ),
+    )
+
+
+def test_a_resolution_written_and_read_back_is_the_same_resolution(tmp_path: Path) -> None:
+    path = tmp_path / "nested" / "resolution.json"
+    dump_resolution(a_resolution(), path)
+    restored = load_resolution(path)
+    assert restored == a_resolution()
+    assert isinstance(restored.groups[0].components[0].rows, tuple)
+    assert restored.groups[0].verdict is GroupVerdict.REVIEW
+
+
+def test_findings_written_and_read_back_are_the_same_findings(tmp_path: Path) -> None:
+    path = tmp_path / "nested" / "findings.json"
+    dump_findings(some_findings(), path)
+    assert load_findings(path) == some_findings()
+
+
+def test_the_new_artifacts_carry_the_schema_version_and_one_trailing_newline() -> None:
+    for text in (render_resolution(a_resolution()), render_findings(some_findings())):
+        assert json.loads(text)["schema_version"] == "1"
+        assert text.endswith("}\n") and not text.endswith("\n\n")
+
+
+def test_a_split_group_shows_every_part_among_the_canonical_components() -> None:
+    resolution = a_resolution()
+    assert [component.id for component in resolution.components] == ["BG12031", "SEATRA111#1", "SEATRA111#2"]
+    assert [component.rows for component in resolution.components] == [(1, 2), (90,), (134,)]
+
+
+@pytest.mark.parametrize(
+    "path, value, message",
+    [
+        ("groups.0.verdict", "maybe", r"groups\[0\]\.verdict is 'maybe', not one of \['auto', 'review', 'reject'\]"),
+        ("groups.0.verdict", 1, r"groups\[0\]\.verdict must be a string, got int"),
+        ("groups.0.diverging", "cost", r"groups\[0\]\.diverging must be an array, got str"),
+        ("groups.0.diverging", ["colour"], r"groups\[0\]\.diverging\[0\] is 'colour'"),
+        ("groups.0.components.0.rows", ["1"], r"groups\[0\]\.components\[0\]\.rows\[0\] must be an integer, got str"),
+        ("groups.0.components.0.rows", "12", r"groups\[0\]\.components\[0\]\.rows must be an array, got str"),
+    ],
+)
+def test_a_wrong_leaf_of_the_resolution_is_refused_and_named(path: str, value: Any, message: str) -> None:
+    data = _with(json.loads(render_resolution(a_resolution())), path, value)
+    with pytest.raises(ModelError, match=message):
+        resolution_from_dict(data)
+
+
+@pytest.mark.parametrize(
+    "path, value, message",
+    [
+        ("findings.0.confidence", None, r"findings\[0\]\.confidence must be a number, got null"),
+        ("findings.0.confidence", "0.9", r"findings\[0\]\.confidence must be a number or null, got str"),
+        ("findings.0.source_rows.0.row_number", "1", r"findings\[0\]\.source_rows\[0\]\.row_number must be an integer, got str"),
+    ],
+)
+def test_a_wrong_leaf_of_the_findings_is_refused_and_named(path: str, value: Any, message: str) -> None:
+    data = _with(json.loads(render_findings(some_findings())), path, value)
+    with pytest.raises(ModelError, match=message):
+        findings_from_dict(data)
+
+
+@pytest.mark.parametrize("version", ["0", 1, None])
+def test_the_new_artifacts_refuse_another_schema_version(version: object) -> None:
+    for text, read in ((render_resolution(a_resolution()), resolution_from_dict), (render_findings(some_findings()), findings_from_dict)):
+        with pytest.raises(ModelError, match="schema_version"):
+            read({**json.loads(text), "schema_version": version})
+
+
+def test_a_missing_or_unreadable_artifact_is_a_model_error(tmp_path: Path) -> None:
+    with pytest.raises(ModelError, match="resolution not found"):
+        load_resolution(tmp_path / "nope.json")
+    with pytest.raises(ModelError, match="findings not found"):
+        load_findings(tmp_path / "nope.json")

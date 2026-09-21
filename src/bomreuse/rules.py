@@ -26,6 +26,8 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Final
 
+from bomreuse.model import Finding, SourceRow
+
 #: Bumped when a rule's meaning or confidence changes, so a stored finding can be read against
 #: the catalogue it was emitted from. Adding a rule does not change what the existing ones say.
 CATALOGUE_VERSION: Final[str] = "1"
@@ -38,6 +40,10 @@ class Rule:
     id: str
     description: str
     confidence: float
+
+    def finding(self, subject: str, message: str, source_rows: tuple[SourceRow, ...]) -> Finding:
+        """The only way a finding is built, so its id and its confidence cannot drift from the catalogue."""
+        return Finding(rule_id=self.id, confidence=self.confidence, subject=subject, message=message, source_rows=source_rows)
 
 
 DUPLICATE_REFERENCE: Final[Rule] = Rule(
