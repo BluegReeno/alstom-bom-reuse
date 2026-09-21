@@ -24,7 +24,7 @@ and what the pilot should measure. The brief is in `docs/case-brief.md`.
 
 ## Non-negotiable rules
 
-1. **Measure, don't claim.** Every quality statement comes from code that ran — `backtest` for
+1. **Measure, don't claim.** Every quality statement comes from code that ran — `evaluate` for
    the value claim, the findings artifact for the counts. No number in the README, report or commit messages that the code did not
    compute. No invented business figures (time or money saved): those come from the client.
 2. **The ground truth is for scoring only.** The pipeline never reads `ground_truth` files.
@@ -71,7 +71,8 @@ src/bomreuse/
   notes.py        note extraction: LLM adapter (Ollama) + keyword fallback, schema-validated
   link.py         note facts -> canonical components; only caller of resolve.match_reference
   spec.py         loads data/dataset_spec.toml (thresholds, planted cases) as a frozen dataclass
-  backtest.py     the one claim: the newest variant vs the exact-reference search, both counted
+  evaluate.py     the one claim: the newest variant's reuse classes, tool vs two naive baselines
+  baseline.py     exact-reference and same-name searches, reading raw rows only
   report.py       static HTML report: sponsor summary first, traceable detail after
   cli.py          one entry point; every path, the ground truth's included, is an argument
 tests/            all tests live here
@@ -87,43 +88,63 @@ product.
 
 - One task only: extract structured facts from a note (replacement, obsolescence,
   restriction, referenced part), with the source note cited.
-- Two backends through the local Ollama API (`http://localhost:11434`), same prompt, same
-  output schema:
-  - `glm-5.3-flash:cloud` — high-end reference;
-  - `gemma4:12b-mlx` — runs on a 16 GB laptop: the on-prem path.
+- One backend through the local Ollama API (`http://localhost:11434`): `gemma4:12b-mlx`, which
+  runs on a 16 GB laptop and is therefore the on-prem path. The backend is a constructor
+  argument, so a second model is a flag rather than a rewrite — but this build scores neither.
 - Invalid LLM output is logged and counted, never silently dropped.
-- One backend is enough for this build; the second model and the latency comparison are cut.
+- The FR/EN keyword fallback is not a degraded mode: it is what makes rule 5 hold, and the
+  pipeline runs end to end with Ollama unreachable.
 
 ## How we work (the AI trace is a deliverable)
 
-**Refocus of 2026-09-20. The rules below replace the previous PIV plan; the human's line in
+**Refocus of 2026-09-21. The rules below replace the previous PIV plan; the human's line in
 `DECISIONS.md` is still to be written.**
 
-The exercise is a ~4 h timebox whose stated criterion is *an imperfect but working,
-well-prioritized result*. Four hours went into the synthetic dataset and its measurement
-apparatus; the half of the tool that answers the client's question does not exist yet. So:
+Four hours of a ~4 h exercise produced the synthetic dataset and its measurement apparatus —
+two thirds of the source — while the half of the tool that answers the client's question did
+not exist. The correction is a cut in **scope**, not in process: a coherent, validated path
+from issue to PR is part of what this build demonstrates, and it costs machine time rather
+than the human's.
+
+### One issue, one run, one PR
+
+Each issue is sized to fit a single PR and is written to be executed by an autonomous
+`issue → PR` run. An autonomous run cannot ask a question, so **every open call is settled in
+the issue before the run starts**. Each issue therefore carries, always in this order:
+
+1. **Context** — which files to read first, and the handover facts it needs.
+2. **Scope** — what to build, with every call already made.
+3. **Out of scope for this run** — the explicit do-not list. This is what keeps the run from
+   rebuilding the dataset layer or inventing a measurement.
+4. **Acceptance criteria** — checkable, as commands wherever possible.
+5. **Validation** — the `piv-validate` skill, and the demo command that must still work.
+6. **If blocked** — stop, write what is missing in the PR description, do not widen the scope
+   and do not decide for the human. A genuinely undecided call is a stop, not a guess.
+
+Plan documents and implementation reports are dropped: the issue is the plan and the PR
+description is the report. The review step stays, inside the run.
+
+### Scope, settled on 2026-09-21
 
 - **The data layer is frozen.** `generate.py`, `catalogue.py`, `dirt.py`, `spec.py`,
   `ground_truth.py` and their tests are done. No new dataset work, no new planted case, no
-  refinement of the dirt, no new invariant. Issues #13 and #14 are closed as won't-do.
-- **The remaining budget goes to the missing half only**: `resolve` → `signatures` wired →
-  `checks` → `notes` (keyword) + `link` → `report`, behind one `bomreuse run`.
-- **Direct implementation.** No PIV full loop, no plan document, no implementation report, no
-  self-review of a PR. One commit per module, one test file per module covering the tricky
-  logic only. The AI trace is already a deliverable and is already rich.
-- **The evaluation shrinks to one claim.** Not precision/recall over eight defect types, not
-  two baselines, not regression floors: on the newest variant, how many sub-assemblies the tool
-  finds as already existing, against the exact-reference search, both counted by code. One
-  table. Everything else about measurement belongs in the meeting — *what the pilot should
-  measure* — not in this repo.
-- **Priority order, and it is the cut order**: answer the client's question first (resolve +
-  signatures, wired end to end), then the inconsistencies, then the notes, then the one-number
-  backtest, then the report, then polish. Whatever is not reached goes into the README's
-  "Known limits", with the reason. A stage that is not reached is a normal outcome, not a
-  failure.
-- **The LLM layer is one backend plus the keyword fallback**, and only if the rest is standing.
-  The two-model comparison with latency per note is cut; the on-prem path is argued in the
-  meeting from the adapter interface.
+  refinement of the dirt. Issue #13 is closed by PR #15 and is the last of it; #14 is closed
+  won't-do, and the guard it describes becomes a line in Known limits.
+- **`evaluate` scores the backtest and nothing else**: the three reuse classes on the newest
+  variant, against the two naive baselines (exact reference, same name), with counts next to
+  every ratio. Resolution scoring and per-defect-type scoring are cut; inconsistency findings
+  are counted and displayed, and the end-to-end test asserts the planted ones are found.
+- **The LLM layer is one backend** (`gemma4:12b-mlx`, the on-prem path) behind the adapter
+  interface, plus the FR/EN keyword fallback that keeps the pipeline offline. No backend
+  scoring, no latency table, no `docs/measurements/`. If both models are run by hand at the
+  end, their figures go in the README as a manual measurement, labelled as one.
+- **Six issues, in this order**: #4 resolve + rule catalogue + `run` → #16 signatures wired +
+  backtest predictions → #17 checks → #5 evaluate → #6 notes + link → #7 report + README.
+- **Every run leaves the tool demoable.** From #15 on, `bomreuse run` prints a readable summary
+  to stdout — reused / reusable / specific with the diffs — so a demo never depends on the HTML
+  report having landed.
+- **Cut order is the reverse of the build order.** Whatever is not reached goes into the
+  README's "Known limits", with the reason. A stage that is not reached is a normal outcome.
 
 Commits:
 
@@ -149,20 +170,20 @@ fashion locally, and the whole test suite must stay under 30 seconds so it can r
 | Invariants | The non-negotiable rules above hold | Same seed → byte-identical dataset; no pipeline module imports or opens the ground truth; input files unchanged after a run (hash before/after); every finding has source rows, rule and confidence |
 | LLM adapter | Behaviour without calling a model | A fake backend returns canned outputs; malformed output is logged and counted, not dropped; the FR/EN keyword fallback extracts the expected facts |
 | End-to-end | The pipeline on a small generated dataset | Generate with a test seed, run, and assert every planted "reused" and "re-designed in the newest variant" case is found |
-| Backtest | The one value claim is computed, not written | `backtest` runs on the default dataset and prints both counts; a test asserts the tool's count is the one the code produced |
+| Backtest | The one value claim is computed, not written | `evaluate` runs on the default dataset and prints the three reuse classes for the tool and for both naive baselines, counts next to ratios |
 
 Rules:
 
 - Tests never call a live LLM or the network. Live model runs are manual, never in `pytest`.
 - Write the test with the code, in the same commit. For a bug, the failing test comes first.
-- No regression floors in this build: the backtest prints its two counts and the README quotes
-  them. Floors are a pilot-scale practice, argued in the meeting, not built here.
+- No regression floors in this build: `evaluate` prints its figures and the README quotes them.
+  Floors are a pilot-scale practice, argued in the meeting, not built here.
 
 ## Definition of done (per issue)
 
 - Tests in `tests/` pass (`uv run pytest`).
-- `uv run bomreuse run` still produces findings end to end; once `backtest` exists, its two
-  counts are quoted in the README from the code's own output.
+- `uv run bomreuse run` still produces findings end to end and prints its summary; once
+  `evaluate` exists, its figures are quoted in the README from the code's own output.
 - No new dependency without a line in `DECISIONS.md`.
 - `CLAUDE.md` and `README.md` still true.
 
@@ -176,5 +197,5 @@ other clients. The generic version is a later decision, not part of this build.
 - `docs/case-brief.md` — the case as given.
 - `CONTEXT.md` — pilot context, domain vocabulary, the worked example.
 - `DECISIONS.md` — human decisions, dated.
-- `.claude/PIV-PROCEDURE.md` — the per-issue checklist: which skill, in which conversation, when to clear.
+- `.claude/RUN-PROCEDURE.md` — the per-issue checklist for an autonomous issue → PR run.
 - `prep/` — local preparation notes, not versioned.

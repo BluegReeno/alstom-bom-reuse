@@ -28,8 +28,9 @@ re-costed. (Decision 13.)
 - **G3 — Backtest.** The newest variant plays the new tender: given only the older variants,
   classify each of its sub-assemblies, and measure the tool against two naive searches on the
   same data — exact reference, and same name. The gap is the only value claim made.
-- **G4 — On-prem path.** The pipeline runs offline end to end; the LLM reads notes only, and a
-  cloud and a local model are scored on the same ground truth with latency per note.
+- **G4 — On-prem path.** The pipeline runs offline end to end on the keyword fallback; the LLM
+  reads notes only, through one backend that runs on a 16 GB laptop. Neither backend is scored:
+  the on-prem argument is the adapter interface and the offline run, not a benchmark.
 
 ## 4. Non-goals
 
@@ -48,7 +49,7 @@ client defines it. Web UI, graph DB, real PLM connector, mandatory LLM, generali
 | R5 | Resolve duplicate references to a canonical component, with an *auto / review / reject* verdict | CLAUDE.md |
 | R6 | Signature per sub-assembly; equal signatures → *reused*, near-equal → *reusable* + diff | CLAUDE.md |
 | R7 | Extract structured facts from notes (replacement, obsolescence, restriction, referenced part) with the source note cited; LLM adapter + keyword fallback, schema-validated, invalid output logged and counted | CLAUDE.md, Dec. 7 |
-| R8 | `evaluate`: precision and recall per defect type against the ground truth, plus the naive baseline, plus both models' scores and latency | CLAUDE.md, Dec. 5, 6 |
+| R8 | `evaluate`: precision and recall on the three reuse classes of the newest variant, for the tool and for the two naive baselines, counts next to every ratio | CLAUDE.md, Dec. 5 |
 | R9 | Static HTML report: sponsor summary first, traceable detail after | CLAUDE.md |
 | R10 | One CLI entry point; full pipeline runs with no network | CLAUDE.md, Dec. 5 |
 | R11 | Every finding carries source rows, the rule that produced it, and a confidence | CLAUDE.md |
@@ -56,8 +57,8 @@ client defines it. Web UI, graph DB, real PLM connector, mandatory LLM, generali
 
 ## 6. Success criteria
 
-1. `uv run bomreuse evaluate` prints precision and recall per defect type on the default
-   dataset, and the same backtest figures for the two naive baselines of [A3], with counts next
+1. `uv run bomreuse evaluate` prints precision and recall on the three reuse classes for the
+   default dataset, and the same figures for the two naive baselines of [A3], with counts next
    to every ratio. **The gap between the tool and the baselines is the only value claim this
    build makes** (Dec. 3, Dec. 17).
 2. Every planted *reused* case and every *re-designed in the newest variant* case is found by
@@ -71,12 +72,13 @@ into `DECISIONS.md` from the first real measurement, per CLAUDE.md.
 
 ## 7. Constraints
 
-Scope is small on purpose, and the build runs in slices across several sessions: elapsed time
-is not a constraint the tool is judged on. Python 3.12 + `uv`, few pinned dependencies. Offline
+Scope is small on purpose. The build runs as six autonomous issue-to-PR runs, in the order
+CLAUDE.md names; the cut order is its reverse, and what is not reached goes into the README's
+Known limits with its reason. Python 3.12 + `uv`, few pinned dependencies. Offline
 by default; Ollama at `http://localhost:11434` with `glm-5.3-flash:cloud` and `gemma4:12b-mlx`
-(Dec. 6). Tests never call a live model or the network. Priority order, and it is the cut
-order: the evaluation first and never cut, then the pipeline it scores, then LLM extras, then
-report polish.
+(Dec. 6), one backend wired. Tests never call a live model or the network. Priority order, and
+it is the cut order: the client's question first (resolution, then signatures), then the
+inconsistencies, then the value claim, then the notes, then the report.
 
 ## 8. Assumptions
 
@@ -94,8 +96,12 @@ report polish.
   designation, compared case- and whitespace-insensitively, equals an older variant's — the
   search a data engineer would try first, which finds a namesake almost everywhere and cannot
   tell identical from changed from re-designed.
-- **[A4]** Defect types scored separately by `evaluate`: duplicate reference, unit conflict,
-  supplier conflict, cost conflict, note-vs-BOM contradiction, and the three reuse classes.
+- **[A4]** `evaluate` scores the three reuse classes and nothing else (settled 2026-09-21).
+  Inconsistency findings — duplicate reference, unit, supplier and cost conflicts, note-vs-BOM
+  contradictions — are counted and displayed with their evidence, and the end-to-end test
+  asserts the planted ones are found. Scoring them per defect type, and scoring resolution as a
+  clustering problem, are cut: they measure the dataset generator as much as the tool, and the
+  value claim does not rest on them.
 - **[A5]** Confidence is a 0–1 score per finding, produced by the rule that emitted it; it
   is reported, not thresholded, in this build.
 - **[A6]** The report is a single self-contained HTML file written to `out/`, plus findings as

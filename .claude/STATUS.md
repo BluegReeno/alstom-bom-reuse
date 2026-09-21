@@ -1,56 +1,56 @@
 # STATUS — alstom-bom-reuse
 
-Last updated: 2026-09-20 — **refocus session**
+Last updated: 2026-09-21 — refocus, decisions settled, issues re-cut
 
 ## Where this stands
 
-The dataset and its measurement apparatus are built and tested. The half of the tool that
-answers the client's question is not written: `resolve`, `checks`, `notes`, `link`, `report`
-and the `run` entry point do not exist, and `signatures.py` is not wired to anything. The CLI
-has two commands, `generate` and `normalize`, neither of which a client would look at.
+The dataset and its measurement apparatus are built and tested. **The half of the tool that
+answers the client's question is not written**: `resolve`, `checks`, `notes`, `link`,
+`evaluate`, `report` and the `run` entry point do not exist, and `signatures.py` is wired to
+nothing. The CLI has two commands, `generate` and `normalize`, neither of which a client would
+look at.
 
-Two thirds of the source (2 437 of 3 710 lines) and most of the tests are the synthetic-data
-factory, which the brief asks for in one bullet. That is the overrun, and it is now closed:
-**the data layer is frozen** (CLAUDE.md, "How we work").
+Two thirds of the source is the synthetic-data factory, which the brief asks for in one bullet.
+That is the overrun, and it is closed: **the data layer is frozen** (CLAUDE.md, "How we work").
 
-## Tomorrow, in this order
+PR #15 (issue #13, the artifact's leaf types) is the last of that layer. Merge it and move on.
 
-Each step leaves the repo demoable. Stop wherever the time runs out and write the rest into the
-README's "Known limits" — that is a normal outcome, not a failure.
+## The plan — six issue-to-PR runs, in this order
 
-1. **`resolve.py` + `bomreuse run`** — candidate groups to canonical components, `auto` /
-   `review` / `reject` per Decision 20, and a `findings.json` carrying the duplicate-reference
-   findings. First end-to-end command.
-2. **Wire `signatures.py` into `run`** — classify every sub-assembly of the newest variant as
-   *reused* / *reusable* (with the diff) / *specific*, against the older variants only.
-   **This is the minimum viable demo: the client's question is answered here.** Everything
-   after it is upside.
-3. **`checks.py`** — unit, supplier and cost conflicts across variants. Cheap, and it is the
-   second half of the client's question ("where are the inconsistencies").
-4. **`notes.py` (keyword only) + `link.py`** — a note declaring a part obsolete, linked to a
-   sub-assembly classified reusable, is the unsafe-reuse finding. The moment that makes the
-   demo land.
-5. **`backtest.py`** — two numbers: how many of the newest variant's sub-assemblies the tool
-   finds as already existing, and how many the exact-reference search finds. Nothing else.
-6. **`report.py`** — one static HTML: five numbers for Bruno at the top, the findings table
-   with its evidence for Thomas below.
-7. **README** — Results filled from the code's own output, Known limits filled honestly.
+| # | Issue | Leaves the tool… |
+| --- | --- | --- |
+| 1 | **#4** resolution, rule catalogue, `bomreuse run` | first end-to-end command |
+| 2 | **#16** signatures wired, backtest predictions, stdout summary | **answering the client's question** |
+| 3 | **#17** unit, supplier and cost conflicts | answering the second half of it |
+| 4 | **#5** evaluate: the backtest vs two naive baselines | carrying its one value claim |
+| 5 | **#6** notes: keyword fallback, one LLM backend, linking | flagging unsafe reuse |
+| 6 | **#7** HTML report and a true README | presentable |
 
-Reserve the last half hour, whatever state the code is in, for the email and the 40-minute
-narrative. They are half the deliverable and neither is started.
+Cut order is the reverse. Whatever is not reached goes into the README's Known limits with its
+reason — a normal outcome, not a failure. From #16 on, `bomreuse run` prints a readable summary,
+so a demo never depends on the report having landed.
 
-## Cut, explicitly
+Each issue carries **Context / Scope / Out of scope / Acceptance criteria / Validation / If
+blocked**, so an autonomous run needs no question answered. Procedure:
+`.claude/RUN-PROCEDURE.md`. Validation: the `piv-validate` skill, every run, in full.
 
-- Issues #13 and #14 — won't do. Both are dataset-factory polish.
-- Precision / recall per defect type, the same-name baseline, regression floors: replaced by
-  step 5's two counts.
-- The two-LLM comparison with latency per note: one backend, or none, plus the keyword
-  fallback. The on-prem path is argued in the meeting from the adapter interface.
-- PIV full loops, plan documents, implementation reports, self-reviews of own PRs. Direct
-  implementation, one commit per module.
+## Decisions settled on 2026-09-21
 
-## What does not change
+- `evaluate` scores the **three reuse classes only**, against both naive baselines. Resolution
+  scoring and per-defect-type scoring are cut; inconsistency findings are counted, displayed
+  and covered by the end-to-end test.
+- The LLM layer is **one backend** (`gemma4:12b-mlx`) plus the FR/EN keyword fallback. No
+  backend scoring, no latency table, no `docs/measurements/`.
+- The four issues are re-cut into six, each sized for one PR.
+- The report lands last, with the stdout summary as the demo's safety net.
+- #13 is closed by PR #15; #14 is closed won't-do and becomes a Known limit.
+- Plan documents and implementation reports are dropped: the issue is the plan, the PR
+  description is the report. The review step stays, inside the run.
 
-The non-negotiable rules of CLAUDE.md: inputs read-only, the pipeline never reads the ground
-truth, findings carry their evidence, offline by default, no number that the code did not
-compute.
+**Owed to `DECISIONS.md`:** one human line for this refocus (number 29). The agent does not
+write it.
+
+## Not code, and not started
+
+The email and the 40-minute case narrative. The "something you've built" segment is done. If a
+session produces working code and no story, the case still fails — reserve time for it.
