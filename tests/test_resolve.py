@@ -288,8 +288,8 @@ def test_match_reference_returns_nothing_rather_than_the_nearest_thing(token: st
 
 
 #: Where turning a string into a canonical component is allowed to happen (docs/ARCHITECTURE.md A7).
-#: `link.py` joins this set in #6 — one line, deliberately, so that a second matcher is a decision.
-MATCHERS = {"resolve.py"}
+#: Two lines, deliberately: `link.py` joined `resolve.py` in #6, and a third one is a decision.
+MATCHERS = {"resolve.py", "link.py"}
 
 
 def names_used(source: str) -> set[str]:
@@ -315,8 +315,8 @@ def test_the_name_scanner_sees_a_call_however_it_is_reached() -> None:
 @pytest.mark.parametrize("module", sorted(str(path.relative_to(SRC)) for path in SRC.rglob("*.py") if path.name not in MATCHERS))
 def test_only_resolve_turns_a_string_into_a_canonical_component(module: str) -> None:
     assert "match_reference" not in names_used((SRC / module).read_text(encoding="utf-8")), (
-        f"{module} matches references itself. docs/ARCHITECTURE.md A7: only resolve.py does, "
-        f"and link.py (#6) is the one module that may be added to MATCHERS."
+        f"{module} matches references itself. docs/ARCHITECTURE.md A7: only resolve.py and the "
+        f"linking module link.py do, and nothing else may be added to MATCHERS."
     )
 
 
