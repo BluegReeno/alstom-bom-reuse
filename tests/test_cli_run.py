@@ -24,6 +24,7 @@ from bomreuse.model import (
     SIGNATURES_FILE,
     Backtest,
     ModelError,
+    ReuseClass,
     load_backtest,
     load_dataset,
     load_findings,
@@ -83,11 +84,42 @@ def test_neither_path_has_a_default(capsys: pytest.CaptureFixture[str], given: l
     assert missing in capsys.readouterr().err
 
 
-def test_there_is_no_option_that_could_carry_anything_but_the_two_directories(capsys: pytest.CaptureFixture[str]) -> None:
+def test_there_is_no_option_but_the_two_directories_and_the_spec_the_run_classifies_by(capsys: pytest.CaptureFixture[str]) -> None:
+    """docs/ARCHITECTURE.md A5: nothing the ground truth could travel through reaches the pipeline.
+
+    The spec is the contract the reuse threshold is read from, the same file `generate` takes;
+    a run that classifies by it says which one it used instead of finding one next to its own
+    source (`spec.DEFAULT_SPEC_PATH`).
+    """
     with pytest.raises(SystemExit):
         main(["run", "--help"])
     options = {word.rstrip(",") for word in capsys.readouterr().out.split() if word.startswith("--")}
-    assert options == {"--help", "--raw", "--out"}
+    assert options == {"--help", "--raw", "--out", "--spec"}
+
+
+def test_the_threshold_the_run_classifies_by_is_the_one_in_the_spec_it_is_given(tmp_path: Path) -> None:
+    """A dataset generated under another spec must not be classified by the committed one."""
+    strict = tmp_path / "strict.toml"
+    committed_spec = (ROOT / "data" / "dataset_spec.toml").read_text(encoding="utf-8")
+    strict.write_text(committed_spec.replace("max_abs_diff = 3", "max_abs_diff = 1").replace("diff_ratio = 0.25", "diff_ratio = 0.05"), encoding="utf-8")
+
+    out, tighter = tmp_path / "out", tmp_path / "tighter"
+    assert main(["run", "--raw", str(COMMITTED_RAW), "--out", str(out)]) == 0
+    assert main(["run", "--raw", str(COMMITTED_RAW), "--out", str(tighter), "--spec", str(strict)]) == 0
+
+    classes = {prediction.sub_assembly_id: prediction.reuse_class for prediction in load_backtest(out / PREDICTIONS_FILE).predictions}
+    under_strict = {prediction.sub_assembly_id: prediction.reuse_class for prediction in load_backtest(tighter / PREDICTIONS_FILE).predictions}
+    assert under_strict != classes
+    moved = [key for key, reuse_class in classes.items() if under_strict[key] is not reuse_class]
+    assert all(under_strict[key] is ReuseClass.SPECIFIC for key in moved), "a smaller budget can only move a sub-assembly out of reuse"
+
+
+def test_a_spec_that_cannot_be_read_stops_the_run_before_any_artifact_is_written(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    """The last stage reads it; failing there would leave four artifacts of a run that did not finish."""
+    out = tmp_path / "out"
+    assert main(["run", "--raw", str(COMMITTED_RAW), "--out", str(out), "--spec", str(tmp_path / "nope.toml")]) == 1
+    assert "error:" in capsys.readouterr().err
+    assert not out.exists()
 
 
 @pytest.mark.parametrize("inside", [".", "out", "nested/out"])

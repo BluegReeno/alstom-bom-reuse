@@ -5,8 +5,10 @@ ground-truth path is never a constant, here or anywhere in `src/`: `generate` wr
 told, `evaluate` (#5) will read it where told, and the pipeline's entry function has no
 parameter that could carry it (docs/ARCHITECTURE.md A5). `normalize` follows the rule from the
 other side: it takes the raw directory and an output directory, neither with a default, and no
-option through which anything else could reach the pipeline, and `run` — the whole pipeline, and
-the one command a client would be shown — follows the same rule.
+option through which anything else could reach the pipeline. `run` — the whole pipeline, and the
+one command a client would be shown — takes those two, and the dataset spec it reads the reuse
+threshold from: a file the run classifies by, so the run says which one it used rather than
+finding one next to its own source.
 """
 
 import argparse
@@ -143,6 +145,7 @@ def _add_run(commands: "argparse._SubParsersAction[argparse.ArgumentParser]") ->
     parser = commands.add_parser("run", help="run the pipeline: normalize, resolve references, write the findings")
     parser.add_argument("--raw", type=Path, required=True, help="directory holding variants.csv, bom.csv and notes.csv; read, never written")
     parser.add_argument("--out", type=Path, required=True, help="directory the artifacts are written to; never inside --raw")
+    parser.add_argument("--spec", type=Path, default=DEFAULT_SPEC_PATH, help="the dataset spec the reuse threshold is read from (default: the committed contract)")
     parser.set_defaults(handler=_run)
 
 
@@ -163,6 +166,9 @@ def _run(args: argparse.Namespace) -> int:
 
     normalized, resolution_file, findings_file, signatures_file, predictions_file = artifacts
     try:
+        # Read before anything is written: a spec the last stage cannot read must not leave four
+        # artifacts of a run that failed behind it.
+        thresholds = load_spec(args.spec).thresholds
         dataset = normalize(read_raw(raw_dir))
         dump_dataset(dataset, normalized)
         read_back = load_dataset(normalized)
@@ -170,7 +176,6 @@ def _run(args: argparse.Namespace) -> int:
         dump_resolution(resolution, resolution_file)
         dump_findings(findings, findings_file)
         dump_signatures(build_signatures(read_back, load_resolution(resolution_file)), signatures_file)
-        thresholds = load_spec().thresholds
         dump_backtest(backtest(load_signatures(signatures_file), read_back.variants, thresholds), predictions_file)
     except (IngestError, ModelError, SpecError) as exc:
         print(f"error: {exc}", file=sys.stderr)
