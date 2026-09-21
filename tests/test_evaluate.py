@@ -277,6 +277,20 @@ def test_the_tool_beats_both_naive_searches_on_the_committed_dataset() -> None:
     assert all(result.correct.total == 15 for result in scores.values()), "the three answer the same 15 items"
 
 
+def test_each_naive_search_is_handed_the_chronology_the_run_played() -> None:
+    """The gap is measured, not manufactured.
+
+    A baseline handed no older variant to look at answers `specific` to everything and still
+    passes every other assertion here, while every ratio the README quotes widens in the tool's
+    favour. This asserts no predictor's quality and no figure — only that a search reading
+    nothing but raw references still finds the references the files spell identically.
+    """
+    scores = scored_committed()
+    for name in (baseline.EXACT_REFERENCE, baseline.SAME_NAME):
+        reused = next(row for row in scores[name].classes if row.label == "reused")
+        assert reused.recall.hits > 0, f"{name} found no reuse at all: it was handed no ancestor to look at"
+
+
 def test_neither_naive_search_ever_says_reusable() -> None:
     for name in (baseline.EXACT_REFERENCE, baseline.SAME_NAME):
         reusable = next(row for row in scored_committed()[name].classes if row.label == "reusable")
