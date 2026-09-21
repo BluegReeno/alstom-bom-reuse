@@ -23,6 +23,7 @@ from bomreuse.model import (
     NORMALIZED_FILE,
     RESOLUTION_FILE,
     Finding,
+    GroupVerdict,
     ModelError,
     NormalizedDataset,
     Resolution,
@@ -179,9 +180,11 @@ def _print_run_summary(raw_dir: Path, dataset: NormalizedDataset, resolution: Re
     print(f"  BOM lines       {len(dataset.lines)}")
     print(f"  variants        {len(dataset.variants)} ({', '.join(variant.id for variant in dataset.variants)})")
     print(f"references        {len(resolution.groups)} candidate groups -> {len(resolution.components)} canonical components")
+    # Always the three lines, in the order of the A2 table: "reject 0" is an answer, and a
+    # client reading two runs side by side should not have to notice a missing line.
     verdicts = Counter(group.verdict for group in resolution.groups)
-    for verdict, count in sorted(verdicts.items()):
-        print(f"  {verdict:<16}{count}")
+    for verdict in GroupVerdict:
+        print(f"  {verdict:<16}{verdicts[verdict]}")
     print(f"findings          {len(findings)}")
     for rule_id, count in sorted(Counter(finding.rule_id for finding in findings).items()):
         print(f"  {rule_id:<32}{count}")
