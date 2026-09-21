@@ -28,9 +28,9 @@ inconsistencies that would make reuse unsafe.**
    sub-assemblies are reused — or reusable — across variants, and where are the
    inconsistencies?*
 2. **The proof of use (backtest).** The newest variant plays "the new tender". Given only the
-   older variants, the tool says which of its sub-assemblies already existed, and compares
-   itself with a naive search by exact reference on the same data. The gap between the two is
-   the measured value.
+   older variants, the tool says which of its sub-assemblies already existed, and is scored
+   beside two naive searches on the same data — by exact reference, and by designation. The gap
+   between them is the measured value.
 
 | In scope | Out of scope |
 | --- | --- |
@@ -155,8 +155,8 @@ backtest          C (bike car, new region, designed 2025-02-17) against A, B, D,
   C:SA0101      carbody shell                   reused    A:SA0101
 ```
 
-Those counts are what the tool *finds*; how many of them are right, and how a naive
-exact-reference search does on the same data, is `evaluate`'s answer and is not written yet.
+Those counts are what the tool *finds*. How many of them are right, and how the two naive
+searches do on the same data, is `evaluate`'s answer, in **Results** below.
 
 ### The inconsistencies, on stdout
 
@@ -181,17 +181,103 @@ inconsistencies   13 components whose rows disagree
     'LIGHT-CABLE' (component 11GHTCAB1E) has 2 different unit values: 'm' in A, B, C, D; 'pcs' in E.
 ```
 
-The rest of the pipeline is to be written during the build: `evaluate`, the notes, and the HTML
-report.
+### Scoring the answer
+
+```bash
+uv run bomreuse evaluate --ground-truth data/ground_truth/ground_truth.json
+```
+
+The only command that reads `data/ground_truth/`, and the one path the tool will never default: the
+pipeline never sees that file, a static test over every other module enforces it, and a runtime one
+runs the pipeline with the real ground truth laid out beside the raw files to show it is not even
+opened. `evaluate` re-runs the pipeline rather than reading `out/`, so its figures can never be a
+stale artifact's, and it writes nothing. `--raw` and `--spec` default to the committed dataset and
+the committed contract. What it prints is **Results**, below.
+
+The rest of the pipeline is to be written during the build: the notes, and the HTML report.
 
 ## Results
 
-To be filled from `evaluate` output only.
+The one claim this build makes, measured. `bomreuse evaluate` plays the newest variant as a new
+tender and scores the answer against the ground truth — which the pipeline never reads — beside
+the two naive searches a sceptic would try first. All three answer the same 15 sub-assemblies,
+under the same rule: an answer is right when the class is right **and** the older sub-assembly it
+names is one the ground truth lists, any one of them being a valid source to reuse from
+(DECISIONS.md 25). Rows carry the ground truth's words; `specific` is the prediction that answers
+its `new`, because the tool can only observe that it found no match, never assert that none
+exists (DECISIONS.md 30). Two counts say what the score rests on: the values `normalize` could not
+read, and the BOM lines missing from the signatures the classes were decided on. Both are zero
+here; on a dirtier export they would not be, and the ratios would have to be read against them.
+
+```bash
+uv run bomreuse evaluate --ground-truth data/ground_truth/ground_truth.json
+```
+
+```
+ground truth      data/ground_truth/ground_truth.json
+backtest          C played as the new tender against A, B, D, E
+  sub-assemblies  15 (reused 9, reusable 4, new 2), scored on signatures missing 0 BOM lines
+  rows            the ground truth's labels; the prediction that answers 'new' is 'specific'
+  a hit           the class is right, and the older sub-assembly named is one the ground truth lists
+issues            0
+
+tool              signatures over the canonical components, against the variants designed earlier
+  reused          precision 8/8       recall 8/9
+  reusable        precision 4/5       recall 4/4
+  new             precision 2/2       recall 2/2
+  correct         14/15
+
+exact reference   the raw reference matches an older variant's, character for character
+  reused          precision 4/5       recall 4/9
+  reusable        precision 0/0       recall 0/4
+  new             precision 2/10      recall 2/2
+  correct         6/15
+
+same name         the raw designation matches an older variant's, case and spacing aside
+  reused          precision 9/15      recall 9/9
+  reusable        precision 0/0       recall 0/4
+  new             precision 0/0       recall 0/2
+  correct         9/15
+```
+
+**Reading it.** The tool answers 14 of the 15 correctly; the exact-reference search 6, the
+same-name search 9.
+
+- **Exact reference** is the search the client already has. It recovers 4 of the 9
+  sub-assemblies that already existed and misses the other 5 — the ones the newest variant
+  renumbered (`OCC-SA-0302`) or typo'd (`SA-O107`). Worse for a tender, it answers "not there"
+  10 times and is right twice: 8 sub-assemblies it declares new are sitting in an older variant.
+- **Same name** is the first objection a data engineer raises. On this data the designation is a
+  near-perfect join key, so it finds every existing sub-assembly (recall 9/9) — and it finds one
+  everywhere, including for the 4 that changed and the 2 that are genuinely new. Precision 9/15,
+  and nothing at all on the two classes that decide what an engineer actually does: it cannot
+  tell *identical* from *changed*, and it would propose reusing a toilet module and a floor
+  anchorage that do not exist.
+- **The tool** is the only one of the three that answers *reusable* at all, with the exact diff
+  on every one of the 4 (4/4), and the only one that finds both genuinely new sub-assemblies
+  (2/2) instead of inventing an ancestor for them.
+- **Its one miss** is honest and worth keeping: `OCC-SA-0309`, floor and wall panels, is a
+  *reused* sub-assembly reported as *reusable*. Variant C spells one of its parts
+  `SEAT-FIX-KIT-447` where every other variant writes `SEAT-FIX-KIT-4471`, a dropped character no
+  folding rule can reach and no string distance is allowed to guess at. The engineer is still
+  pointed at the right older sub-assembly, with a one-part difference to check — which is what
+  *reusable* means. Closing that gap would mean fuzzy matching, and a false *reused* is the worst
+  error this tool can make.
+
+No threshold was moved to produce these figures, and there is no regression floor in this build:
+`evaluate` prints them and this section quotes them (DECISIONS.md 17, 29).
 
 ## Known limits
 
 To be completed when the build lands: what was dropped, and why. Known so far:
 
+- **A reference the folding rules cannot reach stays a second component.** The rules fold case,
+  `O`/`I`/`L` and non-alphanumerics, and nothing else (DECISIONS.md 27): a dropped or transposed
+  character — `SEAT-FIX-KIT-447` where every other variant writes `SEAT-FIX-KIT-4471` — leaves two
+  components where there is one part. That is why one *reused* sub-assembly of the backtest comes
+  out *reusable*, described in **Results**. How much resolution misses in total is not measured in
+  this build (DECISIONS.md 29); it is the accepted cost of having no string distance anywhere,
+  since a false *reused* is the worst error this tool can make.
 - **A lone separator is always the decimal mark.** `1,500` and `1.500` are both read as `1.5`,
   never as fifteen hundred: the comma is the decimal mark of the export (DECISIONS.md 24), and
   the dot is read the same way. `1.234,56` is refused as ambiguous rather than guessed, so the

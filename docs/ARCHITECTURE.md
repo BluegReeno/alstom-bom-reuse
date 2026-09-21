@@ -140,10 +140,13 @@ the per-defect-type scoring this section first specified; what survives of them 
 the backtest.
 
 **Reuse classification (the backtest).** Each sub-assembly of the newest variant is one item,
-with a ground-truth label in `{reused (+ ancestor id), reusable (+ diff), new}`. A true positive
-for *reused* and *reusable* requires the predicted class **and** the predicted ancestor id to
-match. The diff is displayed in the report and asserted by the end-to-end test, but it is not
-scored. `evaluate` scores decisions; `pytest` guards the evidence.
+with a ground-truth label in `{reused (+ ancestors), reusable (+ diff), new}`. A true positive
+for *reused* and *reusable* requires the predicted class to match **and** the ancestor named to
+be **any one** of those the ground truth lists: the set itself is never scored (Decision 25,
+which is later than this paragraph and overrides its "the predicted ancestor id"). The tool's
+`specific` is what answers the ground truth's `new`, and the relation runs that way only
+(Decision 30). The diff is displayed in the report and asserted by the end-to-end test, but it is
+not scored. `evaluate` scores decisions; `pytest` guards the evidence.
 
 **Inconsistency findings.** Counted and displayed, not scored (Decision 29). The end-to-end test
 asserts the planted ones are found.

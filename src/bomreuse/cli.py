@@ -2,13 +2,15 @@
 
 Every sub-command takes the paths it reads and writes as arguments. In particular the
 ground-truth path is never a constant, here or anywhere in `src/`: `generate` writes it where
-told, `evaluate` (#5) will read it where told, and the pipeline's entry function has no
-parameter that could carry it (docs/ARCHITECTURE.md A5). `normalize` follows the rule from the
-other side: it takes the raw directory and an output directory, neither with a default, and no
-option through which anything else could reach the pipeline. `run` — the whole pipeline, and the
-one command a client would be shown — takes those two, and the dataset spec it reads the reuse
-threshold from: a file the run classifies by, so the run says which one it used rather than
-finding one next to its own source.
+told, `evaluate` reads it where told, and the pipeline's entry function has no parameter that
+could carry it (docs/ARCHITECTURE.md A5). `normalize` follows the rule from the other side: it
+takes the raw directory and an output directory, neither with a default, and no option through
+which anything else could reach the pipeline. `run` — the whole pipeline, and the one command a
+client would be shown — takes those two, and the dataset spec it reads the reuse threshold from:
+a file the run classifies by, so the run says which one it used rather than finding one next to
+its own source. `evaluate` defaults `--raw` and `--spec` to the committed dataset and the
+committed contract, the way `generate` defaults its spec; only the ground truth has no default,
+because it is the one path the rule is about.
 """
 
 import argparse
@@ -19,8 +21,9 @@ from pathlib import Path
 
 from bomreuse.catalogue import CatalogueError
 from bomreuse.checks import CONFLICT_RULES, check, conflicts_by_component
+from bomreuse.evaluate import ANSWERS, Evaluation, EvaluationError, Score, evaluate
 from bomreuse.generate import DEFAULT_SEED, GenerationError, OutputPathError, generate
-from bomreuse.ingest import IngestError, read_raw
+from bomreuse.ingest import DEFAULT_RAW_DIR, IngestError, read_raw
 from bomreuse.model import (
     NORMALIZED_FILE,
     RUN_ARTIFACTS,
@@ -60,6 +63,7 @@ def main(argv: list[str] | None = None) -> int:
     _add_generate(commands)
     _add_normalize(commands)
     _add_run(commands)
+    _add_evaluate(commands)
 
     args = parser.parse_args(argv)
     handler: Handler = args.handler
@@ -334,6 +338,71 @@ def _partial(prediction: Prediction, left_out: Mapping[str, int]) -> str:
 
 def _amount(item: SignatureItem) -> str:
     return f"{item.quantity:g} {item.unit}"
+
+
+# --- evaluate ------------------------------------------------------------------------------
+
+
+def _add_evaluate(commands: "argparse._SubParsersAction[argparse.ArgumentParser]") -> None:
+    parser = commands.add_parser("evaluate", help="score the backtest against the ground truth, the tool and the two naive searches side by side")
+    parser.add_argument("--ground-truth", type=Path, required=True, help="the file to score against; read by evaluate alone, and never from a constant path")
+    parser.add_argument("--raw", type=Path, default=DEFAULT_RAW_DIR, help="directory holding variants.csv, bom.csv and notes.csv (default: the committed data/raw); read, never written")
+    parser.add_argument("--spec", type=Path, default=DEFAULT_SPEC_PATH, help="the dataset spec the reuse threshold is read from (default: the committed contract)")
+    parser.set_defaults(handler=_evaluate)
+
+
+def _evaluate(args: argparse.Namespace) -> int:
+    """The one claim, measured. It writes nothing: the score is the output.
+
+    The pipeline is run here, not read back from `out/`, so the figures cannot be those of a
+    stale artifact — and the ground-truth path goes straight from the command line to
+    `evaluate`, the only module allowed to open it.
+    """
+    try:
+        thresholds = load_spec(args.spec).thresholds
+        raw = read_raw(args.raw)
+        dataset = normalize(raw)
+        resolution, _ = resolve(dataset)
+        signatures = build_signatures(dataset, resolution)
+        evaluation = evaluate(raw, dataset, signatures, backtest(signatures, dataset.variants, thresholds), args.ground_truth)
+    except (IngestError, SpecError, EvaluationError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 1
+
+    _print_evaluation(evaluation, dataset)
+    return 0
+
+
+def _print_evaluation(evaluation: Evaluation, dataset: NormalizedDataset) -> None:
+    """The score, in the ground truth's words, with the counts every ratio was read off.
+
+    The rows carry the ground truth's labels because it is the ground truth that is being scored
+    against; the one line about `specific` is where the two vocabularies are reconciled for the
+    reader, as they are reconciled for the code in `evaluate.ANSWERS` (Decision 30).
+
+    What the run could not read is on this screen too, and for a harder reason than on `run`'s:
+    these ratios are the build's one value claim, and a measurement taken through a hole must not
+    be printed as one taken on whole data.
+    """
+    print(f"ground truth      {evaluation.ground_truth_path}")
+    print(f"backtest          {evaluation.target_variant_id} played as the new tender against {', '.join(evaluation.ancestor_variant_ids)}")
+    print(
+        f"  sub-assemblies  {evaluation.items} ({', '.join(f'{label} {count}' for label, count in evaluation.labelled.items())}), "
+        f"scored on signatures missing {evaluation.lines_left_out} BOM lines"
+    )
+    print(f"  rows            the ground truth's labels; the prediction that answers 'new' is '{ANSWERS['new']}'")
+    print("  a hit           the class is right, and the older sub-assembly named is one the ground truth lists")
+    _print_issues(dataset)
+    for score in evaluation.scores:
+        _print_score(score)
+
+
+def _print_score(score: Score) -> None:
+    print()
+    print(f"{score.predictor:<18}{score.description}")
+    for row in score.classes:
+        print(f"  {row.label:<16}precision {str(row.precision):<10}recall {row.recall}")
+    print(f"  {'correct':<16}{score.correct}")
 
 
 # --- the read-only guard ---------------------------------------------------------------------

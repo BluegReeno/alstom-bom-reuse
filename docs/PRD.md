@@ -57,10 +57,10 @@ client defines it. Web UI, graph DB, real PLM connector, mandatory LLM, generali
 
 ## 6. Success criteria
 
-1. `uv run bomreuse evaluate` prints precision and recall on the three reuse classes for the
-   default dataset, and the same figures for the two naive baselines of [A3], with counts next
-   to every ratio. **The gap between the tool and the baselines is the only value claim this
-   build makes** (Dec. 3, Dec. 17).
+1. `uv run bomreuse evaluate --ground-truth data/ground_truth/ground_truth.json` prints precision
+   and recall on the three reuse classes for the default dataset, and the same figures for the two
+   naive baselines of [A3], with counts next to every ratio. **The gap between the tool and the
+   baselines is the only value claim this build makes** (Dec. 3, Dec. 17).
 2. Every planted *reused* case and every *re-designed in the newest variant* case is found by
    the end-to-end test, on a small dataset generated with a test seed.
 3. The README's Results section contains only numbers `evaluate` computed. (Dec. 3.)
