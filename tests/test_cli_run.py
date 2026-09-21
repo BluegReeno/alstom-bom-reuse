@@ -5,7 +5,9 @@ on stdout what it found. From the signatures issue on it also prints the reuse c
 newest variant, so the demo never depends on the HTML report having landed.
 """
 
+import os
 import shutil
+from collections.abc import Callable
 from pathlib import Path
 
 import pytest
@@ -70,12 +72,41 @@ def test_there_is_no_option_that_could_carry_anything_but_the_two_directories(ca
 
 @pytest.mark.parametrize("inside", [".", "out", "nested/out"])
 def test_an_output_directory_inside_the_raw_directory_is_refused(tmp_path: Path, capsys: pytest.CaptureFixture[str], inside: str) -> None:
-    """Refused before anything is written, and for every artifact, not only the first."""
+    """Refused before anything is written. Every artifact is inside `--raw` here, so the first one decides."""
     raw = tmp_path / "raw"
     shutil.copytree(COMMITTED_RAW, raw)
     assert main(["run", "--raw", str(raw), "--out", str(raw / inside)]) == 2
     assert "inputs are read-only" in capsys.readouterr().err
     assert sorted(path.name for path in raw.iterdir()) == ["bom.csv", "notes.csv", "variants.csv"]
+
+
+@pytest.mark.parametrize("link", [os.symlink, os.link], ids=["symlink", "hard-link"])
+def test_an_artifact_landing_on_an_input_through_a_link_is_refused(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str], link: Callable[[Path, Path], None]
+) -> None:
+    """Each artifact in turn, with `--out` outside `--raw` so that one alone decides.
+
+    A guard that checked only the first would let the second overwrite `bom.csv` with its own
+    JSON and exit 0 — the pipeline's only input destroyed by a run reporting success. The names
+    come from what a run really writes, so an artifact a later issue adds is covered here
+    without anyone remembering to add it.
+    """
+    for artifact in _artifacts_a_run_writes(tmp_path / "reference"):
+        raw, out = tmp_path / artifact / "raw", tmp_path / artifact / "out"
+        shutil.copytree(COMMITTED_RAW, raw)
+        out.mkdir()
+        bom = raw / "bom.csv"
+        untouched = bom.read_bytes()
+        link(bom, out / artifact)
+
+        assert main(["run", "--raw", str(raw), "--out", str(out)]) == 2, f"{artifact} is never checked against the raw directory"
+        assert "inputs are read-only" in capsys.readouterr().err
+        assert bom.read_bytes() == untouched
+
+
+def _artifacts_a_run_writes(out: Path) -> list[str]:
+    assert main(["run", "--raw", str(COMMITTED_RAW), "--out", str(out)]) == 0
+    return sorted(path.name for path in out.iterdir())
 
 
 def test_a_raw_directory_that_is_not_one_stops_the_run(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
