@@ -15,13 +15,29 @@ import pytest
 from bomreuse import cli
 from bomreuse.cli import main
 from bomreuse.ingest import read_raw
-from bomreuse.model import FINDINGS_FILE, NORMALIZED_FILE, RESOLUTION_FILE, ModelError, load_dataset, load_findings, load_resolution
+from bomreuse.model import (
+    FINDINGS_FILE,
+    NORMALIZED_FILE,
+    PREDICTIONS_FILE,
+    RESOLUTION_FILE,
+    RUN_ARTIFACTS,
+    SIGNATURES_FILE,
+    ModelError,
+    load_backtest,
+    load_dataset,
+    load_findings,
+    load_resolution,
+    load_signatures,
+)
 from bomreuse.normalize import normalize
 from bomreuse.resolve import resolve
+from bomreuse.signatures import backtest, build_signatures
+from bomreuse.spec import load_spec
 
 ROOT = Path(__file__).resolve().parents[1]
 COMMITTED_RAW = ROOT / "data" / "raw"
-ARTIFACTS = [NORMALIZED_FILE, RESOLUTION_FILE, FINDINGS_FILE]
+#: What a run writes, read from the one place it is declared (`model.RUN_ARTIFACTS`).
+ARTIFACTS = list(RUN_ARTIFACTS)
 
 
 def test_run_writes_the_artifacts_and_says_what_it_found(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
@@ -42,9 +58,12 @@ def test_the_artifacts_read_back_into_the_objects_the_pipeline_built(tmp_path: P
 
     dataset = normalize(read_raw(COMMITTED_RAW))
     resolution, findings = resolve(dataset)
+    signatures = build_signatures(dataset, resolution)
     assert load_dataset(out / NORMALIZED_FILE) == dataset
     assert load_resolution(out / RESOLUTION_FILE) == resolution
     assert load_findings(out / FINDINGS_FILE) == findings
+    assert load_signatures(out / SIGNATURES_FILE) == signatures
+    assert load_backtest(out / PREDICTIONS_FILE) == backtest(signatures, dataset.variants, load_spec().thresholds)
 
 
 def test_running_twice_gives_the_same_bytes(tmp_path: Path) -> None:
@@ -144,3 +163,46 @@ def test_unreadable_values_are_counted_on_the_summary_the_client_reads(tmp_path:
     printed = capsys.readouterr().out
     assert "issues            1" in printed
     assert "bom.csv quantity: not a number  1" in printed
+
+
+def test_the_summary_shows_the_reuse_class_of_every_sub_assembly_of_the_newest_variant(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    """The demo's safety net (Decision 29): the answer is on stdout, whatever the report does.
+
+    Asserted line by line against the artifact the same run wrote, so the table cannot drift
+    from the predictions — and against the counts underneath, so no ratio is shown alone.
+    """
+    out = tmp_path / "out"
+    assert main(["run", "--raw", str(COMMITTED_RAW), "--out", str(out)]) == 0
+    printed = capsys.readouterr().out
+    result = load_backtest(out / PREDICTIONS_FILE)
+    designations = {signature.sub_assembly_id: signature.designations for signature in load_signatures(out / SIGNATURES_FILE)}
+
+    assert f"backtest          {result.target_variant_id} " in printed
+    assert ", ".join(result.ancestor_variant_ids) in printed
+    for prediction in result.predictions:
+        line = next(line for line in printed.splitlines() if line.strip().startswith(prediction.sub_assembly_id))
+        assert designations[prediction.sub_assembly_id][0] in line
+        assert prediction.reuse_class.value in line
+        assert prediction.ancestor_id in line
+        if prediction.diff is not None:
+            assert prediction.diff.added or prediction.diff.removed or prediction.diff.quantity_changed
+            for item in (*prediction.diff.added, *prediction.diff.removed):
+                assert item.component in line
+    for reuse_class in ("reused", "reusable", "specific"):
+        count = sum(prediction.reuse_class.value == reuse_class for prediction in result.predictions)
+        assert f"  {reuse_class:<16}{count}" in printed
+
+
+def test_a_reusable_sub_assembly_says_on_one_line_what_would_have_to_change(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    """A class without its diff is a claim a reader cannot check; the demo shows the diff."""
+    out = tmp_path / "out"
+    assert main(["run", "--raw", str(COMMITTED_RAW), "--out", str(out)]) == 0
+    printed = capsys.readouterr().out
+    reusable = [prediction for prediction in load_backtest(out / PREDICTIONS_FILE).predictions if prediction.reuse_class.value == "reusable"]
+    assert reusable
+
+    for prediction in reusable:
+        line = next(line for line in printed.splitlines() if line.strip().startswith(prediction.sub_assembly_id))
+        assert prediction.diff is not None
+        for change in prediction.diff.quantity_changed:
+            assert f"{change.component} {change.left.quantity:g} {change.left.unit} -> {change.right.quantity:g} {change.right.unit}" in line
