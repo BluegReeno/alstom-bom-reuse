@@ -3,11 +3,11 @@
 Last updated: 2026-09-21
 
 ## Current Focus
-#7 merged (PR #23) — the six issues of the refocus (DECISIONS 29) are all delivered. Nothing left
-in code; what remains is the non-code work in the Backlog.
+Code and README done (PR #25 the last). Now the deck, in a new session, then the email tonight.
 
 ## In Progress
-- [ ] Not code: the email and the 40-minute case narrative — reserve time for them
+- [ ] Deck: rewrite slide 10, add a demo slide, fix slides 8, 9 and 11 — in a new session
+- [ ] Email tonight, one measured figure only: 14/15 for the tool against 6/15 for the exact-reference search
 
 ## Done (current sprint)
 - [x] README: the entity model and the bike module followed through (two Mermaid diagrams), N013's shape added to Known limits; PR #25 merged, follow-up to #7 — 2026-09-21
@@ -29,4 +29,4 @@ in code; what remains is the non-code work in the Backlog.
 - [x] `docs/ARCHITECTURE.md`, `docs/PRD.md`, `README.md` aligned with the refocus — 2026-09-21
 
 ## Backlog
-- [ ] Not code: the email and the 40-minute case narrative — reserve time for them
+- [ ] The 40-minute case narrative
