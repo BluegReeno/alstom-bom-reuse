@@ -210,6 +210,20 @@ CLAUDE.md, DECISIONS.md, CONTEXT.md, .claude/
 The last group is for a reviewer of the build, not for a user of the tool: running it needs
 none of those files.
 
+`src/bomreuse/` is flat, but its modules fall into three groups, and a module of one group
+never serves another's purpose:
+
+| Group | Modules | Command |
+| --- | --- | --- |
+| Synthetic data — would not exist on client data | `catalogue`, `dirt`, `generate`, `ground_truth` | `generate` |
+| The tool | `ingest`, `normalize`, `resolve`, `rules`, `notes`, `link`, `signatures`, `checks`, `report`, `artifacts` | `run` |
+| The measurement | `evaluate` (the only reader of the ground truth), `baseline` (the two naive searches) | `evaluate` |
+
+Shared: `model` (the types, importing nothing from the package), `cli` (the one entry point)
+and `spec`, which loads `data/dataset_spec.toml`. The generator reads the whole file; the tool
+reads only its two reuse thresholds, so that the planted cases and the classifier use one
+definition. `report` also calls `baseline`, to set the tool's answer beside the naive ones.
+
 ## How to run
 
 Python 3.12 and [`uv`](https://docs.astral.sh/uv/). From a fresh clone, end to end:
