@@ -3,13 +3,15 @@
 Last updated: 2026-09-21
 
 ## Current Focus
-Next autonomous run: #16 — signatures wired, backtest predictions, stdout summary. It is the run
-where the tool answers the client's question. Procedure: `.claude/RUN-PROCEDURE.md`.
+#16 merged (PR #20). Next: #17 and #5 in parallel, then #6 ‖ #7. Procedure:
+`.claude/RUN-PROCEDURE.md`. #5's issue now carries Decision 30 (specific ↔ new).
 
 ## In Progress
 - (nothing — no run underway)
 
 ## Done (current sprint)
+- [x] #16 — signatures wired, backtest predictions, stdout summary; PR #20 merged — 2026-09-21
+- [x] DECISIONS 30 — `specific` against `new` is a one-way correctness relation in `evaluate` — 2026-09-21
 - [x] Refocus: data layer frozen, six issue-to-PR runs, `evaluate` scores the reuse classes only (`DECISIONS.md` 29) — 2026-09-21
 - [x] #13 — the artifact's leaf types, PR #15 merged; #14 and #18 closed won't-do — 2026-09-21
 - [x] #4 — resolution, rule catalogue, `bomreuse run`, PR #19 merged — 2026-09-21
