@@ -35,7 +35,7 @@ from pathlib import Path
 from typing import Any, Final, Protocol
 from urllib.request import Request, urlopen
 
-from pydantic import BaseModel, ConfigDict, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from bomreuse.model import FactKind, Note, NoteFact
 
@@ -238,6 +238,13 @@ DEFAULT_CACHE_DIR: Final[Path] = Path(".cache") / "bomreuse-notes"
 #: line each, and the two rules that matter — copy references exactly, assert nothing the note
 #: does not — are stated rather than implied. `_validated` enforces the first one; nothing can
 #: enforce the second, which is the honest limit of the layer.
+#:
+#: The answer's shape is spelled out here as well as sent as `format`, because an Ollama cloud
+#: model ignores `format`: without it, `glm-5.3-flash:cloud` invented its own keys on all 40 notes.
+#: The empty-list, direction and words-are-not-references rules answer what `gemma4:12b-mlx`
+#: got wrong in a manual run on the committed notes — a fact on notes asserting nothing, the old
+#: and new parts swapped on "fit B instead of A". They were written after seeing those notes, so
+#: a run on the same forty is not a clean measurement of them.
 PROMPT: Final[str] = """You read one technical note about railway components, written in French or English, sometimes both in one sentence.
 
 Extract only the facts the note ASSERTS about a component:
@@ -245,10 +252,19 @@ Extract only the facts the note ASSERTS about a component:
 - obsolescence: a component is obsolete, discontinued, or no longer to be ordered.
 - restriction: a component must not be used on some variant or configuration.
 
+Most notes assert nothing of the kind (inspection results, reviews, remarks, questions). For those, the answer is {{"facts": []}}. An empty list is a normal answer, not a failure.
+
 Rules:
-- Copy every component reference exactly as the note writes it, character for character.
-- A question, a proposal or a refusal asserts nothing: return an empty list.
+- component_ref is a part reference: a code as the note writes it (for example ABC-123 or abc-def-4), never a description in words.
+- Copy every reference exactly as the note writes it, character for character: same case, same spaces, same punctuation.
+- For a replacement, component_ref is the OLD part, the one that goes; replacement_ref is the NEW part, the one fitted from now on. "fit B instead of A" and "monter B à la place de A" mean A is replaced by B.
+- A question, a proposal, a refusal, or a negated statement ("is not replaced", "n'est pas remplacé") asserts nothing: return an empty list.
+- scope is only for a restriction: the configuration the part must not be used on, in the note's words. Otherwise leave it "".
+- replacement_ref is "" unless the fact is a replacement.
 - Do not infer, do not translate, do not repair a reference.
+
+Answer with JSON only, no other text, exactly in this shape:
+{{"facts": [{{"kind": "replacement" | "obsolescence" | "restriction", "component_ref": "...", "replacement_ref": "", "scope": ""}}]}}
 
 Note:
 {text}
@@ -369,10 +385,12 @@ class _ModelFact(BaseModel):
 
     model_config = ConfigDict(extra="ignore")
 
+    # The descriptions travel in the `format` schema: a model that honours it reads the direction
+    # of a replacement next to the field it fills, not only in the prompt.
     kind: FactKind
-    component_ref: str
-    replacement_ref: str = ""
-    scope: str = ""
+    component_ref: str = Field(description="the part the fact is about, as the note writes it; for a replacement, the OLD part")
+    replacement_ref: str = Field(default="", description="for a replacement only, the NEW part, as the note writes it; otherwise empty")
+    scope: str = Field(default="", description="for a restriction only, the configuration the part must not be used on; otherwise empty")
 
 
 class _ModelResponse(BaseModel):

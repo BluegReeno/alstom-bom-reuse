@@ -73,6 +73,23 @@ def test_the_note_is_the_only_thing_the_prompt_carries() -> None:
     assert "N003" not in backend.prompts[0], "the note id is the cache key, not something the model is asked about"
 
 
+def test_the_prompt_spells_out_the_answer_s_shape() -> None:
+    """An Ollama cloud model ignores `format`: the prompt alone must say what an answer looks like."""
+    model, backend = reader()
+    model.read(a_note())
+    prompt = backend.prompts[0]
+    assert '{"facts": []}' in prompt, "an empty list must read as a normal answer"
+    for key in ("kind", "component_ref", "replacement_ref", "scope"):
+        assert f'"{key}"' in prompt
+
+
+def test_the_schema_says_which_part_of_a_replacement_is_the_old_one(server: HTTPServer) -> None:
+    OllamaBackend(model="test-model", endpoint=endpoint(server)).generate("read this note")
+    fact = _Handler.seen[0]["format"]["properties"]["facts"]["items"]["properties"]
+    assert "OLD" in fact["component_ref"]["description"]
+    assert "NEW" in fact["replacement_ref"]["description"]
+
+
 def test_one_call_per_note() -> None:
     model, backend = reader()
     extract([a_note(note_id="N001"), a_note(note_id="N002"), a_note(note_id="N003")], model)
