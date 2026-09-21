@@ -157,6 +157,8 @@ Commits:
 `DECISIONS.md`:
 
 - One line per **human** decision: what, why, and whether it overruled an AI proposal.
+- Final decisions only, not a journal: a decision a later one changes is rewritten in place, one it
+  replaces is removed, and the numbers never move — they are cited across the repository.
 - Agents do not write decisions on the human's behalf. When an agent proposes something the
   human rejects, the agent reminds the human to log it.
 
