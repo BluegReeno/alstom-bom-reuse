@@ -80,8 +80,8 @@ Then open `out/report.html` in a browser — one self-contained file, no server,
 
 `uv sync` installs the pinned dependencies of `uv.lock`, which needs a package index or a warm
 `uv` cache; **everything after it runs with no network at all**. Checked on a clean clone:
-`uv sync --frozen --offline`, then the whole pipeline offline, then `uv run pytest` — 891 tests
-green in under 6 s of the 30 s budget — and an `out/report.html` byte-identical to the one the
+`uv sync --frozen --offline`, then the whole pipeline offline, then `uv run pytest` — 999 tests
+green in under 10 s of the 30 s budget — and an `out/report.html` byte-identical to the one the
 working tree produces.
 
 Regenerate the synthetic dataset (the committed one uses the default seed, and a test checks
@@ -265,7 +265,7 @@ The rule sections are built from the catalogue, so a rule a later issue adds ren
 
 The page counts inconsistencies from the checks and never from the total: the 13 components whose
 rows disagree each produce two findings — one saying which value moved where, one saying the merge
-held despite it — so **44 findings are not 44 data problems**, and the summary says 13.
+held despite it — so **66 findings are not 66 data problems**, and the summary says 13.
 
 ### Scoring the answer
 
