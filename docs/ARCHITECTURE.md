@@ -121,24 +121,23 @@ formed:
 
 The consequence of rules-only is that transpositions (`BGI-2031` → `BGI-2013`) and missing
 characters are out of reach by construction. `data/dataset_spec.toml` therefore declares the
-typo families it plants, **including one or two the rules cannot catch**. The resolution recall
-comes out below 1, `evaluate` measures the shortfall, and the README's "Known limits" carries a
-figure instead of a caveat. A dataset that only plants defects the tool catches proves nothing.
+typo families it plants, **including one or two the rules cannot catch**. The miss is named in
+the README's "Known limits". A dataset that only plants defects the tool catches proves nothing.
+Resolution is not scored in this build (Decision 29): the shortfall is stated, not measured.
 
-Rules-only resolution carries a symmetric risk on precision, and the dataset must be able to
-expose it. If the spec plants only defects the folding rules catch — plus the few they cannot —
-then nothing in the data can produce a **false merge**, and `evaluate` reports a resolution
-precision of 1.0 that measures nothing, while this document holds that a false *reused* is the
+Rules-only resolution carries a symmetric risk: a **false merge**, and a false *reused* is the
 worst error the tool can make. So `data/dataset_spec.toml` plants **at least two pairs of
 genuinely different references separated by exactly one character the folding rules collapse** —
-an `O` against a `0`, an `I` against a `1`, a separator against none — and the ground truth
-declares them **must-not-merge**. If the rules merge them, precision drops below 1 and the miss
-is shown on purpose in the report; if they hold, the 1.0 is a result rather than an artefact of
-the dataset.
+an `O` against a `0`, an `I` against a `1`, a separator against none — and declares them
+**must-not-merge**. They share a canonical key on purpose; `resolve`'s `reject` verdict must
+split them back apart, and a test asserts it does, naming any pair that merges.
 
 ### A3 — Evaluation semantics
 
-Two different shapes, scored separately, never merged into one headline figure.
+`evaluate` scores one thing: the backtest below, for the tool and for both naive baselines, with
+counts next to every ratio. The refocus of 2026-09-21 (Decision 29) cut the resolution score and
+the per-defect-type scoring this section first specified; what survives of them is stated after
+the backtest.
 
 **Reuse classification (the backtest).** Each sub-assembly of the newest variant is one item,
 with a ground-truth label in `{reused (+ ancestor id), reusable (+ diff), new}`. A true positive
@@ -146,34 +145,19 @@ for *reused* and *reusable* requires the predicted class **and** the predicted a
 match. The diff is displayed in the report and asserted by the end-to-end test, but it is not
 scored. `evaluate` scores decisions; `pytest` guards the evidence.
 
-**Inconsistency findings.** A set comparison per defect type, matched on a **stable key** that
-the emitted finding must reproduce exactly.
+**Inconsistency findings.** Counted and displayed, not scored (Decision 29). The end-to-end test
+asserts the planted ones are found.
 
-That key must contain nothing the pipeline produces. A key built on `canonical_component_id`
-would be circular: the canonical id comes out of `resolve.py`'s folding rules, while the ground
-truth is written by `generate.py` before any resolution exists. Either `generate` imports
-`resolve`'s key function — and the ground truth becomes definitionally aligned with the
-implementation, so resolution recall is 1 by construction — or it reimplements it and the two
-drift apart. Both make the score circular.
+**Resolution.** Not scored (Decision 29). The typo families beyond the reach of the folding
+rules — transpositions, missing characters — are named in the README's "Known limits" as misses
+by construction, and the must-not-merge pairs are asserted by a test (A2).
 
-The identity is therefore owned by the generator and knows nothing about the rules:
-
-- `generate` invents a **true component** (`TRUE-0042`), then emits the raw reference strings
-  that stand for it across the variants, planted typos included;
-- the ground truth records `true_component_id -> {raw reference strings emitted}`;
-- the stable defect key is `(defect_type, true_component_id, variant_pair)`.
-
-`evaluate` then scores resolution as a **clustering** problem against that mapping, sharing no
-code with the side it scores:
-
-- **recall** — all the raw strings of one true component landed in one canonical group;
-- **precision** — a canonical group holds strings from only one true component.
-
-Typo families beyond the reach of the folding rules — transpositions, missing characters — then
-come out as genuine **misses**, measured rather than defined away. That is the whole reason for
-declaring them in the spec.
-
-Precision and recall are reported per type, plus the baseline gap. No aggregate F1 (Decision 3).
+The ground truth keeps the identity the cut scoring would have needed, because it was built
+first and the data layer is frozen: `generate` invents a **true component** (`TRUE-0042`) and
+records `true_component_id -> {raw reference strings emitted}`, owned by the generator and
+knowing nothing about `resolve`'s rules. Scoring resolution as a clustering problem against that
+mapping — recall and precision per typo family — is what the pilot should measure, not this
+build. No aggregate F1 in any case (Decision 3).
 
 ### A4 — Data carriage: standard library
 
@@ -211,18 +195,12 @@ model. Invalid output is logged and counted, never silently dropped.
 Responses are cached on disk, keyed by `(model, prompt hash, note id)`, and the cache is
 **gitignored**: it is a local accelerator, not a deliverable.
 
-That leaves a gap the README would otherwise fall into. It will carry a cloud-versus-local
-comparison table while promising a clone that runs in one command — and a fresh clone has no
-cache. So the **scored results** are committed, as a thing distinct from the cache: a few KB of
-JSON at `docs/measurements/llm-comparison-<YYYY-MM-DD>.json`, written by `evaluate`, holding the
-two model ids, the dataset spec it was measured against, per-note validity and latency, and the
-resulting precision and recall. The README cites that file by name and date. The cache makes a
-re-run cheap; the committed artifact makes the published figures checkable by someone who has
-neither Ollama nor the network.
+One backend is wired, `gemma4:12b-mlx`, and none is scored (Decision 29): no backend comparison,
+no latency table, no `docs/measurements/`. If both models are run by hand at the end, their
+figures go in the README as a manual measurement, labelled as one.
 
 On a fresh clone without Ollama the pipeline still runs end to end on the keyword fallback, so
-R10 holds. What cannot be *recomputed* there is the comparison itself, and the README says so
-next to the table.
+R10 holds.
 
 ### A7 — Note-to-component linking
 
@@ -315,7 +293,7 @@ discovering it at evaluation time.
   touching 9 of the newest variant's 15 sub-assemblies — reading `auto` groups only would blind
   the backtest exactly where the data is dirty. The `review`-lane ceiling this question also
   raised has no object any more.
-- **Regression floors.** Set from the first real measurement and written into `DECISIONS.md`,
-  per `CLAUDE.md`. They cannot be chosen before a number exists.
+- ~~Regression floors.~~ **Settled by `CLAUDE.md`: none in this build.** `evaluate` prints its
+  figures and the README quotes them; floors are a pilot-scale practice, argued in the meeting.
 - **Nested sub-assemblies.** Out of scope by [A1]; the signature would need to become recursive.
   Named here so the limit is deliberate rather than discovered.
