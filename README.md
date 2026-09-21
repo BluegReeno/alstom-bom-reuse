@@ -40,6 +40,133 @@ inconsistencies that would make reuse unsafe.**
 
 Primary user: the design engineer preparing a tender.
 
+## The entity model
+
+Blue is what the client's export already holds; orange is what the tool computes from it. The
+export is read-only: nothing orange is ever written back.
+
+```mermaid
+flowchart TB
+    subgraph EXPORT["In the client's export: variants.csv, bom.csv, notes.csv"]
+        V["Variant<br/>design date, region, seats, bike spaces"]
+        L["BOM line<br/>variant, parent, child, quantity, unit,<br/>supplier, unit cost"]
+        SA["Sub-assembly<br/>reference, designation"]
+        C["Component<br/>reference, designation"]
+        S["Supplier<br/>name"]
+        N["Note<br/>free text, French or English"]
+    end
+    subgraph TOOL["Computed by the tool"]
+        CC["Canonical component<br/>one product, every spelling of it<br/>auto / review / reject"]
+        SIG["Signature<br/>the parts of one sub-assembly,<br/>quantities in SI units"]
+        P["Prediction, newest variant only<br/>reused / reusable / specific,<br/>the older sub-assembly, the diff"]
+        F["Finding<br/>rule, confidence, source rows"]
+    end
+    V -- "1 → n" --> L
+    SA -- "parent, 1 → n" --> L
+    C -- "child, 1 → n" --> L
+    S -- "1 → n" --> L
+    V -- "1 → n" --> N
+    L ~~~ CC
+    C -- "folded to one key" --> CC
+    L -- "lines of one sub-assembly" --> SIG
+    CC -- "counted in" --> SIG
+    SIG -- "compared with older variants" --> P
+    L -- "rows cited by" --> F
+    CC -- "divergent rows" --> F
+    EXPORT ~~~ TOOL
+
+    classDef client fill:#E3EDF7,stroke:#3A6EA5,color:#16212E
+    classDef computed fill:#FBE6D4,stroke:#C2661E,color:#16212E
+    class V,L,SA,C,S,N client
+    class CC,SIG,P,F computed
+    style EXPORT fill:#F4F8FC,stroke:#3A6EA5
+    style TOOL fill:#FDF3EA,stroke:#C2661E
+```
+
+A BOM line is an n-ary relation — variant, parent, child, quantity, unit — not an attribute of
+a component: the same component sits in several variants with different quantities, suppliers
+or costs, and that is carried by the line rather than by duplicating the product. Every
+normalized value keeps its raw characters beside it (`src/bomreuse/model.py`).
+
+### One sub-assembly, followed through: the bike module of B and of C
+
+B is an older bike car; C is the newest, playing the new tender. Their bike modules, as the tool
+reads them (six lines each; the three whose raw lines differ are shown):
+
+```mermaid
+flowchart LR
+    subgraph B["Variant B, bom.csv and notes.csv"]
+        B1["L00227 SA-0215<br/>BIKE-HOOK 8 units"]
+        B2["L00229 SA-0215<br/>BIKE-STRAP 8 units"]
+        B3["L00230 SA-0215<br/>BIKE-FIX-KIT 8 units"]
+        N13["Note N013, 2023<br/>BIKE STRAP is replaced<br/>by BIKE-STRAP-V2"]
+    end
+    subgraph C["Variant C, bom.csv"]
+        C1["L00643 OCC-SA-0315<br/>BIKE-HOOK 6 pcs"]
+        C2["L00645 OCC-SA-0315<br/>BIKE-STRAP 6 pcs"]
+        C3["L00646 OCC-SA-0315<br/>BIKE-FIX-KIT 8 u"]
+    end
+
+    SB["Signature B:SA0215<br/>hook 8, strap 8,<br/>fixing kit 8, rail 2,<br/>floor mat 1,<br/>pictogram 4 pcs"]
+    SC["Signature C:0CCSA0315<br/>hook 6, strap 6,<br/>fixing kit 8, rail 2,<br/>floor mat 1,<br/>pictogram 4 pcs"]
+    CMP["2 quantities differ,<br/>within the budget of 2"]
+    PR["C:0CCSA0315 is reusable<br/>from B:SA0215<br/>diff: hook 8 → 6,<br/>strap 8 → 6"]
+    U["Unsafe reuse:<br/>the strap was<br/>replaced in 2023"]
+
+    subgraph NAIVE["Same export, naive searches"]
+        X1["Exact reference<br/>OCC-SA-0315 ≠ SA-0215<br/>answers new:<br/>misses the module"]
+        X2["Same name<br/>Bike module = Bike module<br/>answers reused:<br/>hides the diff"]
+    end
+
+    subgraph LEGEND["Legend"]
+        K1["In the client's export"]
+        K2["Computed by the tool"]
+        K3["Naive search"]
+        K4["Not computed<br/>offline"]
+    end
+
+    B1 & B2 & B3 --> SB
+    C1 & C2 & C3 --> SC
+    SB & SC --> CMP --> PR
+    N13 -.-> U
+    PR -.-> U
+    B -.-> NAIVE
+    C -.-> NAIVE
+    K1 ~~~ K2 ~~~ K3 ~~~ K4
+    U ~~~ LEGEND
+
+    classDef client fill:#E3EDF7,stroke:#3A6EA5,color:#16212E
+    classDef computed fill:#FBE6D4,stroke:#C2661E,color:#16212E
+    classDef naive fill:#EEEEEE,stroke:#8A8A8A,color:#16212E
+    classDef pending fill:#FFFFFF,stroke:#C2661E,stroke-dasharray:5 5,color:#16212E
+    class B1,B2,B3,C1,C2,C3,N13,K1 client
+    class SB,SC,CMP,PR,K2 computed
+    class X1,X2,K3 naive
+    class U,K4 pending
+    style B fill:#F4F8FC,stroke:#3A6EA5
+    style C fill:#F4F8FC,stroke:#3A6EA5
+    style NAIVE fill:#F7F7F7,stroke:#8A8A8A
+    style LEGEND fill:#FFFFFF,stroke:#CCCCCC
+    linkStyle 11,12 stroke:#8A8A8A
+```
+
+- **The references are made comparable before anything is compared.** `units`, `u` and `pcs`
+  all become pieces; `BIKE-STRAP` in both variants folds to the key `B1KESTRAP`, so the two lines
+  count the same canonical component.
+- **The comparison is on content, not on reference.** The sub-assembly was renamed from
+  `SA-0215` to `OCC-SA-0315`; its six parts are the same, and two quantities moved. The
+  threshold in `data/dataset_spec.toml` allows two differences for a six-part sub-assembly, so
+  the verdict is *reusable*, with its diff.
+- **The two naive searches fail in opposite directions.** The exact reference finds nothing and
+  answers *new*; the designation finds a *reused* that is not one — the error that costs money.
+- **The dashed box is what the offline run cannot compute.** N013 is written in French, and writes
+  the replaced part as `BIKE STRAP` — a space where a hyphen makes a reference, and no digit to
+  save it — so the keyword reader finds the French cue (*est remplacé par*, "is replaced by") and
+  no reference before it, and extracts nothing (`notes.py`; the shape is listed in **Known
+  limits**). Its row in `bomreuse run`'s backtest table therefore prints with no flag. Reading
+  this note is what the `--notes llm` backend is for, and the ground truth plants this reuse as
+  unsafe — the case the demo talks about.
+
 ## What the synthetic data contains, and why
 
 The dataset is designed backwards from the problem: each property exists so that one claim can
@@ -401,7 +528,9 @@ deliberate, and the ones that were cut are named with what cut them.
   scopes onto variants would be inference dressed as a check.
 - **A reference a note writes in lower case with a space is out of reach.** `bgi 2031` and
   `mars 2024` have the same shape in running text, and the tool would rather miss a reference
-  than read a date as one. Hyphenated spellings (`Bgi-2031`) and upper-case ones are read.
+  than read a date as one. Hyphenated spellings (`Bgi-2031`) and upper-case ones are read — an
+  upper-case one with a space only when digits follow it (`BGI 2031`): `BIKE STRAP`, in note
+  N013, is two words to the keyword reader, and the replacement it records is missed.
 - **Nested sub-assemblies are out of scope, by design.** The BOM is read as two levels — variant,
   sub-assembly, component ([A1]) — and a signature is flat: the sub-assembly is the unit of reuse
   and the unit of comparison. A real PLM structure nests, and a sub-assembly containing another
