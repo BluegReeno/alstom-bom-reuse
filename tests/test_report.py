@@ -20,9 +20,10 @@ from pathlib import Path
 import pytest
 
 from bomreuse import baseline, rules
-from bomreuse.checks import CONFLICT_RULES, check
+from bomreuse.checks import CONFLICT_RULES, check, check_notes
 from bomreuse.cli import main
 from bomreuse.ingest import read_raw
+from bomreuse.link import link
 from bomreuse.model import (
     REPORT_FILE,
     Backtest,
@@ -32,6 +33,7 @@ from bomreuse.model import (
     ReuseClass,
     SourceRow,
 )
+from bomreuse.notes import KeywordReader, extract
 from bomreuse.normalize import normalize
 from bomreuse.report import render
 from bomreuse.resolve import resolve
@@ -53,7 +55,10 @@ class Run:
         self.raw = read_raw(COMMITTED_RAW)
         self.dataset = normalize(self.raw)
         self.resolution, findings = resolve(self.dataset)
-        self.findings = findings + check(self.dataset, self.resolution)
+        # The notes read through the same fallback `run` uses by default, so the page this fixture
+        # renders is the one the written report holds.
+        note_facts = link(extract(self.dataset.notes, KeywordReader()), self.resolution)
+        self.findings = findings + check(self.dataset, self.resolution) + check_notes(self.dataset, self.resolution, note_facts)
         self.signatures = build_signatures(self.dataset, self.resolution)
         self.result = backtest(self.signatures, self.dataset.variants, load_spec().thresholds)
 
