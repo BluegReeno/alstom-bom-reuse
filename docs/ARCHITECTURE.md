@@ -5,7 +5,7 @@ The high-level *how*, decided before implementation. `docs/PRD.md` holds the *wh
 does not restate any of them — it settles what they left open.
 
 Scope of this session: the seven open calls, plus three minor ones. Module boundaries, the
-entity model, the two Ollama backends, the offline default and the five test layers were
+entity model, the Ollama backends (two at the time, one since Decision 29), the offline default and the five test layers were
 already fixed by `CLAUDE.md` and were not reopened.
 
 ## Problem & goals
@@ -33,8 +33,8 @@ three out of sixty.
 `difflib` pass, or rules plus `rapidfuzz`. The trap is that in a BOM two references differing by
 one character are often genuinely different parts, and a false *reused* is the worst error this
 tool can make — it is precisely what it claims to find. **Rules only wins**: it is deterministic,
-explainable, testable, and it cannot manufacture a false match. Its cost is named and measured
-rather than hidden (see the typo families below).
+explainable, testable, and it cannot manufacture a false match. Its cost is named rather than
+hidden (see the typo families below); measuring it was cut by Decision 29.
 
 **What counts as a correct answer.** Scoring the class alone inflates the result, since
 predicting *reusable* against the wrong ancestor would count as a success. Scoring the class,
@@ -189,11 +189,10 @@ ground truth in sight, run the full pipeline, assert it completes) and a static 
 
 ### A6 — LLM adapter
 
-One note per call. R8 requires per-note latency, and a batch that a single invalid output
-poisons loses the other thirty-nine. HTTP through `urllib.request` from the standard library,
+One note per call: a batch that a single invalid output poisons loses the other thirty-nine. HTTP through `urllib.request` from the standard library,
 with a per-call timeout and one retry — a single POST to localhost does not justify a client
-library. `format=json` on the Ollama side, then strict validation with pydantic into a typed
-model. Invalid output is logged and counted, never silently dropped.
+library. Ollama's `format` is set to the JSON schema generated from the pydantic model a fact is
+validated with — one schema, so the two cannot drift — then strict validation on arrival. Invalid output is logged and counted, never silently dropped.
 
 Responses are cached on disk, keyed by `(model, prompt hash, note id)`, and the cache is
 **gitignored**: it is a local accelerator, not a deliverable.
@@ -227,8 +226,8 @@ as that file requires.
 - **Report**: `string.Template` from the standard library, one self-contained HTML file with
   inline CSS, written to `out/`, plus `out/findings.json` for the reviewer. A template engine is
   not worth a dependency for one template.
-- **Artifacts**: one JSON per stage in `out/` (`normalized`, `resolution`, `signatures`,
-  `findings`, `predictions`), serialized from the A4 dataclasses and read back into them. No
+- **Artifacts**: one JSON per stage in `out/` (`normalized`, `resolution`, `note_facts`,
+  `findings`, `signatures`, `predictions`), serialized from the A4 dataclasses and read back into them. No
   pydantic mirror of the internal model: a second set of types describing the same entities is
   two things to keep in step, and the data crossing these files is ours, not untrusted.
   pydantic guards the two boundaries where data arrives from outside — the LLM output and the

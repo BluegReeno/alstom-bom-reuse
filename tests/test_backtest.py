@@ -16,10 +16,10 @@ import pytest
 
 from bomreuse import signatures as signatures_module
 from bomreuse.ingest import read_raw
-from bomreuse.model import Backtest, Prediction, ReuseClass, SubAssemblySignature
+from bomreuse.model import Backtest, Prediction, ReuseClass
 from bomreuse.normalize import normalize, reference_key
 from bomreuse.resolve import resolve
-from bomreuse.signatures import Comparison, Verdict, backtest, build_signatures, compare, newest_variant
+from bomreuse.signatures import Comparison, backtest, build_signatures, compare, newest_variant
 from bomreuse.spec import load_spec
 from test_signature_build import DESIGN_DATES, Row, dataset_of
 

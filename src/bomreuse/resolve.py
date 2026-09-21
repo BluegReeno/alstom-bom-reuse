@@ -94,7 +94,7 @@ def resolve(dataset: NormalizedDataset) -> tuple[Resolution, tuple[Finding, ...]
 def match_reference(resolution: Resolution, raw_token: str) -> Candidate | None:
     """The one way a string becomes a canonical component (docs/ARCHITECTURE.md A7).
 
-    `link.py` (#6) will resolve the raw references the notes cite through this function, and it
+    `link.py` resolves the raw references the notes cite through this function, and it
     is the only caller outside this module — a test asserts it, so that the day a second matcher
     is written it shows up as a failing test rather than as a quiet divergence.
 

@@ -35,12 +35,13 @@ from string import Template
 from typing import Final
 
 from bomreuse import baseline
-from bomreuse.checks import CONFLICT_RULES, conflicting_parts, conflicts_by_component
+from bomreuse.checks import CONFLICT_RULES, conflicts_by_component, flagged_parts, notes_by_component
 from bomreuse.model import (
     REPORT_FILE,
     RUN_ARTIFACTS,
     Attribute,
     Backtest,
+    FactKind,
     Finding,
     GroupVerdict,
     NormalizedDataset,
@@ -81,6 +82,8 @@ class _Read:
     parts: Mapping[str, str]
     #: canonical component id -> the attributes its rows disagree on
     conflicts: Mapping[str, tuple[Attribute, ...]]
+    #: canonical component id -> what the notes say against it
+    notes: Mapping[str, tuple[FactKind, ...]]
 
 
 def render(
@@ -103,6 +106,7 @@ def render(
         left_out={signature.sub_assembly_id: signature.lines_left_out for signature in signatures},
         parts=_parts(resolution),
         conflicts=conflicts_by_component(findings),
+        notes=notes_by_component(findings),
     )
     return _PAGE.substitute(
         title=_esc(_TITLE),
@@ -154,7 +158,9 @@ def _summary(read: _Read) -> str:
     named_but_changed = sum(1 for prediction in read.result.predictions if prediction.reuse_class is ReuseClass.REUSABLE and by_name.get(prediction.sub_assembly_id, False))
 
     counts = _conflict_counts(read.findings)
-    flagged = sum(1 for prediction in _reuses(read) if conflicting_parts(read.contents[prediction.sub_assembly_id], read.conflicts))
+    disagreeing = sum(1 for prediction in _reuses(read) if _to_check(read, prediction, notes={}))
+    spoken_against = sum(1 for prediction in _reuses(read) if _to_check(read, prediction, conflicts={}))
+    flagged = sum(1 for prediction in _reuses(read) if _to_check(read, prediction))
     searches = _table(
         ("How the question is asked", "Says the sub-assembly already exists"),
         [
@@ -176,8 +182,10 @@ difference this report lists part by part — and <strong>{counted[ReuseClass.SP
 <li>The designation search claims an older source for <strong>{named_but_specific}</strong> sub-assembl{_plural(named_but_specific, "y", "ies")}
 the tool finds nowhere, and for <strong>{named_but_changed}</strong> whose content differs from that older one: a namesake does not
 tell identical from changed.</li>
-<li><strong>{sum(counts.values())}</strong> components carry values that disagree between variants ({_listed(counts)}); {flagged} of the
-{already} reuse proposals contain at least one of them, and say so on their row.</li>
+<li><strong>{sum(counts.values())}</strong> components carry values that disagree between variants ({_listed(counts)}); {disagreeing} of the
+{already} reuse proposals contain at least one of them.</li>
+<li><strong>{spoken_against}</strong> of the {already} reuse proposals contain a part a note declares obsolete, replaced or restricted.
+Counting both, <strong>{flagged}</strong> of the {already} hold a part to check before the reuse is taken, named on their row.</li>
 </ul>
 <p class="caveat">Every figure on this page was computed by the run that wrote it. No time or money figure appears anywhere in this
 report: those are defined with the client. How many of these answers are <em>right</em> is not measured here —
@@ -203,6 +211,20 @@ def _found_by(read: _Read, search: Callable[[RawDataset, str, tuple[str, ...]], 
         spellings = [naive_id[key] for reference in group.raw_references if (key := (group.variant_id, reference)) in naive_id]
         found[group.id] = any(answers[naive].reuse_class is ReuseClass.REUSED for naive in spellings if naive in answers)
     return found
+
+
+def _to_check(
+    read: _Read,
+    prediction: Prediction,
+    conflicts: Mapping[str, tuple[Attribute, ...]] | None = None,
+    notes: Mapping[str, tuple[FactKind, ...]] | None = None,
+) -> tuple[tuple[str, tuple[Attribute | FactKind, ...]], ...]:
+    """The parts of one proposed reuse that `checks.flagged_parts` flags; either source can be left out to count the other."""
+    return flagged_parts(
+        read.contents[prediction.sub_assembly_id],
+        read.conflicts if conflicts is None else conflicts,
+        read.notes if notes is None else notes,
+    )
 
 
 def _reuses(read: _Read) -> list[Prediction]:
@@ -233,7 +255,7 @@ def _answer(read: _Read) -> str:
 <em>reused</em> means an older sub-assembly holds exactly the same parts in the same quantities; <em>reusable</em> that it is within
 the threshold written in <code>data/dataset_spec.toml</code>, and the difference is the one shown; <em>specific</em> that neither was
 the case.</p>
-{_table(("Sub-assembly", "Class", "Already exists as", "Difference to check", "Parts whose data disagrees"), rows)}
+{_table(("Sub-assembly", "Class", "Already exists as", "Difference to check", "Parts to check before reuse"), rows)}
 </section>"""
 
 
@@ -265,14 +287,15 @@ def _partial(read: _Read, prediction: Prediction) -> str:
 
 
 def _flags(read: _Read, prediction: Prediction) -> str:
-    """The parts of a proposed reuse whose rows disagree somewhere in the dataset.
+    """The parts of a proposed reuse whose rows disagree somewhere in the dataset, or that a note speaks against.
 
-    The rule is `checks.conflicting_parts`, the one the stdout summary flags with; what each
-    disagreement is, variant by variant, is in *Where the data disagrees* below.
+    The rule is `checks.flagged_parts`, the one the stdout summary flags with (Decision 34). What
+    each disagreement is, variant by variant, is in *Where the data disagrees* below; what each
+    note says is under its `checks.note_*` rule in *Every finding*.
     """
     if prediction.reuse_class is ReuseClass.SPECIFIC:
         return "&mdash;"
-    flagged = conflicting_parts(read.contents[prediction.sub_assembly_id], read.conflicts)
+    flagged = _to_check(read, prediction)
     if not flagged:
         return "&mdash;"
     listed = "".join(f'<li>{_label(read, component)} <span class="attr">{_esc(", ".join(attributes))}</span></li>' for component, attributes in flagged)

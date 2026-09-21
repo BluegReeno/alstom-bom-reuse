@@ -20,7 +20,7 @@ from pathlib import Path
 import pytest
 
 from bomreuse import baseline, rules
-from bomreuse.checks import CONFLICT_RULES, check, check_notes
+from bomreuse.checks import CONFLICT_RULES, check, check_notes, conflicts_by_component, flagged_parts, notes_by_component
 from bomreuse.cli import main
 from bomreuse.ingest import read_raw
 from bomreuse.link import link
@@ -234,6 +234,27 @@ def test_every_reusable_answer_shows_its_ancestor_and_its_exact_difference(run: 
         for change in prediction.diff.quantity_changed:
             assert f"{change.left.quantity:g} {change.left.unit}" in answer
             assert f"{change.right.quantity:g} {change.right.unit}" in answer
+
+
+def test_every_reuse_row_flags_the_parts_the_stdout_summary_flags_notes_included(run: Run, page: str) -> None:
+    """Decision 34: a part a note speaks against is on the row that proposes the reuse, as on stdout.
+
+    The braking unit is the demo's row — *reused*, and one of its parts declared obsolete by a
+    note — so a page flagging value conflicts only would hide the one reuse the README warns about.
+    """
+    conflicts, notes = conflicts_by_component(run.findings), notes_by_component(run.findings)
+    contents = {signature.sub_assembly_id: tuple(item.component for item in signature.signature.items) for signature in run.signatures}
+    rows = {found.group(1): found.group(0) for found in re.finditer(r'<tr><td>.*?<span class="id">(.*?)</span>.*?</tr>', section(page, "answer"), re.S)}
+    reuses = [prediction for prediction in run.result.predictions if prediction.reuse_class is not ReuseClass.SPECIFIC]
+
+    note_flagged = 0
+    for prediction in reuses:
+        flags = re.findall(r'<span class="attr">(.*?)</span>', rows[prediction.sub_assembly_id])
+        expected = [", ".join(labels) for _, labels in flagged_parts(contents[prediction.sub_assembly_id], conflicts, notes)]
+        assert flags == expected, prediction.sub_assembly_id
+        note_flagged += any(component in notes for component in contents[prediction.sub_assembly_id])
+    assert note_flagged, "the committed dataset plants unsafe reuse: without it this asserts nothing"
+    assert f"{note_flagged} of the {len(reuses)} reuse proposals contain a part a note declares" in text(section(page, "summary"))
 
 
 def test_every_sub_assembly_of_the_new_tender_is_on_the_page_with_its_class(run: Run, page: str) -> None:

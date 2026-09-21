@@ -142,7 +142,7 @@ description is the report. The review step stays, inside the run.
   end, their figures go in the README as a manual measurement, labelled as one.
 - **Six issues, in this order**: #4 resolve + rule catalogue + `run` → #16 signatures wired +
   backtest predictions → #17 checks → #5 evaluate → #6 notes + link → #7 report + README.
-- **Every run leaves the tool demoable.** From #15 on, `bomreuse run` prints a readable summary
+- **Every run leaves the tool demoable.** From #16 on, `bomreuse run` prints a readable summary
   to stdout — reused / reusable / specific with the diffs — so a demo never depends on the HTML
   report having landed.
 - **Cut order is the reverse of the build order.** Whatever is not reached goes into the

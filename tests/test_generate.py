@@ -55,8 +55,8 @@ def built() -> Build:
 def test_a_story_sub_assembly_holds_exactly_what_the_spec_says(built: Build, case: StoryCase, side: str) -> None:
     variant = case.left_variant if side == "left" else case.right_variant
     expected = case.left if side == "left" else case.right
-    lines = [l for l in built.model.lines if l.variant_id == variant and l.sub_assembly == case.sub_assembly]
-    assert {l.reference: l.quantity for l in lines} == dict(expected)
+    lines = [line for line in built.model.lines if line.variant_id == variant and line.sub_assembly == case.sub_assembly]
+    assert {line.reference: line.quantity for line in lines} == dict(expected)
     for line in lines:
         assert line.base_unit == case.units.get(line.reference, SPEC.dataset.default_unit), line.reference
 
