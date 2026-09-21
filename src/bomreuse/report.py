@@ -37,6 +37,8 @@ from typing import Final
 from bomreuse import baseline
 from bomreuse.checks import CONFLICT_RULES, conflicting_parts, conflicts_by_component
 from bomreuse.model import (
+    REPORT_FILE,
+    RUN_ARTIFACTS,
     Attribute,
     Backtest,
     Finding,
@@ -152,7 +154,7 @@ def _summary(read: _Read) -> str:
     named_but_changed = sum(1 for prediction in read.result.predictions if prediction.reuse_class is ReuseClass.REUSABLE and by_name.get(prediction.sub_assembly_id, False))
 
     counts = _conflict_counts(read.findings)
-    flagged = sum(1 for prediction in _reuses(read) if conflicting_parts(read.contents.get(prediction.sub_assembly_id, ()), read.conflicts))
+    flagged = sum(1 for prediction in _reuses(read) if conflicting_parts(read.contents[prediction.sub_assembly_id], read.conflicts))
     searches = _table(
         ("How the question is asked", "Says the sub-assembly already exists"),
         [
@@ -270,7 +272,7 @@ def _flags(read: _Read, prediction: Prediction) -> str:
     """
     if prediction.reuse_class is ReuseClass.SPECIFIC:
         return "&mdash;"
-    flagged = conflicting_parts(read.contents.get(prediction.sub_assembly_id, ()), read.conflicts)
+    flagged = conflicting_parts(read.contents[prediction.sub_assembly_id], read.conflicts)
     if not flagged:
         return "&mdash;"
     listed = "".join(f'<li>{_label(read, component)} <span class="attr">{_esc(", ".join(attributes))}</span></li>' for component, attributes in flagged)
@@ -358,11 +360,13 @@ def _provenance(read: _Read) -> str:
         ("Findings", str(len(read.findings))),
         ("Rule catalogue", _esc(f"version {CATALOGUE_VERSION}")),
     ]
+    # The siblings are read from the one place they are named, so an artifact a later issue adds
+    # is listed here without this paragraph being edited.
+    siblings = ", ".join(f"<code>{_esc(name)}</code>" for name in RUN_ARTIFACTS if name != REPORT_FILE)
     return f"""<section id="provenance">
 <h2>What this was read from</h2>
-<p>Written by <code>bomreuse run</code> from the raw CSV exports alone, offline, with no network and no model call. The artifacts
-beside this file &mdash; <code>normalized.json</code>, <code>resolution.json</code>, <code>findings.json</code>,
-<code>signatures.json</code>, <code>predictions.json</code> &mdash; carry the same content as data.</p>
+<p>Written by <code>bomreuse run</code> from the raw CSV exports alone. The artifacts beside this file &mdash; {siblings} &mdash;
+carry the same content as data.</p>
 {_table(("", ""), rows)}
 </section>"""
 
