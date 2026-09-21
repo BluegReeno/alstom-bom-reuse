@@ -614,8 +614,8 @@ deliberate, and the ones that were cut are named with what cut them.
     on 2026-09-21 (DECISIONS.md 29): they measure the dataset generator as much as they measure
     the tool, and the one value claim does not rest on them. The cost is the first bullet of this
     list: how much resolution misses is described there rather than counted.
-  - *A second LLM backend, and any benchmark of one.* DECISIONS.md 5 and 6 planned a cloud model
-    against a local one on the same task; DECISIONS.md 29 cut the comparison. What the build wires
+  - *A second LLM backend, and any benchmark of one.* A cloud model against a local one on the same
+    task was planned, and cut with the refocus (DECISIONS.md 29). What the build wires
     is one backend — `gemma4:12b-mlx`, the on-prem path, which runs on a 16 GB laptop — behind the
     adapter interface, plus the FR/EN keyword fallback that is what makes the offline run possible.
     The second model is a constructor argument, not a rewrite. No backend scoring, no latency
