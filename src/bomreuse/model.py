@@ -47,6 +47,7 @@ from typing import Any, Final
 NORMALIZED_FILE: Final[str] = "normalized.json"
 RESOLUTION_FILE: Final[str] = "resolution.json"
 FINDINGS_FILE: Final[str] = "findings.json"
+NOTE_FACTS_FILE: Final[str] = "note_facts.json"
 SIGNATURES_FILE: Final[str] = "signatures.json"
 PREDICTIONS_FILE: Final[str] = "predictions.json"
 
@@ -54,7 +55,7 @@ PREDICTIONS_FILE: Final[str] = "predictions.json"
 #: CLI writes this list and checks it against the raw directory, and the tests that watch
 #: determinism and the read-only inputs read it rather than a copy of it — so an artifact a later
 #: issue adds is covered by all of them without a hand edit anywhere.
-RUN_ARTIFACTS: Final[tuple[str, ...]] = (NORMALIZED_FILE, RESOLUTION_FILE, FINDINGS_FILE, SIGNATURES_FILE, PREDICTIONS_FILE)
+RUN_ARTIFACTS: Final[tuple[str, ...]] = (NORMALIZED_FILE, RESOLUTION_FILE, NOTE_FACTS_FILE, FINDINGS_FILE, SIGNATURES_FILE, PREDICTIONS_FILE)
 
 #: Written into every artifact and checked on load: a later issue that changes a type bumps it,
 #: so a stale file in `out/` is refused instead of half-read. One version for the whole set of
@@ -355,6 +356,78 @@ class Resolution:
         return tuple(component for group in self.groups for component in group.components)
 
 
+# --- what the notes say ---------------------------------------------------------------------
+
+
+class FactKind(StrEnum):
+    """What a note can assert about a component, and the whole of what the notes layer reads.
+
+    Three kinds, because three are what the client's data actually carries (CONTEXT.md): a part
+    is replaced, a part is no longer to be used, or a part is forbidden on some configuration.
+    A note that asserts none of them produces no fact.
+    """
+
+    REPLACEMENT = "replacement"
+    OBSOLESCENCE = "obsolescence"
+    RESTRICTION = "restriction"
+
+
+@dataclass(frozen=True, slots=True)
+class NoteFact:
+    """One assertion of one note, in the note's own words, with the note cited.
+
+    The references are **raw**: the characters the note writes, never a canonical id. `notes.py`
+    extracts and does not match, `link.py` matches (docs/ARCHITECTURE.md A7), and keeping the raw
+    string here is what lets a reader check the fact against the line of `notes.csv` it came from.
+
+    `replacement_ref` and `scope` are `""` when the note says nothing of them — the empty-string
+    convention the rest of the model uses for "no value", rather than a second optional type.
+    """
+
+    note_id: str
+    row_number: int
+    kind: FactKind
+    component_ref: str
+    replacement_ref: str
+    scope: str
+
+
+@dataclass(frozen=True, slots=True)
+class LinkedFact:
+    """A fact and the canonical components its raw reference reached.
+
+    `components` is empty when the reference matched nothing in the BOM — a note about a part
+    this export does not carry, or a string that only looked like a reference. It holds more
+    than one entry when `resolve` split the group the key formed: the ambiguity is shown, never
+    guessed at (`resolve.Candidate`).
+
+    Unlinked facts stay in the artifact. Dropping them would hide, in the one place a reviewer
+    looks, every note the layer read but could not place.
+    """
+
+    fact: NoteFact
+    components: tuple[str, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class NoteFacts:
+    """The notes layer's artifact: which reader ran, what it read, and what it could not.
+
+    `reader` names the reader because the same pipeline gives different facts through the keyword
+    fallback and through a model, and a finding read off this file must say which one produced it.
+
+    `invalid_outputs` counts what a reader produced and could not be used — a model answer that
+    failed validation, a fact naming a reference the note does not contain. It is written into
+    the artifact rather than only logged, so that "the model was wrong nine times" is a number a
+    reviewer can read off the run (CLAUDE.md, LLM layer).
+    """
+
+    reader: str
+    notes_read: int
+    invalid_outputs: int
+    facts: tuple[LinkedFact, ...]
+
+
 # --- signatures and the backtest ----------------------------------------------------------------
 
 
@@ -556,6 +629,14 @@ def dump_findings(findings: tuple[Finding, ...], path: Path) -> None:
     _write(render_findings(findings), path)
 
 
+def render_note_facts(note_facts: NoteFacts) -> str:
+    return _render({"note_facts": _jsonable(dataclasses.asdict(note_facts))})
+
+
+def dump_note_facts(note_facts: NoteFacts, path: Path) -> None:
+    _write(render_note_facts(note_facts), path)
+
+
 def render_signatures(signatures: tuple[SubAssemblySignature, ...]) -> str:
     return _render({"signatures": _jsonable([dataclasses.asdict(signature) for signature in signatures])})
 
@@ -609,6 +690,10 @@ def load_resolution(path: Path) -> Resolution:
 
 def load_findings(path: Path) -> tuple[Finding, ...]:
     return findings_from_dict(_read_json(path, "findings"))
+
+
+def load_note_facts(path: Path) -> NoteFacts:
+    return note_facts_from_dict(_read_json(path, "note facts"))
 
 
 def load_signatures(path: Path) -> tuple[SubAssemblySignature, ...]:
@@ -685,6 +770,36 @@ def _source_row(d: Any, where: str) -> SourceRow:
         source_file=_str(d["source_file"], f"{where}.source_file"),
         row_number=_int(d["row_number"], f"{where}.row_number"),
         row_id=_str(d["row_id"], f"{where}.row_id"),
+    )
+
+
+def note_facts_from_dict(data: Any) -> NoteFacts:
+    _check_keys(data, {"note_facts", "schema_version"}, "the note facts")
+    _check_schema_version(data, "bomreuse run")
+    table = data["note_facts"]
+    _check_keys(table, {"reader", "notes_read", "invalid_outputs", "facts"}, "note_facts")
+    return NoteFacts(
+        reader=_str(table["reader"], "note_facts.reader"),
+        notes_read=_int(table["notes_read"], "note_facts.notes_read"),
+        invalid_outputs=_int(table["invalid_outputs"], "note_facts.invalid_outputs"),
+        facts=_each(table["facts"], _linked_fact, "note_facts.facts"),
+    )
+
+
+def _linked_fact(d: Any, where: str) -> LinkedFact:
+    _check_keys(d, {"fact", "components"}, where)
+    return LinkedFact(fact=_note_fact(d["fact"], f"{where}.fact"), components=_str_tuple(d["components"], f"{where}.components"))
+
+
+def _note_fact(d: Any, where: str) -> NoteFact:
+    _check_keys(d, {"note_id", "row_number", "kind", "component_ref", "replacement_ref", "scope"}, where)
+    return NoteFact(
+        note_id=_str(d["note_id"], f"{where}.note_id"),
+        row_number=_int(d["row_number"], f"{where}.row_number"),
+        kind=_member(FactKind, d["kind"], f"{where}.kind"),
+        component_ref=_str(d["component_ref"], f"{where}.component_ref"),
+        replacement_ref=_str(d["replacement_ref"], f"{where}.replacement_ref"),
+        scope=_str(d["scope"], f"{where}.scope"),
     )
 
 

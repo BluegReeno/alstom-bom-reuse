@@ -36,6 +36,9 @@ def test_the_catalogue_holds_the_rules_declared_so_far() -> None:
         "checks.unit_conflict",
         "checks.supplier_conflict",
         "checks.cost_conflict",
+        "checks.note_obsolescence",
+        "checks.note_replacement",
+        "checks.note_restriction",
     }
 
 
@@ -43,9 +46,17 @@ def test_the_confidence_ladder_holds() -> None:
     """The ladder of the module docstring: exact strings first, free-text judgement last."""
     assert CATALOGUE["resolution.duplicate_reference"].confidence > CATALOGUE["resolution.group_conflict"].confidence
     assert CATALOGUE["resolution.group_conflict"].confidence > CATALOGUE["resolution.group_split"].confidence
+    assert CATALOGUE["resolution.group_split"].confidence > CATALOGUE["checks.note_obsolescence"].confidence
 
 
 @pytest.mark.parametrize("rule_id", ["checks.unit_conflict", "checks.supplier_conflict", "checks.cost_conflict"])
 def test_a_conflict_check_sits_on_the_rung_of_values_that_literally_differ(rule_id: str) -> None:
     """Same rung as `group_conflict`: both read a shared key and values that are not equal."""
     assert CATALOGUE[rule_id].confidence == CATALOGUE["resolution.group_conflict"].confidence
+
+
+@pytest.mark.parametrize("rule_id", ["checks.note_obsolescence", "checks.note_replacement", "checks.note_restriction"])
+def test_a_note_rule_sits_on_the_bottom_rung_whichever_reader_produced_the_fact(rule_id: str) -> None:
+    """Free text read by a lexicon or by a model is still free text: the confidence is the rule's, not the reader's."""
+    assert CATALOGUE[rule_id].confidence == CATALOGUE["checks.note_obsolescence"].confidence
+    assert CATALOGUE[rule_id].confidence < CATALOGUE["resolution.group_split"].confidence

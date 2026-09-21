@@ -17,22 +17,26 @@ import argparse
 import sys
 from collections import Counter
 from collections.abc import Callable, Mapping
+from enum import StrEnum
 from pathlib import Path
 
 from bomreuse.catalogue import CatalogueError
-from bomreuse.checks import CONFLICT_RULES, check, conflicts_by_component
+from bomreuse.checks import CONFLICT_RULES, NOTE_RULES, check, check_notes, conflicts_by_component, notes_by_component
 from bomreuse.evaluate import ANSWERS, Evaluation, EvaluationError, Score, evaluate
 from bomreuse.generate import DEFAULT_SEED, GenerationError, OutputPathError, generate
 from bomreuse.ingest import DEFAULT_RAW_DIR, IngestError, read_raw
+from bomreuse.link import link, linked_components
 from bomreuse.model import (
     NORMALIZED_FILE,
     RUN_ARTIFACTS,
     Attribute,
     Backtest,
+    FactKind,
     Finding,
     GroupVerdict,
     ModelError,
     NormalizedDataset,
+    NoteFacts,
     Prediction,
     Resolution,
     ReuseClass,
@@ -41,15 +45,18 @@ from bomreuse.model import (
     dump_backtest,
     dump_dataset,
     dump_findings,
+    dump_note_facts,
     dump_resolution,
     dump_signatures,
     load_backtest,
     load_dataset,
     load_findings,
+    load_note_facts,
     load_resolution,
     load_signatures,
 )
 from bomreuse.normalize import normalize
+from bomreuse.notes import DEFAULT_MODEL, BackendError, KeywordReader, ModelReader, NoteReader, OllamaBackend, extract
 from bomreuse.resolve import resolve
 from bomreuse.signatures import backtest, build_signatures
 from bomreuse.spec import DEFAULT_SPEC_PATH, SpecError, load_spec
@@ -153,7 +160,23 @@ def _add_run(commands: "argparse._SubParsersAction[argparse.ArgumentParser]") ->
     parser.add_argument("--raw", type=Path, required=True, help="directory holding variants.csv, bom.csv and notes.csv; read, never written")
     parser.add_argument("--out", type=Path, required=True, help="directory the artifacts are written to; never inside --raw")
     parser.add_argument("--spec", type=Path, default=DEFAULT_SPEC_PATH, help="the dataset spec the reuse threshold is read from (default: the committed contract)")
+    parser.add_argument(
+        "--notes",
+        choices=("keyword", "llm"),
+        default="keyword",
+        help="how the free-text notes are read: the offline FR/EN keyword fallback (default), or one local model",
+    )
+    parser.add_argument("--notes-model", default=DEFAULT_MODEL, help=f"the model --notes llm reads them through (default: {DEFAULT_MODEL})")
     parser.set_defaults(handler=_run)
+
+
+def _note_reader(args: argparse.Namespace) -> NoteReader:
+    """The keyword fallback unless a model is asked for, so that the demo never needs a server.
+
+    CLAUDE.md rule 5: offline by default. The model is opt-in because a tool whose one command
+    fails when Ollama is not running is a tool that cannot be shown on a client's laptop.
+    """
+    return ModelReader(OllamaBackend(model=args.notes_model)) if args.notes == "llm" else KeywordReader()
 
 
 def _run(args: argparse.Namespace) -> int:
@@ -171,9 +194,9 @@ def _run(args: argparse.Namespace) -> int:
         print(f"error: {refusal}", file=sys.stderr)
         return 2
 
-    normalized, resolution_file, findings_file, signatures_file, predictions_file = artifacts
+    normalized, resolution_file, note_facts_file, findings_file, signatures_file, predictions_file = artifacts
     try:
-        # Read before anything is written: a spec the last stage cannot read must not leave four
+        # Read before anything is written: a spec the last stage cannot read must not leave five
         # artifacts of a run that failed behind it.
         thresholds = load_spec(args.spec).thresholds
         dataset = normalize(read_raw(raw_dir))
@@ -181,22 +204,36 @@ def _run(args: argparse.Namespace) -> int:
         read_back = load_dataset(normalized)
         resolution, findings = resolve(read_back)
         dump_resolution(resolution, resolution_file)
-        # The checks read the resolution back like the signatures do: they run on the canonical
-        # components it wrote, split parts included, and their findings join the same artifact.
-        findings += check(read_back, load_resolution(resolution_file))
+        # The notes, the checks and the signatures all read the resolution back rather than the
+        # object still in memory: they run on the canonical components it wrote, split parts
+        # included, and their findings join the same artifact.
+        resolved_back = load_resolution(resolution_file)
+        dump_note_facts(link(extract(read_back.notes, _note_reader(args)), resolved_back), note_facts_file)
+        note_facts = load_note_facts(note_facts_file)
+        findings += check(read_back, resolved_back) + check_notes(read_back, resolved_back, note_facts)
         dump_findings(findings, findings_file)
-        dump_signatures(build_signatures(read_back, load_resolution(resolution_file)), signatures_file)
+        dump_signatures(build_signatures(read_back, resolved_back), signatures_file)
         dump_backtest(backtest(load_signatures(signatures_file), read_back.variants, thresholds), predictions_file)
     except (IngestError, ModelError, SpecError) as exc:
         print(f"error: {exc}", file=sys.stderr)
+        return 1
+    except BackendError as exc:  # --notes llm was asked for and nothing answered
+        print(f"error: {exc}\nthe pipeline runs offline with --notes keyword", file=sys.stderr)
         return 1
     except OSError as exc:  # --out is a file, a read-only directory, a full disk
         print(f"error: {out_dir} cannot be written: {exc.strerror or exc}", file=sys.stderr)
         return 1
 
     _print_run_summary(raw_dir, dataset, resolution, findings)
+    _print_notes(note_facts)
     written_findings = load_findings(findings_file)
-    _print_backtest(dataset, load_signatures(signatures_file), load_backtest(predictions_file), conflicts_by_component(written_findings))
+    _print_backtest(
+        dataset,
+        load_signatures(signatures_file),
+        load_backtest(predictions_file),
+        conflicts_by_component(written_findings),
+        notes_by_component(written_findings),
+    )
     _print_inconsistencies(written_findings)
     for artifact in artifacts:
         print(f"written           {artifact}")
@@ -220,6 +257,19 @@ def _print_run_summary(raw_dir: Path, dataset: NormalizedDataset, resolution: Re
     _print_issues(dataset)
 
 
+def _print_notes(note_facts: NoteFacts) -> None:
+    """Which reader read the notes, what it found, and what it could not place or use.
+
+    The three counts are one screen apart from the findings they feed, and that is the point: a
+    run whose reader placed four facts out of forty notes has said so before anyone reads a
+    conclusion drawn from them.
+    """
+    linked = linked_components(note_facts)
+    print(f"notes             {note_facts.notes_read} read by {note_facts.reader}")
+    print(f"  facts           {len(note_facts.facts)} ({linked} on a component of the BOM, {len(note_facts.facts) - linked} unresolved)")
+    print(f"  unusable output {note_facts.invalid_outputs}")
+
+
 def _print_issues(dataset: NormalizedDataset) -> None:
     """Unreadable values are data, not a failure: the rows are kept, and the count is shown.
 
@@ -237,6 +287,7 @@ def _print_backtest(
     signatures: tuple[SubAssemblySignature, ...],
     result: Backtest,
     conflicts: Mapping[str, tuple[Attribute, ...]],
+    notes: Mapping[str, tuple[FactKind, ...]],
 ) -> None:
     """The answer to the client's question, on stdout.
 
@@ -245,9 +296,9 @@ def _print_backtest(
     it is *reusable* — what would have to change. Every ratio a reader could compute from it has
     its counts underneath; scoring the table against the ground truth is `evaluate`'s job (#5).
 
-    A *reused* or *reusable* row whose parts carry a conflict says so on the row: that is the
-    one a design engineer must see before trusting the reuse, and a separate block further down
-    is one they could skip.
+    A *reused* or *reusable* row whose parts carry a conflict, or a part a note declares obsolete,
+    replaced or forbidden, says so on the row: that is the one a design engineer must see before
+    trusting the reuse, and a separate block further down is one they could skip.
     """
     if not result.target_variant_id:
         print("backtest          no variant carries a readable design date: nothing to play as a new tender")
@@ -262,7 +313,7 @@ def _print_backtest(
     left_out = {signature.sub_assembly_id: signature.lines_left_out for signature in signatures}
     components = {signature.sub_assembly_id: [item.component for item in signature.signature.items] for signature in signatures}
     for prediction in result.predictions:
-        warning = _unsafe(prediction, components[prediction.sub_assembly_id], conflicts)
+        warning = _unsafe(prediction, components[prediction.sub_assembly_id], conflicts, notes)
         detail = " ".join(part for part in (_difference(prediction), _partial(prediction, left_out), warning) if part)
         print(
             f"  {prediction.sub_assembly_id:<14}{designations[prediction.sub_assembly_id]:<32}"
@@ -287,15 +338,28 @@ def _difference(prediction: Prediction) -> str:
     )
 
 
-def _unsafe(prediction: Prediction, components: list[str], conflicts: Mapping[str, tuple[Attribute, ...]]) -> str:
-    """Which parts of a reuse carry a conflict, on the row that proposes the reuse.
+def _unsafe(
+    prediction: Prediction,
+    components: list[str],
+    conflicts: Mapping[str, tuple[Attribute, ...]],
+    notes: Mapping[str, tuple[FactKind, ...]],
+) -> str:
+    """Which parts of a reuse carry a conflict or a note against them, on the row that proposes it.
 
     The parts are those of the newest variant's sub-assembly: they are what the new tender would
     take over. A *specific* row proposes no reuse, so there is nothing to warn it against.
+
+    The two sources are shown on one flag because they answer the same question — *can this be
+    taken as is?* — and a reader who had to join two blocks to answer it would not. The words
+    tell them apart: an `Attribute` is what the rows disagree on, a `FactKind` is what a note says.
     """
     if prediction.reuse_class is ReuseClass.SPECIFIC:
         return ""
-    flagged = [f"{component} ({'/'.join(conflicts[component])})" for component in components if component in conflicts]
+    flagged = [
+        f"{component} ({'/'.join((*conflicts.get(component, ()), *notes.get(component, ())))})"
+        for component in components
+        if component in conflicts or component in notes
+    ]
     return f"[check: {', '.join(flagged)}]" if flagged else ""
 
 
@@ -304,18 +368,24 @@ _EXAMPLES: int = 3
 
 
 def _print_inconsistencies(findings: tuple[Finding, ...]) -> None:
-    """The second half of the question: components whose rows disagree, by type, a few examples each.
+    """The second half of the question, in its two halves: rows that disagree, then notes that contradict.
 
-    Always the three lines, in the order the checks run: "cost 0" is an answer too. Every
-    finding is in `findings.json`; this block says how many and shows the first ones.
+    Always every line, in the order the checks run: "cost 0" is an answer too, and so is
+    "restriction 0". Every finding is in `findings.json`; this block says how many and shows the
+    first ones.
     """
-    by_attribute: dict[Attribute, list[Finding]] = {attribute: [] for attribute in CONFLICT_RULES.values()}
+    _print_block("inconsistencies", "components whose rows disagree", CONFLICT_RULES, findings)
+    _print_block("note vs BOM", "parts a note contradicts the BOM about", NOTE_RULES, findings)
+
+
+def _print_block[Label: StrEnum](title: str, what: str, rules: Mapping[str, Label], findings: tuple[Finding, ...]) -> None:
+    by_label: dict[Label, list[Finding]] = {label: [] for label in rules.values()}
     for finding in findings:
-        if finding.rule_id in CONFLICT_RULES:
-            by_attribute[CONFLICT_RULES[finding.rule_id]].append(finding)
-    print(f"inconsistencies   {sum(len(found) for found in by_attribute.values())} components whose rows disagree")
-    for attribute, found in by_attribute.items():
-        print(f"  {attribute:<16}{len(found)}")
+        if finding.rule_id in rules:
+            by_label[rules[finding.rule_id]].append(finding)
+    print(f"{title:<18}{sum(len(found) for found in by_label.values())} {what}")
+    for label, found in by_label.items():
+        print(f"  {label:<16}{len(found)}")
         for finding in found[:_EXAMPLES]:
             print(f"    {finding.message}")
         if len(found) > _EXAMPLES:

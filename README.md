@@ -105,10 +105,12 @@ uv run bomreuse run --raw data/raw --out out
 ```
 
 This is the command a client would be shown. It normalizes the raw files, decides which
-references are the same component, builds the signature of every sub-assembly and plays the
-newest variant as a new tender; it prints the answer as a table and writes
-`out/normalized.json`, `out/resolution.json`, `out/findings.json`, `out/signatures.json` and
-`out/predictions.json`. Same rule on the paths: `--out` may not be inside `--raw`.
+references are the same component, reads the free-text notes, builds the signature of every
+sub-assembly and plays the newest variant as a new tender; it prints the answer as a table and
+writes `out/normalized.json`, `out/resolution.json`, `out/note_facts.json`, `out/findings.json`,
+`out/signatures.json` and `out/predictions.json`. Same rule on the paths: `--out` may not be
+inside `--raw`. It needs no network: the notes are read by the keyword fallback unless
+`--notes llm` asks for the model.
 
 Two references become one component when the stated foldings give them the same key —
 uppercase, then `O`→`0`, `I`→`1`, `L`→`1`, then non-alphanumerics dropped. **There is no
@@ -123,9 +125,10 @@ tool can make. Each group the key forms is then rated on its own coherence:
 - *reject* — the designations name different products; the group is split back apart.
 
 On the committed dataset the command reports 160 candidate groups resolving to 163 canonical
-components — 144 *auto*, 13 *review*, 3 *reject* — and 44 findings, 31 from resolution and 13
-from the inconsistency checks below. Every finding names the rule that produced it, the
-confidence that rule declares, and the rows of `bom.csv` it was read from.
+components — 144 *auto*, 13 *review*, 3 *reject* — and 66 findings: 31 from resolution, 13 from
+the inconsistency checks below and 22 from the notes. Every finding names the rule that produced
+it, the confidence that rule declares, and the rows of `bom.csv` — or of `notes.csv` — it was
+read from.
 
 ### The backtest, on stdout
 
@@ -181,6 +184,53 @@ inconsistencies   13 components whose rows disagree
     'LIGHT-CABLE' (component 11GHTCAB1E) has 2 different unit values: 'm' in A, B, C, D; 'pcs' in E.
 ```
 
+### The notes, on stdout
+
+The other file the client sent is free text, in French and in English, sometimes both inside one
+sentence. The tool reads each note on its own and keeps only what the note *asserts* about a
+component: that it has been replaced, that it is obsolete, or that it must not be used on some
+configuration. The reference the note writes is kept raw and matched through the same folding
+rules as the BOM — one matcher, in one module — so a note about `Bgi-2031` reaches the component
+the export spells `BGI-2031`. A fact that reaches no component of the BOM stays in
+`out/note_facts.json`, counted, and produces no finding.
+
+Where a fact lands on a component the BOM still carries, that is a note contradicting the BOM,
+and it is a finding like the others — with the note's row as evidence, the variants the part is
+used on, and the reader that produced it. These findings carry the lowest confidence of the
+catalogue, 0.60, because free text is the weakest evidence the tool reads.
+
+By default this runs with **no network at all**, on an FR/EN keyword lexicon written from the
+note patterns of the brief — *remplacé par…*, *obsolete since…*, *ne pas utiliser sur…*, *do not
+use on 4-car* — and never from the dataset. On the committed dataset it reads **22 facts out of
+40 notes — 9 replacements, 7 obsolescences, 6 restrictions — all of them linked to a component**,
+and that is what a lexicon can do; what it cannot do is in **Known limits**.
+
+This is where a reuse becomes unsafe, and the backtest table says so on the row rather than in a
+block a reader could skip: **6 of the 13 reuse answers rest on a part a note speaks against**,
+and 10 of the 13 carry a flag once the value conflicts above are counted too.
+
+```
+  C:SA0105      braking unit                    reused    A:SA0105      [check: BRKH0SEF1EX (supplier), BRKPARK1NGACT (obsolescence)]
+notes             40 read by keyword
+  facts           22 (22 on a component of the BOM, 0 unresolved)
+  unusable output 0
+note vs BOM       22 parts a note contradicts the BOM about
+  obsolescence    7
+    note N031 declares 'BRK-PARKING-ACT' obsolete, and the BOM carries component BRKPARK1NGACT on A, B, C, D, E. Read by keyword.
+```
+
+The braking unit is the row the demo is for: the tool says *reused*, and the same screen says one
+of its parts has been retired by a note. Reuse it as it stands and the tender inherits the
+problem.
+
+**Reading them with a model instead.** `--notes llm` sends each note to one local model —
+`gemma4:12b-mlx` through Ollama on `localhost`, the on-prem path — and `--notes-model` names
+another. The answer is validated on arrival: the shape by schema, and every reference it cites
+must appear verbatim in the note, or it is rejected, logged and counted. Nothing else in the
+pipeline changes, and if nothing answers the run stops and prints the flag that would have
+worked. The model is opt-in, never required: a demo that needs a server running is a demo that
+does not run.
+
 ### Scoring the answer
 
 ```bash
@@ -194,7 +244,7 @@ opened. `evaluate` re-runs the pipeline rather than reading `out/`, so its figur
 stale artifact's, and it writes nothing. `--raw` and `--spec` default to the committed dataset and
 the committed contract. What it prints is **Results**, below.
 
-The rest of the pipeline is to be written during the build: the notes, and the HTML report.
+The last piece, the HTML report, is to be written during the build.
 
 ## Results
 
@@ -297,6 +347,23 @@ To be completed when the build lands: what was dropped, and why. Known so far:
   described with the same words would still be merged. No case of the committed dataset is
   affected: the three planted pairs are described differently, which is what the pairs exist to
   test.
+- **The keyword fallback reads words, not sentences — and its accuracy is not measured.** It
+  fires on a cue phrase near a reference-shaped token, so a note that *asks* whether a part is
+  obsolete, or records a replacement that was **refused**, reads exactly like one asserting it;
+  and a fact stated in words the lexicon does not hold — "the supplier is stopping production" —
+  is missed entirely. Both shapes are pinned by tests rather than patched: extending the lexicon
+  until it caught the committed notes would fit it to the forty notes it is supposed to be judged
+  on, and it would measure nothing. On the committed dataset it produces facts from 22 of the 40
+  notes; how many of those are right, and how many of the other 18 assert something it missed, is
+  **not measured in this build** — extraction scoring was cut with the refocus (`DECISIONS.md` 29).
+  This is the gap the LLM path exists to close, and closing it is what the pilot should measure.
+- **A note's scope is quoted, never interpreted.** *Ne pas utiliser sur les rames 4 caisses* names
+  a configuration in prose; the tool reports the restriction against every variant the BOM carries
+  the part on, with the sentence as written, and leaves the reading to the human. Mapping free-text
+  scopes onto variants would be inference dressed as a check.
+- **A reference a note writes in lower case with a space is out of reach.** `bgi 2031` and
+  `mars 2024` have the same shape in running text, and the tool would rather miss a reference
+  than read a date as one. Hyphenated spellings (`Bgi-2031`) and upper-case ones are read.
 - **A cost too small for a float is read as zero.** In `normalize`, a positive `unit_cost_eur`
   whose value underflows a float becomes `0.0` with no issue raised, where the string `"0"` is
   refused. Reaching it takes a cost written with some four hundred leading zeros, so no value of

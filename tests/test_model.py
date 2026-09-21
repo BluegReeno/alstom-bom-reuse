@@ -17,12 +17,16 @@ from bomreuse.model import (
     CandidateGroup,
     CanonicalComponent,
     Component,
+    FactKind,
     Finding,
     GroupVerdict,
+    LinkedFact,
     ModelError,
     NormalizationIssue,
     NormalizedDataset,
     Note,
+    NoteFact,
+    NoteFacts,
     Prediction,
     Quantity,
     QuantityChange,
@@ -46,17 +50,20 @@ from bomreuse.model import (
     dump_backtest,
     dump_dataset,
     dump_findings,
+    dump_note_facts,
     dump_resolution,
     dump_signatures,
     findings_from_dict,
     load_backtest,
     load_dataset,
     load_findings,
+    load_note_facts,
     load_resolution,
     load_signatures,
     render_backtest,
     render_dataset,
     render_findings,
+    render_note_facts,
     render_resolution,
     render_signatures,
     resolution_from_dict,
@@ -559,7 +566,89 @@ def test_a_missing_reuse_artifact_is_a_model_error(tmp_path: Path) -> None:
         load_backtest(tmp_path / "nope.json")
 
 
+# --- the note-facts artifact ---------------------------------------------------------------------
+
+
+def some_note_facts() -> NoteFacts:
+    """Every shape a linked fact can hold: resolved, ambiguous after a split, and unlinked."""
+    return NoteFacts(
+        reader="keyword",
+        notes_read=3,
+        invalid_outputs=1,
+        facts=(
+            LinkedFact(
+                fact=NoteFact(
+                    note_id="N001",
+                    row_number=1,
+                    kind=FactKind.REPLACEMENT,
+                    component_ref="BGI-2031",
+                    replacement_ref="BGI-2045",
+                    scope="",
+                ),
+                components=("BG12031",),
+            ),
+            LinkedFact(
+                fact=NoteFact(note_id="N002", row_number=2, kind=FactKind.RESTRICTION, component_ref="SEAT-RAIL-1", replacement_ref="", scope="4-car"),
+                components=("SEATRA111#1", "SEATRA111#2"),
+            ),
+            LinkedFact(
+                fact=NoteFact(note_id="N003", row_number=3, kind=FactKind.OBSOLESCENCE, component_ref="NO-SUCH-PART", replacement_ref="", scope=""),
+                components=(),
+            ),
+        ),
+    )
+
+
+def test_note_facts_written_and_read_back_are_the_same_note_facts(tmp_path: Path) -> None:
+    path = tmp_path / "nested" / "note_facts.json"
+    dump_note_facts(some_note_facts(), path)
+    restored = load_note_facts(path)
+    assert restored == some_note_facts()
+    assert restored.facts[0].fact.kind is FactKind.REPLACEMENT
+    assert isinstance(restored.facts[1].components, tuple)
+
+
+def test_an_unlinked_fact_survives_the_round_trip(tmp_path: Path) -> None:
+    """A note the layer read and could not place stays in the artifact, with an empty component list."""
+    path = tmp_path / "note_facts.json"
+    dump_note_facts(some_note_facts(), path)
+    assert load_note_facts(path).facts[2].components == ()
+    assert load_note_facts(path).invalid_outputs == 1
+
+
+def test_the_note_facts_artifact_carries_the_schema_version_and_one_trailing_newline() -> None:
+    text = render_note_facts(some_note_facts())
+    assert json.loads(text)["schema_version"] == "1"
+    assert text.endswith("}\n") and not text.endswith("\n\n")
+
+
+@pytest.mark.parametrize(
+    "path, value, message",
+    [
+        ("note_facts.reader", None, r"note_facts\.reader must be a string, got NoneType"),
+        ("note_facts.invalid_outputs", "1", r"note_facts\.invalid_outputs must be an integer, got str"),
+        ("note_facts.facts.0.components", "BG12031", r"note_facts\.facts\[0\]\.components must be an array of strings, got str"),
+        ("note_facts.facts.0.fact.kind", "rumour", r"note_facts\.facts\[0\]\.fact\.kind is 'rumour', not one of \['replacement', 'obsolescence', 'restriction'\]"),
+        ("note_facts.facts.0.fact.row_number", None, r"note_facts\.facts\[0\]\.fact\.row_number must be an integer, got NoneType"),
+    ],
+)
+def test_a_wrong_leaf_of_the_note_facts_is_refused_and_named(path: str, value: Any, message: str) -> None:
+    data = _with(json.loads(render_note_facts(some_note_facts())), path, value)
+    with pytest.raises(ModelError, match=message):
+        model.note_facts_from_dict(data)
+
+
+def test_the_note_facts_artifact_refuses_another_schema_version() -> None:
+    with pytest.raises(ModelError, match="schema_version"):
+        model.note_facts_from_dict({**json.loads(render_note_facts(some_note_facts())), "schema_version": "0"})
+
+
+def test_a_missing_note_facts_artifact_is_a_model_error(tmp_path: Path) -> None:
+    with pytest.raises(ModelError, match="note facts not found"):
+        load_note_facts(tmp_path / "nope.json")
+
+
 def test_the_artifacts_a_run_writes_are_named_once() -> None:
-    """Five files, said in one place: every test site that lists them derives its list from here."""
-    assert RUN_ARTIFACTS == ("normalized.json", "resolution.json", "findings.json", "signatures.json", "predictions.json")
+    """Six files, said in one place: every test site that lists them derives its list from here."""
+    assert RUN_ARTIFACTS == ("normalized.json", "resolution.json", "note_facts.json", "findings.json", "signatures.json", "predictions.json")
     assert len(set(RUN_ARTIFACTS)) == len(RUN_ARTIFACTS)

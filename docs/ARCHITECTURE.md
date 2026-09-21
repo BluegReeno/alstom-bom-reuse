@@ -260,7 +260,7 @@ is: Python 3.12, pydantic, and Ollama only if the LLM layer is wanted.
 
 None left that the approach depends on. `data/dataset_spec.toml`, `spec.py`, the ground-truth
 schema and the rule catalogue exist; the note-extraction prompt, its output model and the FR/EN
-keyword fallback lexicon are built by issue #6.
+keyword fallback lexicon landed with issue #6.
 
 ## Spikes & experiments
 
@@ -280,6 +280,11 @@ mixed FR/EN notes.
 *Decision rule*: if the local model returns fewer than three valid outputs out of five, simplify
 the extraction schema — fewer fields, one fact per call — before building, rather than
 discovering it at evaluation time.
+*Verdict (2026-09-21, run as the first step of #6)*: 5 valid outputs out of 5 on five
+hand-written FR/EN notes, so the schema was kept as it stood. The spike also showed the model
+filling `replacement_ref` with `none` rather than omitting it, and asserting a fact on a note
+that states none — the first is handled at the validation boundary, the second is not something
+a program can check. The spike's code was not committed.
 
 ## Open questions
 
