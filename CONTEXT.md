@@ -101,3 +101,8 @@ from A and B, the bike module reused from B, only the anchorage new.
 - 2026-09-20 — ingest, normalize and the entity model (#3): `bomreuse normalize` writes
   `out/normalized.json`, raw and normalized values side by side; the ground-truth isolation and
   read-only invariants have their tests.
+- 2026-09-21 — refocus (DECISIONS.md 29): the data layer is frozen, six issue-to-PR runs left.
+- 2026-09-21 — resolution, the rule catalogue and `bomreuse run` (#4): references resolve to
+  canonical components by the inherited key, rules only, with an `auto / review / reject`
+  verdict on the coherence of each group; findings carry their rows, their rule and its
+  confidence.
