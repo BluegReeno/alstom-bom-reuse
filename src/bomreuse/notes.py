@@ -161,7 +161,7 @@ class KeywordReader:
     artifact. What does cost is a note that cites a real part while asserting nothing.
     """
 
-    name: Final[str] = "keyword"
+    name: str = "keyword"
 
     def read(self, note: Note) -> Reading:
         references = [match for match in _REFERENCE.finditer(note.text) if _reference_shaped(match.group())]
@@ -292,16 +292,20 @@ class OllamaBackend:
             }
         ).encode("utf-8")
         request = Request(self._endpoint, data=body, headers={"Content-Type": "application/json"})
-        for attempt in (1, 2):
-            try:
-                with urlopen(request, timeout=self._timeout) as response:  # noqa: S310 — the URL is this module's own constant
-                    payload = json.loads(response.read().decode("utf-8"))
-                return str(payload["response"])
-            except (OSError, ValueError, KeyError) as exc:
-                if attempt == 2:
-                    raise BackendError(f"{self.model} at {self._endpoint} did not answer: {exc}") from exc
-                logger.warning("%s at %s failed (%s); retrying once", self.model, self._endpoint, exc)
-        raise AssertionError("unreachable")
+        try:
+            return self._ask(request)
+        except (OSError, ValueError, KeyError) as exc:
+            logger.warning("%s at %s failed (%s); retrying once", self.model, self._endpoint, exc)
+        try:
+            return self._ask(request)
+        except (OSError, ValueError, KeyError) as exc:
+            raise BackendError(f"{self.model} at {self._endpoint} did not answer: {exc}") from exc
+
+    def _ask(self, request: Request) -> str:
+        """The POST itself. A body that is not an Ollama answer raises like a refused connection does."""
+        with urlopen(request, timeout=self._timeout) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+        return str(payload["response"])
 
 
 class ModelReader:

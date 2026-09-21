@@ -166,7 +166,7 @@ def check_notes(dataset: NormalizedDataset, resolution: Resolution, note_facts: 
         for component in resolution.components
     }
     return tuple(
-        _contradiction(note_facts.reader, linked.fact, component_id, rows_of.get(component_id, []))
+        _contradiction(note_facts.reader, linked.fact, component_id, rows_of[component_id])
         for linked in note_facts.facts
         for component_id in linked.components
     )
@@ -189,10 +189,9 @@ def _contradiction(reader: str, fact: NoteFact, component_id: str, rows: list[Bo
     the rows a reader opens to judge it, not the forty lines behind them, as everywhere else here.
     """
     variants = sorted({row.variant_id or _NO_VARIANT for row in rows})
-    carried = f"the BOM carries component {component_id} on {', '.join(variants)}" if variants else f"component {component_id} is in the BOM"
     return _NOTE_RULES[fact.kind].finding(
         subject=component_id,
-        message=f"note {fact.note_id} {_asserts(fact)}, and {carried}. Read by {reader}.",
+        message=f"note {fact.note_id} {_asserts(fact)}, and the BOM carries component {component_id} on {', '.join(variants)}. Read by {reader}.",
         source_rows=(SourceRow(source_file=_NOTES, row_number=fact.row_number, row_id=fact.note_id), *_first_row_per_variant(rows)),
     )
 
