@@ -18,8 +18,8 @@ The residual doubt at the top of the ladder is real and named: the folding rules
 `normalize.reference_key` collapse `I`/`1`, `O`/`0` and `L`/`1`, so two references sharing a key
 can still be two products (DECISIONS.md 27). That is what the bottom of the ladder is for.
 
-This issue populates the catalogue with the resolution rules. Later issues extend it — `checks`
-and `link` add their own entries — and never redefine these.
+The resolution rules came first; `checks` added the three conflict rules, and `link` will add its
+own. Each issue extends the catalogue and never redefines an entry already in it.
 """
 
 from collections.abc import Mapping
@@ -64,7 +64,25 @@ GROUP_SPLIT: Final[Rule] = Rule(
     confidence=0.70,
 )
 
-_RULES: Final[tuple[Rule, ...]] = (DUPLICATE_REFERENCE, GROUP_CONFLICT, GROUP_SPLIT)
+UNIT_CONFLICT: Final[Rule] = Rule(
+    id="checks.unit_conflict",
+    description="Rows of one canonical component carry it in different units after normalization: one of them counts something else.",
+    confidence=0.90,
+)
+
+SUPPLIER_CONFLICT: Final[Rule] = Rule(
+    id="checks.supplier_conflict",
+    description="Rows of one canonical component name different suppliers.",
+    confidence=0.90,
+)
+
+COST_CONFLICT: Final[Rule] = Rule(
+    id="checks.cost_conflict",
+    description="Rows of one canonical component give it different unit costs.",
+    confidence=0.90,
+)
+
+_RULES: Final[tuple[Rule, ...]] = (DUPLICATE_REFERENCE, GROUP_CONFLICT, GROUP_SPLIT, UNIT_CONFLICT, SUPPLIER_CONFLICT, COST_CONFLICT)
 
 #: The catalogue itself. A finding whose `rule_id` is not a key here is not traceable, and a test
 #: says so of every finding the pipeline emits.
