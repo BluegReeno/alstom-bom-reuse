@@ -346,17 +346,18 @@ def test_every_finding_the_pipeline_writes_carries_its_rows_its_rule_and_a_confi
 # --- determinism -----------------------------------------------------------------------------------
 
 
-def test_the_artifact_is_byte_identical_across_processes(tmp_path: Path) -> None:
+@pytest.mark.parametrize("artifact", [NORMALIZED_FILE, RESOLUTION_FILE, FINDINGS_FILE])
+def test_the_artifacts_are_byte_identical_across_processes(tmp_path: Path, artifact: str) -> None:
     """Two interpreters with different hash seeds: this is the test that catches an iterated `set`."""
-    artifacts = []
+    written = []
     for hash_seed in ("1", "2"):
         out = tmp_path / hash_seed
         subprocess.run(
-            [sys.executable, "-m", "bomreuse.cli", "normalize", "--raw", str(COMMITTED_RAW), "--out", str(out)],
+            [sys.executable, "-m", "bomreuse.cli", "run", "--raw", str(COMMITTED_RAW), "--out", str(out)],
             check=True,
             capture_output=True,
             env={**os.environ, "PYTHONHASHSEED": hash_seed},
         )
-        artifacts.append((out / NORMALIZED_FILE).read_bytes())
-    assert artifacts[0] == artifacts[1]
-    assert str(tmp_path).encode() not in artifacts[0], "the artifact does not say where it was written"
+        written.append((out / artifact).read_bytes())
+    assert written[0] == written[1]
+    assert str(tmp_path).encode() not in written[0], "the artifact does not say where it was written"

@@ -264,7 +264,7 @@ def test_the_name_scanner_sees_a_call_however_it_is_reached() -> None:
     assert "match_reference" not in names_used("from bomreuse.resolve import resolve\nresolve(dataset)\n")
 
 
-@pytest.mark.parametrize("module", sorted(path.name for path in SRC.rglob("*.py") if path.name not in MATCHERS))
+@pytest.mark.parametrize("module", sorted(str(path.relative_to(SRC)) for path in SRC.rglob("*.py") if path.name not in MATCHERS))
 def test_only_resolve_turns_a_string_into_a_canonical_component(module: str) -> None:
     assert "match_reference" not in names_used((SRC / module).read_text(encoding="utf-8")), (
         f"{module} matches references itself. docs/ARCHITECTURE.md A7: only resolve.py does, "
