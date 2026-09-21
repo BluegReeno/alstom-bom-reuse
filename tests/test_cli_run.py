@@ -123,7 +123,7 @@ def test_the_threshold_the_run_classifies_by_is_the_one_in_the_spec_it_is_given(
 
 
 def test_a_spec_that_cannot_be_read_stops_the_run_before_any_artifact_is_written(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
-    """The last stage reads it; failing there would leave four artifacts of a run that did not finish."""
+    """The last stage reads it; failing there would leave the artifacts of a run that did not finish."""
     out = tmp_path / "out"
     assert main(["run", "--raw", str(COMMITTED_RAW), "--out", str(out), "--spec", str(tmp_path / "nope.toml")]) == 1
     assert "error:" in capsys.readouterr().err
