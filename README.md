@@ -67,7 +67,7 @@ flowchart TB
     S -- "1 → n" --> L
     V -- "1 → n" --> N
     L ~~~ CC
-    C -- "references folded to one key" --> CC
+    C -- "folded to one key" --> CC
     L -- "lines of one sub-assembly" --> SIG
     CC -- "counted in" --> SIG
     SIG -- "compared with older variants" --> P
@@ -95,46 +95,59 @@ reads them (six lines each; the three whose raw lines differ are shown):
 
 ```mermaid
 flowchart LR
-    subgraph B["Variant B, bom.csv"]
-        B1["L00227 SA-0215 BIKE-HOOK 8 units"]
-        B2["L00229 SA-0215 BIKE-STRAP 8 units"]
-        B3["L00230 SA-0215 BIKE-FIX-KIT 8 units"]
+    subgraph B["Variant B, bom.csv and notes.csv"]
+        B1["L00227 SA-0215<br/>BIKE-HOOK 8 units"]
+        B2["L00229 SA-0215<br/>BIKE-STRAP 8 units"]
+        B3["L00230 SA-0215<br/>BIKE-FIX-KIT 8 units"]
+        N13["Note N013, 2023<br/>BIKE STRAP est remplacé<br/>par BIKE-STRAP-V2"]
     end
     subgraph C["Variant C, bom.csv"]
-        C1["L00643 OCC-SA-0315 BIKE-HOOK 6 pcs"]
-        C2["L00645 OCC-SA-0315 BIKE-STRAP 6 pcs"]
-        C3["L00646 OCC-SA-0315 BIKE-FIX-KIT 8 u"]
+        C1["L00643 OCC-SA-0315<br/>BIKE-HOOK 6 pcs"]
+        C2["L00645 OCC-SA-0315<br/>BIKE-STRAP 6 pcs"]
+        C3["L00646 OCC-SA-0315<br/>BIKE-FIX-KIT 8 u"]
     end
-    N13["Note N013, B, 2023<br/>BIKE STRAP est remplacé par BIKE-STRAP-V2"]
 
-    SB["Signature B:SA0215<br/>hook 8, strap 8, fixing kit 8,<br/>rail 2, floor mat 1, pictogram 4 pcs"]
-    SC["Signature C:0CCSA0315<br/>hook 6, strap 6, fixing kit 8,<br/>rail 2, floor mat 1, pictogram 4 pcs"]
+    SB["Signature B:SA0215<br/>hook 8, strap 8,<br/>fixing kit 8, rail 2,<br/>floor mat 1,<br/>pictogram 4 pcs"]
+    SC["Signature C:0CCSA0315<br/>hook 6, strap 6,<br/>fixing kit 8, rail 2,<br/>floor mat 1,<br/>pictogram 4 pcs"]
     CMP["2 quantities differ,<br/>within the budget of 2"]
-    PR["C:0CCSA0315 is reusable from B:SA0215<br/>diff: hook 8 → 6, strap 8 → 6"]
-    X1["Exact-reference search<br/>OCC-SA-0315 ≠ SA-0215: answers new,<br/>misses the module"]
-    X2["Same-name search<br/>Bike module = Bike module: reused<br/>hides the diff"]
-    U["Unsafe reuse: the strap<br/>was replaced in 2023"]
+    PR["C:0CCSA0315 is reusable<br/>from B:SA0215<br/>diff: hook 8 → 6,<br/>strap 8 → 6"]
+    U["Unsafe reuse:<br/>the strap was<br/>replaced in 2023"]
+
+    subgraph NAIVE["Same export, naive searches"]
+        X1["Exact reference<br/>OCC-SA-0315 ≠ SA-0215<br/>answers new:<br/>misses the module"]
+        X2["Same name<br/>Bike module = Bike module<br/>answers reused:<br/>hides the diff"]
+    end
+
+    subgraph LEGEND["Legend"]
+        K1["In the client's export"]
+        K2["Computed by the tool"]
+        K3["Naive search"]
+        K4["Not computed<br/>offline"]
+    end
 
     B1 & B2 & B3 --> SB
     C1 & C2 & C3 --> SC
     SB & SC --> CMP --> PR
-    B --> X1
-    C --> X1
-    B --> X2
-    C --> X2
     N13 -.-> U
     PR -.-> U
+    B -.-> NAIVE
+    C -.-> NAIVE
+    K1 ~~~ K2 ~~~ K3 ~~~ K4
+    U ~~~ LEGEND
 
     classDef client fill:#E3EDF7,stroke:#3A6EA5,color:#16212E
     classDef computed fill:#FBE6D4,stroke:#C2661E,color:#16212E
     classDef naive fill:#EEEEEE,stroke:#8A8A8A,color:#16212E
     classDef pending fill:#FFFFFF,stroke:#C2661E,stroke-dasharray:5 5,color:#16212E
-    class B1,B2,B3,C1,C2,C3,N13 client
-    class SB,SC,CMP,PR computed
-    class X1,X2 naive
-    class U pending
+    class B1,B2,B3,C1,C2,C3,N13,K1 client
+    class SB,SC,CMP,PR,K2 computed
+    class X1,X2,K3 naive
+    class U,K4 pending
     style B fill:#F4F8FC,stroke:#3A6EA5
     style C fill:#F4F8FC,stroke:#3A6EA5
+    style NAIVE fill:#F7F7F7,stroke:#8A8A8A
+    style LEGEND fill:#FFFFFF,stroke:#CCCCCC
+    linkStyle 11,12 stroke:#8A8A8A
 ```
 
 - **The references are made comparable before anything is compared.** `units`, `u` and `pcs`
