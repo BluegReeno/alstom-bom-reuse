@@ -15,3 +15,6 @@ out/
 
 # The response cache of the note reader: a local accelerator, never a deliverable.
 .cache/
+
+# Demo scratch copy of data/raw: edited by hand, never versioned
+data/sandbox/
