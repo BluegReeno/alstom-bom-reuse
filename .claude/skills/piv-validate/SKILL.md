@@ -48,10 +48,11 @@ the budget part of the contract, not a nicety.
 ## 2. Evaluation gate
 
 ```bash
-uv run bomreuse evaluate
+uv run bomreuse evaluate --ground-truth data/ground_truth/ground_truth.json
 ```
 
-**Not applicable until issue #5 lands** (the command does not exist before it). From #5 on:
+The ground-truth path has no default and never will (docs/ARCHITECTURE.md A5); `--raw` and
+`--spec` do, and point at the committed dataset and contract. From issue #5 on:
 
 - it must run, offline, on the default dataset;
 - it must print precision and recall on the **three reuse classes**, for the tool and for both
