@@ -18,16 +18,9 @@ capture the output of any command that fails.
 
 ## Gate 0 — What exists yet
 
-The build runs in slices and the toolchain arrives with issue #1. Before anything else:
-
-```bash
-ls pyproject.toml 2>/dev/null && echo "toolchain present" || echo "toolchain absent"
-```
-
-- **`pyproject.toml` absent** → only issue #1 can be in flight. Report `N/A — toolchain not
-  built yet (#1)` for checks 1 to 3 and go straight to check 4. Do **not** report PASS: a check
-  that did not run is not a check that passed.
-- **Present** → run everything below.
+The toolchain landed with issue #1 and the pipeline arrives one stage at a time. A command that
+does not exist yet is `N/A`, never PASS: a check that did not run is not a check that passed.
+Say which issue is due to create it.
 
 ---
 
@@ -61,15 +54,14 @@ uv run bomreuse evaluate
 **Not applicable until issue #5 lands** (the command does not exist before it). From #5 on:
 
 - it must run, offline, on the default dataset;
-- it must print precision and recall **per defect type**, plus the same figures for the naive
-  baseline;
+- it must print precision and recall on the **three reuse classes**, for the tool and for both
+  naive baselines, with **counts next to every ratio**;
 - **the numbers must not have regressed** against the previous run. A regression is only
   acceptable with a reason written in the commit message — quote that reason in the report, or
   fail.
 
-Regression floors, once `DECISIONS.md` carries them, are checked here too. Until the first real
-measurement exists there are no floors, and inventing one would be exactly the thing
-`DECISIONS.md` 17 forbids.
+There are **no regression floors** in this build (settled 2026-09-21): `evaluate` prints its
+figures and the README quotes them. Do not invent one.
 
 ---
 
@@ -88,6 +80,21 @@ they are the ones whose silent disappearance would matter most:
 
 If any of these tests is missing rather than failing, say so. A deleted invariant test reads as
 green and is worse than a red one.
+
+---
+
+## 3 bis. The demo still runs
+
+From issue #4 on, the tool has one command a client would see. Run it:
+
+```bash
+uv run bomreuse run --raw data/raw --out <tmp>
+```
+
+**Expected:** exit 0 offline, the artifacts the issue names written, and — from the signatures
+issue on — a readable summary on stdout: each sub-assembly of the newest variant as *reused*,
+*reusable* (with its diff) or *specific*. A pipeline that only writes JSON is a FAIL from that
+issue on: the demo must never depend on the HTML report having landed.
 
 ---
 
@@ -124,6 +131,7 @@ VALIDATION — <issue or branch>
 1. Tests .................... PASS / FAIL / N/A     (<n> tests, <t>s of a 30s budget)
 2. Evaluation gate .......... PASS / FAIL / N/A     (regression? reason?)
 3. Invariants ............... PASS / FAIL / MISSING (name any missing one)
+3b. Demo command ............ PASS / FAIL / N/A     (`bomreuse run`, summary on stdout)
 4. Definition of done ....... PASS / FAIL           (dependency lines, CLAUDE.md, README.md)
 
 VERDICT: PASS / FAIL

@@ -1,58 +1,58 @@
 # STATUS — alstom-bom-reuse
 
-Last updated: 2026-09-21
+Last updated: 2026-09-21 — refocus, decisions settled, issues re-cut
 
-## Current Focus
-`bomreuse normalize` writes `out/normalized.json`, and reading it back is type-checked to the leaf.
-Next: issue #5, first slice — the scorer and the two naive baselines, before #4.
+## Where this stands
 
-## In Progress
-- (nothing)
+The dataset and its measurement apparatus are built and tested. **The half of the tool that
+answers the client's question is not written**: `resolve`, `checks`, `notes`, `link`,
+`evaluate`, `report` and the `run` entry point do not exist, and `signatures.py` is wired to
+nothing. The CLI has two commands, `generate` and `normalize`, neither of which a client would
+look at.
 
-## Done (current sprint)
-- [x] Framing committed: rules, problem statement, data requirements, 16 decisions
-- [x] `docs/PRD.md` — one page, assumptions marked
-- [x] `docs/ARCHITECTURE.md` — 7 open calls settled, 2 spikes named — 2026-09-20
-- [x] `DECISIONS.md` 19-20 — pydantic scope, R5 verdict meaning — 2026-09-20
-- [x] 7 GitHub issues created, backlog renumbered — 2026-09-20
-- [x] #1 Contract: dataset spec, spec loader, verdict rule; spike S1 run — 2026-09-20
-- [x] #2 Synthetic dataset generator, planted defects and ground truth — 2026-09-20
-- [x] #3 Ingest, normalize and the entity model; isolation and read-only invariants — 2026-09-20
-- [x] #3 PR #12 review fixed: H1, M1, M3–M6, L1–L5 (M2 → #13, generator guard → #14) — 2026-09-20
-- [x] #13 `dataset_from_dict` checks leaf types; review 2's L-B (quantity underflow) — 2026-09-20
+Two thirds of the source is the synthetic-data factory, which the brief asks for in one bullet.
+That is the overrun, and it is closed: **the data layer is frozen** (CLAUDE.md, "How we work").
 
-## Backlog
-- [ ] #5 Evaluation: one scorer, two predictors, and the naive baseline — `piv-full`
-- [ ] #4 Reference resolution, signatures and inconsistency checks — `piv-full`
-- [ ] #6 Note extraction: LLM adapter, keyword fallback and linking — `piv-direct`, after S2
-- [ ] #7 HTML report, findings artifact and a true README — `piv-direct`
-- [ ] #14 `generate`: the ground-truth-inside-raw guard compares by identity, like `cli._writes_into`
+PR #15 (issue #13, the artifact's leaf types) was the last of that layer. It is merged.
 
-## Note
-Project review, 2026-09-20: #4 now builds signatures on every merged group (`auto` and `review`),
-Decision 26. #5 follows
-Decision 25, adds a same-name baseline and lands its scorer before #4. Five trap notes replace
-bland ones in `catalogue.py` (N022, N026, N028 state nothing; N027, N039 state a fact in words of
-their own): `bom.csv` and the ground truth are byte-identical, only `notes.csv` moved. #6's keyword
-lexicon must be written from the brief's patterns, not from `notes.csv`, or the traps measure nothing.
+## The plan — six issue-to-PR runs, in this order
 
-The build runs in slices across several sessions. This file carries state, not elapsed time.
+| # | Issue | Leaves the tool… |
+| --- | --- | --- |
+| 1 | **#4** resolution, rule catalogue, `bomreuse run` | first end-to-end command |
+| 2 | **#16** signatures wired, backtest predictions, stdout summary | **answering the client's question** |
+| 3 | **#17** unit, supplier and cost conflicts | answering the second half of it |
+| 4 | **#5** evaluate: the backtest vs two naive baselines | carrying its one value claim |
+| 5 | **#6** notes: keyword fallback, one LLM backend, linking | flagging unsafe reuse |
+| 6 | **#7** HTML report and a true README | presentable |
 
-Spike S1 result: of eight story cases, two came out `specific` where the story says `reusable`,
-and the part counts changed rather than the threshold (DECISIONS.md 17) — the seating module's
-armrests belong to the seat, the bike module's fixing kit follows the rail.
+Cut order is the reverse. Whatever is not reached goes into the README's Known limits with its
+reason — a normal outcome, not a failure. From #16 on, `bomreuse run` prints a readable summary,
+so a demo never depends on the report having landed.
 
-Handover from #3 to #4 and #5: `normalize.reference_key` is the key — #4 inherits it and never
-recomputes one. A `Component` is a candidate group (one per key); the three must-not-merge pairs
-share a key on purpose (Decision 27) and carry two designations each, which is what #4's `reject`
-reads. A line whose variant is empty or unknown has `parent_id = ""` and creates no sub-assembly.
-#5's baselines read `RawBomRow` (ingested rows), never `BomLine`. `evaluate.py` is already
-exempt from the AST isolation test. Loading the artifact raises `ModelError` and nothing else,
-whatever is wrong with it, and a number it returns is finite (#13). Details:
-`.claude/reports/ingest-normalize-entity-model-report.md` and
-`.claude/reports/model-leaf-types-report.md`.
+Each issue carries **Context / Scope / Out of scope / Acceptance criteria / Validation / If
+blocked**, so an autonomous run needs no question answered. Procedure:
+`.claude/RUN-PROCEDURE.md`. Validation: the `piv-validate` skill, every run, in full.
 
-Order of execution: #1 -> #2 -> #3 -> #13 -> #5 first slice (scorer + two baselines) -> #4 -> #5
-second slice, then #6 and #7 in parallel. #14 is off the critical path. Spike S2 (does the
-local model return usable JSON) is throwaway, off the critical path, and can run at any time.
-The cut order is the reverse: #7 first, then #6; #5 is never cut.
+## Decisions settled on 2026-09-21
+
+- `evaluate` scores the **three reuse classes only**, against both naive baselines. Resolution
+  scoring and per-defect-type scoring are cut; inconsistency findings are counted, displayed
+  and covered by the end-to-end test.
+- The LLM layer is **one backend** (`gemma4:12b-mlx`) plus the FR/EN keyword fallback. No
+  backend scoring, no latency table, no `docs/measurements/`.
+- The four issues are re-cut into six, each sized for one PR.
+- The report lands last, with the stdout summary as the demo's safety net.
+- #13 is closed by PR #15, merged 2026-09-21. #14 and #18 are closed won't-do — both are
+  inside the frozen layer, and #18 was the layer feeding itself: a review of a PR on it
+  produced another issue on it. #18's Known-limits line is written; #14's is owed by #7.
+- Plan documents and implementation reports are dropped: the issue is the plan, the PR
+  description is the report. The review step stays, inside the run.
+
+Recorded as `DECISIONS.md` 29, written on the human's explicit authorization — the one case
+the repo's rule allows.
+
+## Not code, and not started
+
+The email and the 40-minute case narrative. The "something you've built" segment is done. If a
+session produces working code and no story, the case still fails — reserve time for it.
