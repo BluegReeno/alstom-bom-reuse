@@ -3,14 +3,15 @@
 Last updated: 2026-09-21
 
 ## Current Focus
-PR #24 (#6) merged — its four deviations settled as-is, DECISIONS 34–35 written. Next: PR #23 (#7) rebases on main, then its pre-merge check — see In Progress.
+#7 merged (PR #23) — the six issues of the refocus (DECISIONS 29) are all delivered. Nothing left
+in code; what remains is the non-code work in the Backlog.
 
 ## In Progress
-- [ ] PR #23 (#7 report, `claude/issue-7-report` @ 1625a2a, 4 commits) — open, branched before #6: must rebase on main now that #24 merged (README conflict; its body says one README sentence must turn affirmative once notes exist). Check it carries #14's Known-limits line.
-- [ ] Pre-merge check of #23, done by the session: re-run `bomreuse evaluate` and `bomreuse run` on the branch and match every figure in README + PR body; list each deviation with pro / con / recommendation; re-run `uv run pytest` and `piv-validate`.
-- [ ] After merge: STATUS.md, DECISIONS.md with the human's approval, `archon complete <branch>`, push.
+- [ ] Not code: the email and the 40-minute case narrative — reserve time for them
 
 ## Done (current sprint)
+- [x] #7 — the static HTML report written by `bomreuse run`, README complete with Known limits; PR #23 merged — 2026-09-21
+- [x] PR #23's rebase deviations settled as-is: the report fixture runs the notes stage like the run it is compared against, README and PR-body figures recomputed (66 findings, 7 artifacts, 999 tests), the stdout flag stays as DECISIONS 34 settled it; logged as DECISIONS 36 — 2026-09-21
 - [x] #6 — notes: FR/EN keyword fallback, `gemma4:12b-mlx` adapter, link to canonical components, note-vs-BOM checks; PR #24 merged — 2026-09-21
 - [x] PR #24's four deviations settled as-is (sixth artifact, flag on all three note kinds, three catalogue rules, ARCHITECTURE.md aligned); logged as DECISIONS 34–35 — 2026-09-21
 - [x] #5 — `evaluate`: one scorer, three predictors (tool, exact reference, same name), counts beside every ratio; PR #22 merged — 2026-09-21
