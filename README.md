@@ -140,9 +140,12 @@ each of its sub-assemblies comes out
 - *specific* — neither.
 
 The threshold is two numbers in `data/dataset_spec.toml`, written before the data was generated
-and never tuned against a score. On the committed dataset the command reports **8 reused, 5
-reusable and 2 specific** of the newest variant's 15 sub-assemblies, each naming the older
-sub-assembly the answer rests on:
+and never tuned against a score. A sub-assembly whose lines the pipeline could not all read
+carries the count of them on its row — an answer resting on part of a sub-assembly is not the
+claim an answer resting on all of it makes — and no sub-assembly of the committed dataset is in
+that case. On the
+committed dataset the command reports **8 reused, 5 reusable and 2 specific** of the newest
+variant's 15 sub-assemblies, each naming the older sub-assembly the answer rests on:
 
 ```
 backtest          C (bike car, new region, designed 2025-02-17) against A, B, D, E

@@ -76,6 +76,12 @@ def signatures_of(rows: Sequence[Row]) -> dict[str, Signature]:
     return {built.sub_assembly_id: built.signature for built in build_signatures(dataset, resolution)}
 
 
+def built_of(rows: Sequence[Row]) -> dict[str, SubAssemblySignature]:
+    dataset = dataset_of(rows)
+    resolution, _ = resolve(dataset)
+    return {built.sub_assembly_id: built for built in build_signatures(dataset, resolution)}
+
+
 def expected(counts: Mapping[str, float], units: Mapping[str, str] | None = None) -> Signature:
     """The signature the raw references given should produce, keyed the way `normalize` keys them.
 
@@ -223,6 +229,46 @@ def test_two_units_for_one_part_in_one_sub_assembly_are_not_added_up() -> None:
         ]
     )
     assert signatures["A:SA0101"] == expected({"SHELL-GLUE": 2.5}, {"SHELL-GLUE": "kg"})
+
+
+# --- what the signature says it could not read -------------------------------------------------
+# A signature is compared as the *content* of a sub-assembly, so a line that reached no item of
+# it must not simply vanish: a shorter multiset is a smaller sub-assembly to `compare`, and two
+# signatures nothing could be read of are identical to it.
+
+
+def test_a_line_whose_amount_cannot_be_read_is_counted_on_the_signature_it_is_missing_from() -> None:
+    built = built_of(
+        [
+            Row("A", "SA-0101", "SHELL-ROOF", "Roof assembly", "1"),
+            Row("A", "SA-0101", "SHELL-SEAL", "Door seal", "abc"),
+        ]
+    )
+    assert components_of(built["A:SA0101"].signature) == [reference_key("SHELL-ROOF")]
+    assert built["A:SA0101"].lines_left_out == 1
+
+
+def test_a_line_resolve_places_in_no_component_is_counted_on_the_signature_it_is_missing_from() -> None:
+    """An empty reference names no component, so the row reaches no item — and the part is real."""
+    built = built_of(
+        [
+            Row("A", "SA-0101", "SHELL-ROOF", "Roof assembly", "1"),
+            Row("A", "SA-0101", "", "Door seal", "1"),
+        ]
+    )
+    assert components_of(built["A:SA0101"].signature) == [reference_key("SHELL-ROOF")]
+    assert built["A:SA0101"].lines_left_out == 1
+
+
+def test_a_sub_assembly_read_whole_leaves_nothing_out() -> None:
+    built = built_of([Row("A", "SA-0101", "SHELL-ROOF", "Roof assembly", "1"), Row("A", "SA-0101", "SHELL-SEAL", "Door seal", "1,5", "m")])
+    assert built["A:SA0101"].lines_left_out == 0
+
+
+def test_the_committed_dataset_is_read_whole(committed: tuple[NormalizedDataset, Resolution, tuple[SubAssemblySignature, ...]]) -> None:
+    """The dirt of #2 is in the references and the units, not in unreadable lines: every answer of the demo rests on all of them."""
+    _, _, signatures = committed
+    assert [built.sub_assembly_id for built in signatures if built.lines_left_out] == []
 
 
 def test_a_line_naming_no_sub_assembly_lands_in_no_signature() -> None:

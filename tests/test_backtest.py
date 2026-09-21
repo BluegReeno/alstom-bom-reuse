@@ -127,6 +127,17 @@ def test_a_specific_prediction_names_no_ancestor_and_no_diff(committed: Backtest
         assert prediction.diff is None
 
 
+def test_a_sub_assembly_nothing_could_be_read_of_is_specific_rather_than_reused() -> None:
+    """Two signatures the pipeline could read nothing into have an empty diff, and an empty diff
+    is how `compare` says *identical*. Absence of readable evidence is not evidence of identity,
+    and a false *reused* is the worst answer this tool can give (`resolve.py`).
+    """
+    rows = [Row("A", "SA-0999", "MYST-PART-A", "Mystery part A", "abc"), Row("C", "OCC-SA-0998", "MYST-PART-B", "Mystery part B", "xyz")]
+    prediction = predictions_by_id(ran(rows))["C:0CCSA0998"]
+    assert prediction.reuse_class is ReuseClass.SPECIFIC
+    assert prediction.ancestor_id == "" and prediction.diff is None
+
+
 def test_every_sub_assembly_of_the_newest_variant_gets_exactly_one_answer(committed: Backtest) -> None:
     dataset = normalize(read_raw(COMMITTED_RAW))
     target = [sub_assembly.id for sub_assembly in dataset.sub_assemblies if sub_assembly.variant_id == committed.target_variant_id]

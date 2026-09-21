@@ -458,6 +458,13 @@ class SubAssemblySignature:
 
     The designations travel with it because a reviewer opening `signatures.json` reads
     `carbody shell`, not `C:SA0101`.
+
+    `lines_left_out` counts the sub-assembly's BOM lines that reached no item of the signature,
+    and is what keeps a short signature from reading as a small sub-assembly: two signatures
+    are compared as the *content* of what they describe, so a reader — and the backtest — must
+    be able to tell a complete one from a truncated one. A false *reused* is the worst error
+    this tool can make (`resolve.py`), and absence of readable evidence is not evidence of
+    identity.
     """
 
     sub_assembly_id: str
@@ -465,6 +472,7 @@ class SubAssemblySignature:
     reference_key: str
     designations: tuple[str, ...]
     signature: Signature
+    lines_left_out: int
 
 
 class ReuseClass(StrEnum):
@@ -699,13 +707,14 @@ def backtest_from_dict(data: Any) -> Backtest:
 
 
 def _sub_assembly_signature(d: Any, where: str) -> SubAssemblySignature:
-    _check_keys(d, {"sub_assembly_id", "variant_id", "reference_key", "designations", "signature"}, where)
+    _check_keys(d, {"sub_assembly_id", "variant_id", "reference_key", "designations", "signature", "lines_left_out"}, where)
     return SubAssemblySignature(
         sub_assembly_id=_str(d["sub_assembly_id"], f"{where}.sub_assembly_id"),
         variant_id=_str(d["variant_id"], f"{where}.variant_id"),
         reference_key=_str(d["reference_key"], f"{where}.reference_key"),
         designations=_str_tuple(d["designations"], f"{where}.designations"),
         signature=_signature(d["signature"], f"{where}.signature"),
+        lines_left_out=_int(d["lines_left_out"], f"{where}.lines_left_out"),
     )
 
 

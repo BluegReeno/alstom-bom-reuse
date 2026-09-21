@@ -12,7 +12,7 @@ the one command a client would be shown — follows the same rule.
 import argparse
 import sys
 from collections import Counter
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from pathlib import Path
 
 from bomreuse.catalogue import CatalogueError
@@ -233,10 +233,12 @@ def _print_backtest(dataset: NormalizedDataset, signatures: tuple[SubAssemblySig
     print(f"  {'sub-assembly':<14}{'designation':<32}{'class':<10}{'from':<14}difference")
 
     designations = {signature.sub_assembly_id: " / ".join(signature.designations) for signature in signatures}
+    left_out = {signature.sub_assembly_id: signature.lines_left_out for signature in signatures}
     for prediction in result.predictions:
+        detail = " ".join(part for part in (_difference(prediction), _partial(prediction, left_out)) if part)
         print(
             f"  {prediction.sub_assembly_id:<14}{designations[prediction.sub_assembly_id]:<32}"
-            f"{prediction.reuse_class:<10}{prediction.ancestor_id:<14}{_difference(prediction)}".rstrip()
+            f"{prediction.reuse_class:<10}{prediction.ancestor_id:<14}{detail}".rstrip()
         )
     # Always the three lines, in the order of the A1 table: "specific 0" is an answer too.
     counted = Counter(prediction.reuse_class for prediction in result.predictions)
@@ -255,6 +257,20 @@ def _difference(prediction: Prediction) -> str:
         # Both units are printed: a component whose unit alone moved is a quantity difference too.
         + [f"{change.component} {_amount(change.left)} -> {_amount(change.right)}" for change in diff.quantity_changed]
     )
+
+
+def _partial(prediction: Prediction, left_out: Mapping[str, int]) -> str:
+    """What this answer could not see, on the row that makes it.
+
+    A line the pipeline could not read shortens a signature, and a shorter signature is a
+    smaller sub-assembly to the comparison: without this the reader cannot tell a *reused*
+    resting on the whole sub-assembly from one resting on the two lines of it that parsed. The
+    `issues` count above says how dirty the file is, not which answer is affected by it.
+    """
+    unread = left_out[prediction.sub_assembly_id] + left_out.get(prediction.ancestor_id, 0)
+    if not unread:
+        return ""
+    return f"[{unread} line{'s' if unread > 1 else ''} not read]"
 
 
 def _amount(item: SignatureItem) -> str:

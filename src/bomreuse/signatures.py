@@ -26,7 +26,7 @@ lives here.
 """
 
 import math
-from collections import defaultdict
+from collections import Counter, defaultdict
 from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import date
@@ -145,31 +145,53 @@ def build_signatures(dataset: NormalizedDataset, resolution: Resolution) -> tupl
     `auto` and `review`, and one part of a split group under `reject` (Decision 26). Taking the
     component by row rather than by key is what makes the split real: two rows sharing a key end
     up in two different signatures when the designations say they are two products.
+
+    A line the pipeline could not carry into the signature is counted rather than forgotten: a
+    row `resolve` placed in no component, and a component no line of which carries a readable
+    amount. Both shorten the multiset, and a shorter multiset is a *smaller* sub-assembly to
+    every reader of the artifact and to the comparison itself.
     """
     component_of_row = {row: component.id for component in resolution.components for row in component.rows}
     lines_by_sub_assembly: dict[str, list[BomLine]] = defaultdict(list)
+    unplaced: Counter[str] = Counter()
     for line in sorted(dataset.lines, key=lambda line: line.row_number):
-        if line.parent_id and line.row_number in component_of_row:
+        if not line.parent_id:
+            continue  # the line names no sub-assembly: it belongs to no signature to be missing from
+        if line.row_number in component_of_row:
             lines_by_sub_assembly[line.parent_id].append(line)
+        else:
+            unplaced[line.parent_id] += 1
 
-    return tuple(
-        SubAssemblySignature(
-            sub_assembly_id=sub_assembly.id,
-            variant_id=sub_assembly.variant_id,
-            reference_key=sub_assembly.reference_key,
-            designations=sub_assembly.designations,
-            signature=_signature_of(lines_by_sub_assembly[sub_assembly.id], component_of_row),
+    built = []
+    for sub_assembly in dataset.sub_assemblies:
+        signature, unreadable = _signature_of(lines_by_sub_assembly[sub_assembly.id], component_of_row)
+        built.append(
+            SubAssemblySignature(
+                sub_assembly_id=sub_assembly.id,
+                variant_id=sub_assembly.variant_id,
+                reference_key=sub_assembly.reference_key,
+                designations=sub_assembly.designations,
+                signature=signature,
+                lines_left_out=unplaced[sub_assembly.id] + unreadable,
+            )
         )
-        for sub_assembly in dataset.sub_assemblies
-    )
+    return tuple(built)
 
 
-def _signature_of(lines: list[BomLine], component_of_row: Mapping[int, str]) -> Signature:
+def _signature_of(lines: list[BomLine], component_of_row: Mapping[int, str]) -> tuple[Signature, int]:
+    """The multiset the lines carry, and how many of them reached no item of it."""
     by_component: dict[str, list[BomLine]] = defaultdict(list)
     for line in lines:
         by_component[component_of_row[line.row_number]].append(line)
-    items = (_item(component, component_lines) for component, component_lines in by_component.items())
-    return Signature.of(item for item in items if item is not None)
+    items: list[SignatureItem] = []
+    left_out = 0
+    for component, component_lines in by_component.items():
+        item = _item(component, component_lines)
+        if item is None:
+            left_out += len(component_lines)
+        else:
+            items.append(item)
+    return Signature.of(items), left_out
 
 
 def _item(component: str, lines: list[BomLine]) -> SignatureItem | None:
@@ -182,8 +204,9 @@ def _item(component: str, lines: list[BomLine]) -> SignatureItem | None:
     of the total rather than added to it: after normalization the units are SI, so two units for
     one part inside one sub-assembly is a defect for `checks.py` to report, not an amount.
 
-    `None` when no line carries a readable amount: `normalize` has already counted each of them
-    as an issue, and `bomreuse run` prints that count.
+    `None` when no line carries a readable amount. `normalize` has already counted each of them
+    as an issue, but that tally does not say *which* answer rests on less than the whole
+    sub-assembly: the caller counts the lines it lost, and the count travels with the signature.
     """
     amounts = [(line.quantity.value, line.quantity.unit) for line in lines if line.quantity.value is not None and line.quantity.unit]
     if not amounts:
@@ -244,7 +267,15 @@ def _predict(target: SubAssemblySignature, ancestors: tuple[SubAssemblySignature
     so the answer does not move with the order the ancestors happen to arrive in. Several
     ancestors usually reach it and any of them is a valid source (Decision 25): the tool names
     one, and the report of #7 is where the others would belong.
+
+    A target whose signature is empty is *specific*, never reused: two empty signatures have an
+    empty diff, and `compare` reads an empty diff as identity. Nothing was read of this
+    sub-assembly, and claiming reuse from evidence the tool does not have is the one error it
+    must not make (`resolve.py`). `lines_left_out` says on the row why the answer is that one.
     """
+    if not target.signature.items:
+        return _prediction(target, ReuseClass.SPECIFIC, ancestor_id="", diff=None)
+
     compared = [(ancestor, compare(ancestor.signature, target.signature, thresholds)) for ancestor in ancestors]
     best = min(compared, key=lambda pair: (_BEST_FIRST.index(pair[1].verdict), pair[1].diff.n_parts_diff + pair[1].diff.n_qty_diff, pair[0].sub_assembly_id), default=None)
     if best is None:

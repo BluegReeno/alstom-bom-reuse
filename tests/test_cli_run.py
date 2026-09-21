@@ -209,6 +209,24 @@ def test_a_reusable_sub_assembly_says_on_one_line_what_would_have_to_change(tmp_
             assert f"{change.component} {change.left.quantity:g} {change.left.unit} -> {change.right.quantity:g} {change.right.unit}" in line
 
 
+def test_an_answer_resting_on_less_than_the_whole_sub_assembly_says_so_on_its_row(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    """A line the pipeline could not read shortens a signature, and a shorter signature is a
+    smaller sub-assembly to the comparison. The `issues` count says how dirty the file is; this
+    says which answer is affected, so a truncated *reused* cannot read as a whole one.
+    """
+    raw, out = tmp_path / "raw", tmp_path / "out"
+    shutil.copytree(COMMITTED_RAW, raw)
+    with (raw / "bom.csv").open("a", encoding="utf-8") as handle:
+        handle.write("L99998;C;SA-0101;CARBODY SHELL;SHELL-BIKE-HOOK;Bike hook;4;bananes;Atelier Lys Métal;12,00\n")
+
+    assert main(["run", "--raw", str(raw), "--out", str(out)]) == 0
+    printed = capsys.readouterr().out
+    truncated = {signature.sub_assembly_id for signature in load_signatures(out / SIGNATURES_FILE) if signature.lines_left_out}
+    assert truncated == {"C:SA0101"}
+    line = next(line for line in printed.splitlines() if line.strip().startswith("C:SA0101 "))
+    assert "[1 line not read]" in line
+
+
 def test_a_dataset_with_no_readable_design_date_says_so_instead_of_guessing(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     """The backtest needs a chronology. Without one the run still succeeds and says what is missing."""
     raw, out = tmp_path / "raw", tmp_path / "out"

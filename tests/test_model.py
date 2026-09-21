@@ -442,6 +442,7 @@ def some_signatures() -> tuple[SubAssemblySignature, ...]:
             reference_key="SA0101",
             designations=("carbody shell",),
             signature=Signature.from_counts({"SHE11R00F": 1.0, "SHE11SEA1": 1.5}, {"SHE11SEA1": "m"}),
+            lines_left_out=0,
         ),
         SubAssemblySignature(
             sub_assembly_id="C:0CCSA0101",
@@ -449,6 +450,7 @@ def some_signatures() -> tuple[SubAssemblySignature, ...]:
             reference_key="0CCSA0101",
             designations=("carbody shell", "carbody shell, welded"),
             signature=Signature.from_counts({"SHE11R00F": 1.0}),
+            lines_left_out=2,
         ),
     )
 
@@ -488,6 +490,7 @@ def test_signatures_written_and_read_back_are_the_same_signatures(tmp_path: Path
     restored = load_signatures(path)
     assert restored == some_signatures()
     assert isinstance(restored[0].signature.items, tuple)
+    assert (restored[0].lines_left_out, restored[1].lines_left_out) == (0, 2)
 
 
 def test_a_backtest_written_and_read_back_is_the_same_backtest(tmp_path: Path) -> None:
@@ -519,6 +522,7 @@ def test_a_signature_naming_one_component_twice_is_refused_at_reading() -> None:
         ("signatures.0.signature.items.0.quantity", None, r"signatures\[0\]\.signature\.items\[0\]\.quantity must be a number, got null"),
         ("signatures.0.signature.items.0.unit", 1, r"signatures\[0\]\.signature\.items\[0\]\.unit must be a string, got int"),
         ("signatures.0.designations", "carbody shell", r"signatures\[0\]\.designations must be an array of strings, got str"),
+        ("signatures.0.lines_left_out", None, r"signatures\[0\]\.lines_left_out must be an integer, got NoneType"),
     ],
 )
 def test_a_wrong_leaf_of_the_signatures_is_refused_and_named(path: str, value: Any, message: str) -> None:
