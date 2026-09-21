@@ -158,7 +158,7 @@ flowchart LR
   threshold in `data/dataset_spec.toml` allows two differences for a six-part sub-assembly, so
   the verdict is *reusable*, with its diff.
 - **The two naive searches fail in opposite directions.** The exact reference finds nothing and
-  answers *new*; the designation finds a *reused* that is not one — the error that costs money.
+  answers *new*; the designation finds a *reused* that is not one.
 - **The dashed box is what the offline run cannot compute.** N013 is written in French, and writes
   the replaced part as `BIKE STRAP` — a space where a hyphen makes a reference, and no digit to
   save it — so the keyword reader finds the French cue (*est remplacé par*, "is replaced by") and
@@ -439,13 +439,12 @@ same-name search 9.
 - **The tool** is the only one of the three that answers *reusable* at all, with the exact diff
   on every one of the 4 (4/4), and the only one that finds both genuinely new sub-assemblies
   (2/2) instead of inventing an ancestor for them.
-- **Its one miss** is honest and worth keeping: `OCC-SA-0309`, floor and wall panels, is a
-  *reused* sub-assembly reported as *reusable*. Variant C spells one of its parts
+- **Its one miss**: `OCC-SA-0309`, floor and wall panels, is a *reused* sub-assembly reported
+  as *reusable*. Variant C spells one of its parts
   `SEAT-FIX-KIT-447` where every other variant writes `SEAT-FIX-KIT-4471`, a dropped character no
   folding rule can reach and no string distance is allowed to guess at. The engineer is still
-  pointed at the right older sub-assembly, with a one-part difference to check — which is what
-  *reusable* means. Closing that gap would mean fuzzy matching, and a false *reused* is the worst
-  error this tool can make.
+  pointed at the right older sub-assembly, with a one-part difference to check. Closing that gap
+  would mean fuzzy matching, which the tool refuses: see **Known limits**.
 
 No threshold was moved to produce these figures, and there is no regression floor in this build:
 `evaluate` prints them and this section quotes them (DECISIONS.md 17, 29).
