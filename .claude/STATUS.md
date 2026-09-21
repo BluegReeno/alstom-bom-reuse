@@ -3,13 +3,12 @@
 Last updated: 2026-09-21
 
 ## Current Focus
-Code and README done (PR #25 the last). Now the deck, in a new session, then the email tonight.
+Build complete for the case: code, report and README done, final review applied. Nothing in progress.
 
 ## In Progress
-- [ ] Deck: rewrite slide 10, add a demo slide, fix slides 8, 9 and 11 — in a new session
-- [ ] Email tonight, one measured figure only: 14/15 for the tool against 6/15 for the exact-reference search
 
 ## Done (current sprint)
+- [x] Final review before delivery: the HTML report flags the parts a note speaks against, by the rule stdout uses (`checks.flagged_parts`, DECISIONS 34); README excerpt and Known limits corrected; lint clean — 2026-09-21
 - [x] README: status line set to scouting prototype, What's next section added — 2026-09-21
 - [x] README: the entity model and the bike module followed through (two Mermaid diagrams), N013's shape added to Known limits; PR #25 merged, follow-up to #7 — 2026-09-21
 - [x] #7 — the static HTML report written by `bomreuse run`, README complete with Known limits; PR #23 merged — 2026-09-21
@@ -30,4 +29,5 @@ Code and README done (PR #25 the last). Now the deck, in a new session, then the
 - [x] `docs/ARCHITECTURE.md`, `docs/PRD.md`, `README.md` aligned with the refocus — 2026-09-21
 
 ## Backlog
-- [ ] The 40-minute case narrative
+- [ ] Docs pass: stale lines of `docs/ARCHITECTURE.md`, `normalize.py` and `piv-validate` left by the refocus (DECISIONS 29)
+- [ ] Split `model.py` into types and the JSON round-trip; read each artifact once in `cli._run`
