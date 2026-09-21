@@ -19,7 +19,9 @@ carries that rule's confidence, and cites the rows it was read from. It is asser
 `bomreuse run` writes, not on the objects behind it, because the file is what a reviewer opens.
 
 The runtime tests run `bomreuse run` — the whole pipeline — so a stage added later is covered
-without anyone remembering to add it here; the static one covers new modules by itself.
+without anyone remembering to add it here; the static one covers new modules by itself. The
+artifacts they read are `model.RUN_ARTIFACTS`, never a second list: an artifact a later issue
+adds must not be able to appear outside the determinism and read-only checks.
 """
 
 import ast
@@ -34,7 +36,7 @@ from pathlib import Path
 import pytest
 
 from bomreuse.cli import main
-from bomreuse.model import FINDINGS_FILE, NORMALIZED_FILE, RESOLUTION_FILE, load_findings
+from bomreuse.model import FINDINGS_FILE, RUN_ARTIFACTS, load_findings
 from bomreuse.rules import CATALOGUE
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -256,7 +258,7 @@ def test_the_pipeline_runs_where_no_ground_truth_exists(tmp_path: Path, monkeypa
     assert not [path for path in tmp_path.rglob("*") if _MENTION.search(path.name)]
 
     assert main(["run", "--raw", "raw", "--out", "out"]) == 0
-    assert sorted(path.name for path in out.iterdir()) == sorted([FINDINGS_FILE, NORMALIZED_FILE, RESOLUTION_FILE])
+    assert sorted(path.name for path in out.iterdir()) == sorted(RUN_ARTIFACTS)
 
 
 #: Paths opened while the list is armed. An audit hook cannot be removed once added, so it is
@@ -297,7 +299,7 @@ def test_a_decoy_beside_the_raw_files_changes_nothing_and_is_never_opened(tmp_pa
             _ARMED.clear()
         assert [path for path in _OPENED if path.endswith("bom.csv")], "the hook sees what the run opens"
         assert [path for path in _OPENED if _MENTION.search(path)] == []
-        artifacts[name] = [(tmp_path / name / "out" / artifact).read_bytes() for artifact in (NORMALIZED_FILE, RESOLUTION_FILE, FINDINGS_FILE)]
+        artifacts[name] = [(tmp_path / name / "out" / artifact).read_bytes() for artifact in RUN_ARTIFACTS]
 
     assert artifacts["with"] == artifacts["without"]
     assert snapshot(decoy) == before
@@ -346,7 +348,7 @@ def test_every_finding_the_pipeline_writes_carries_its_rows_its_rule_and_a_confi
 # --- determinism -----------------------------------------------------------------------------------
 
 
-@pytest.mark.parametrize("artifact", [NORMALIZED_FILE, RESOLUTION_FILE, FINDINGS_FILE])
+@pytest.mark.parametrize("artifact", RUN_ARTIFACTS)
 def test_the_artifacts_are_byte_identical_across_processes(tmp_path: Path, artifact: str) -> None:
     """Two interpreters with different hash seeds: this is the test that catches an iterated `set`."""
     written = []

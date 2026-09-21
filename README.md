@@ -98,15 +98,17 @@ issue; a file that does not have the expected structure stops the run. `--out` m
 read-only. A component here is a *candidate group* — every reference sharing one key — not yet a
 resolved component.
 
-Resolve the references and write the findings — the whole pipeline, offline:
+Answer the question — the whole pipeline, offline:
 
 ```bash
 uv run bomreuse run --raw data/raw --out out
 ```
 
-This is the command a client would be shown. It normalizes the raw files, then decides which
-references are the same component, and writes `out/normalized.json`, `out/resolution.json` and
-`out/findings.json`. Same rule on the paths: `--out` may not be inside `--raw`.
+This is the command a client would be shown. It normalizes the raw files, decides which
+references are the same component, builds the signature of every sub-assembly and plays the
+newest variant as a new tender; it prints the answer as a table and writes
+`out/normalized.json`, `out/resolution.json`, `out/findings.json`, `out/signatures.json` and
+`out/predictions.json`. Same rule on the paths: `--out` may not be inside `--raw`.
 
 Two references become one component when the stated foldings give them the same key —
 uppercase, then `O`→`0`, `I`→`1`, `L`→`1`, then non-alphanumerics dropped. **There is no
@@ -125,8 +127,39 @@ components — 144 *auto*, 13 *review*, 3 *reject* — and 31 findings. Every fi
 rule that produced it, the confidence that rule declares, and the rows of `bom.csv` it was read
 from.
 
-The rest of the pipeline is to be written during the build: the signatures and the backtest
-predictions, the unit, supplier and cost checks, `evaluate`, the notes, and the HTML report.
+### The backtest, on stdout
+
+The signature of a sub-assembly is the multiset of *(canonical component, normalized quantity,
+SI unit)* it contains, built on every merged group — `auto` and `review` alike, since a part
+whose supplier or cost moves between variants is still that part; only a `reject` splits one.
+The newest variant then plays the new tender: given **only the variants designed before it**,
+each of its sub-assemblies comes out
+
+- *reused* — an older signature is identical;
+- *reusable* — an older signature is within the threshold, and the exact diff is shown;
+- *specific* — neither.
+
+The threshold is two numbers in `data/dataset_spec.toml`, written before the data was generated
+and never tuned against a score; `run` reads them from `--spec`, which defaults to that
+committed file. A sub-assembly whose lines the pipeline could not all read carries the count of
+them on its row — an answer resting on part of a sub-assembly is not the claim an answer resting
+on all of it makes — and no sub-assembly of the committed dataset is in that case. On the
+committed dataset the command reports **8 reused, 5 reusable and 2 specific** of the newest
+variant's 15 sub-assemblies, each naming the older sub-assembly the answer rests on:
+
+```
+backtest          C (bike car, new region, designed 2025-02-17) against A, B, D, E
+  sub-assembly  designation                     class     from          difference
+  C:0CCSA0315   bike module                     reusable  B:SA0215      B1KEH00K 8 pcs -> 6 pcs, B1KESTRAP 8 pcs -> 6 pcs
+  C:0CCSA0314   floor and wall anchorage        specific
+  C:SA0101      carbody shell                   reused    A:SA0101
+```
+
+Those counts are what the tool *finds*; how many of them are right, and how a naive
+exact-reference search does on the same data, is `evaluate`'s answer and is not written yet.
+
+The rest of the pipeline is to be written during the build: the unit, supplier and cost checks,
+`evaluate`, the notes, and the HTML report.
 
 ## Results
 

@@ -106,3 +106,6 @@ from A and B, the bike module reused from B, only the anchorage new.
   canonical components by the inherited key, rules only, with an `auto / review / reject`
   verdict on the coherence of each group; findings carry their rows, their rule and its
   confidence.
+- 2026-09-21 — signatures and the backtest (#16): every sub-assembly gets its signature over
+  the canonical components, and `bomreuse run` prints the newest variant's sub-assemblies as
+  *reused*, *reusable* with their diff, or *specific*, against the variants designed before it.
