@@ -24,6 +24,11 @@ from bomreuse.model import RawBomRow, RawDataset, RawNoteRow, RawVariantRow
 #: `;` is what a French ERP exports, and it lets a decimal comma live unquoted (DECISIONS.md 24).
 DELIMITER: Final[str] = ";"
 
+#: Where the committed raw files live. A default for `evaluate`, the way `spec.DEFAULT_SPEC_PATH`
+#: is one for the contract: `normalize` and `run` still take the directory as a required argument,
+#: and no function of this module has it as a default.
+DEFAULT_RAW_DIR: Final[Path] = Path(__file__).resolve().parents[2] / "data" / "raw"
+
 VARIANTS_FILE: Final[str] = "variants.csv"
 BOM_FILE: Final[str] = "bom.csv"
 NOTES_FILE: Final[str] = "notes.csv"
