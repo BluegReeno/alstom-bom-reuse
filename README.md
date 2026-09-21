@@ -224,6 +224,47 @@ and `spec`, which loads `data/dataset_spec.toml`. The generator reads the whole 
 reads only its two reuse thresholds, so that the planted cases and the classifier use one
 definition. `report` also calls `baseline`, to set the tool's answer beside the naive ones.
 
+## Maintaining it
+
+Every setting the tool classifies by lives in one place, and a test fails if a change goes
+around it.
+
+### Where the current thresholds and rules live
+
+| To change… | Edit | What holds the line |
+| --- | --- | --- |
+| The reuse tolerance: how far a sub-assembly may drift and still be `reusable` | `data/dataset_spec.toml`, `[thresholds]`: `max_abs_diff`, `diff_ratio`. `run --spec` reads another file | DECISIONS.md 17: never tuned against a score |
+| A rule, its description or its confidence | `src/bomreuse/rules.py`: the catalogue, one `Rule` per id, and `CATALOGUE_VERSION` | `tests/test_rules.py` names every rule and holds the confidence ladder |
+| How two references are recognised as one | `src/bomreuse/normalize.py`: `reference_key` and its `O→0, I→1, L→1` folding | `tests/test_normalize.py` |
+| The units read, and their conversion | `src/bomreuse/normalize.py`: `UNITS`, one line per raw unit | `tests/test_normalize.py` |
+| The keywords that read the notes (FR/EN) | `src/bomreuse/notes.py`: `_CUES`, one list per kind of fact | `tests/test_notes_fallback.py` |
+| The model that reads the notes, and its prompt | `src/bomreuse/notes.py`: `PROMPT`, `DEFAULT_MODEL`; `run --notes-model` picks another | `tests/test_notes_model.py`, with a fake backend: no test calls a model |
+
+### How to add a feature
+
+A new check on the data, for instance, takes two edits and a test:
+
+1. **Declare the rule** in `rules.py`: an id, a description, a constant confidence on the
+   ladder the module docstring sets out. Add it; never redefine an entry already there — bump
+   `CATALOGUE_VERSION` if a rule's meaning or confidence changes.
+2. **Emit it** from `checks.py`, through `rule.finding(...)` — the only way a finding is built,
+   so it always carries its rule id, its confidence and its source rows. A conflict on another
+   attribute of a component is one more line in `_CHECKS`.
+3. **Nothing to wire in the report**: it describes every rule from the catalogue.
+4. **Test it** in `tests/`, in the same commit.
+
+Then `uv run pytest`. Beyond the unit tests, the invariants of `tests/test_pipeline_invariants.py`
+fail if a module of the pipeline — a new one included — reads the ground truth, if a run changes
+its input files, or if a finding lacks its rows, a rule from the catalogue or a confidence.
+
+The same holds for the other extension points: a second note reader implements the `NoteReader`
+protocol of `notes.py`, a second model the `Backend` one; a real PLM/ERP export is mapped onto
+the three files of `data/raw/` before `ingest` (**On your own files**, below).
+
+Each stage of the tool was built the same way, and a new feature can follow it: one GitHub issue
+with its acceptance criteria written first (#4, #16, #17, #5, #6, #7), one pull request per issue
+(#19 to #24). `.claude/RUN-PROCEDURE.md` is the checklist.
+
 ## How to run
 
 Python 3.12 and [`uv`](https://docs.astral.sh/uv/). From a fresh clone, end to end:
@@ -240,7 +281,7 @@ Then open `out/report.html` in a browser — one self-contained file, no server,
 
 `uv sync` installs the pinned dependencies of `uv.lock`, which needs a package index or a warm
 `uv` cache; **everything after it runs with no network at all**. Checked on a clean clone:
-`uv sync --frozen --offline`, then the whole pipeline offline, then `uv run pytest` — 1004 tests
+`uv sync --frozen --offline`, then the whole pipeline offline, then `uv run pytest` — 1006 tests
 green in under 10 s of the 30 s budget — and an `out/report.html` byte-identical to the one the
 working tree produces.
 

@@ -1,6 +1,6 @@
 # STATUS — alstom-bom-reuse
 
-Last updated: 2026-09-21
+Last updated: 2026-09-22
 
 ## Current Focus
 Build complete for the case: code, report and README done, final review applied. Nothing in progress.
@@ -8,6 +8,7 @@ Build complete for the case: code, report and README done, final review applied.
 ## In Progress
 
 ## Done (current sprint)
+- [x] README: `Maintaining it` section — where the thresholds and rules live, how to add a check, the tests that hold the line; linked from the deck's maintain slide; test count corrected to 1006; follow-up to #7 — 2026-09-22
 - [x] Notes prompt: the answer's shape spelled out (an Ollama cloud model ignores `format`), empty list, replacement direction and words-are-not-references rules; schema field descriptions; manual measurement of keyword vs `gemma4:12b-mlx` vs `glm-5.3-flash:cloud` in the README, labelled as one; follow-up to #6 — 2026-09-21
 - [x] README trimmed from 649 to 528 lines: How to run said once, Known limits kept to what limits the tool, the N031 stdout excerpt corrected to what `run` prints; follow-up to #7 — 2026-09-21
 - [x] #26 — `model.py` split by a pure move: the types stay (565 lines), the JSON round-trip and the artifact names go to `artifacts.py` (615); artifacts, stdout and `evaluate` byte-identical to `main` — 2026-09-21
